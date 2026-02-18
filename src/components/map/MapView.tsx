@@ -59,6 +59,7 @@ function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
   const { setViewport, selectedLocationId } = useMapStore();
   const [satelliteMap] = useLocalStorage("scooped:satelliteMap", false);
   const [webglSupported, setWebglSupported] = useState(true);
+  const hasCenteredOnUser = useRef(false);
 
   // Check WebGL support before rendering map
   useEffect(() => {
@@ -72,6 +73,18 @@ function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
       setWebglSupported(false);
     }
   }, []);
+
+  // Fly to user position when it becomes available (after async geolocation)
+  useEffect(() => {
+    if (userPosition && !hasCenteredOnUser.current && mapRef.current) {
+      hasCenteredOnUser.current = true;
+      mapRef.current.flyTo({
+        center: [userPosition.longitude, userPosition.latitude],
+        zoom: DEFAULT_ZOOM,
+        duration: 1500,
+      });
+    }
+  }, [userPosition]);
 
   const handleMove = useCallback(
     (evt: ViewStateChangeEvent) => {
@@ -87,6 +100,11 @@ function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
   const initialViewState = userPosition
     ? { ...userPosition, zoom: DEFAULT_ZOOM }
     : { ...DEFAULT_CENTER, zoom: DEFAULT_ZOOM };
+
+  // If we already have user position at mount time, mark as centered
+  if (userPosition && !hasCenteredOnUser.current) {
+    hasCenteredOnUser.current = true;
+  }
 
   if (!webglSupported) {
     return <MapFallback locations={locations} onMarkerClick={onMarkerClick} />;

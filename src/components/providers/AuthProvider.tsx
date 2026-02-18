@@ -55,14 +55,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const upsertProfile = useCallback(
     async (authUser: User) => {
       const displayName =
+        authUser.user_metadata?.display_name ||
         authUser.user_metadata?.full_name ||
         authUser.user_metadata?.name ||
         authUser.email?.split("@")[0] ||
         "User";
 
-      const username =
+      const avatarUrl =
+        authUser.user_metadata?.avatar_url ||
+        authUser.user_metadata?.picture ||
+        null;
+
+      let username =
         authUser.user_metadata?.preferred_username ||
+        authUser.user_metadata?.username ||
         displayName.toLowerCase().replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "");
+
+      // Ensure username is at least 3 chars
+      if (username.length < 3) {
+        username = "user_" + authUser.id.replace(/-/g, "").slice(0, 12);
+      }
 
       const { data, error } = await supabase
         .from("profiles")
@@ -71,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: authUser.id,
             username,
             display_name: displayName,
-            avatar_url: authUser.user_metadata?.avatar_url || null,
+            avatar_url: avatarUrl,
           },
           { onConflict: "id", ignoreDuplicates: true }
         )
@@ -80,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error("Error upserting profile:", error);
-        // If upsert failed due to username conflict, try fetching the existing profile
+        // DB trigger may have already created the profile — fetch it
         return fetchProfile(authUser.id);
       }
 

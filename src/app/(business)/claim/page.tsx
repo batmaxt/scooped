@@ -35,7 +35,8 @@ function NotLoggedIn() {
       <Link href="/login">
         <Button
           size="lg"
-          className="gap-2 bg-pink-500 hover:bg-pink-600 text-white"
+          variant="brand"
+          className="gap-2"
         >
           <LogIn className="size-4" />
           Sign In or Sign Up
@@ -180,7 +181,7 @@ function ClaimFormInner() {
         </p>
         {status === "approved" ? (
           <Link href="/dashboard">
-            <Button className="bg-pink-500 hover:bg-pink-600 text-white">
+            <Button variant="brand">
               Go to Dashboard
             </Button>
           </Link>
@@ -329,7 +330,8 @@ function ClaimFormInner() {
         <Button
           onClick={() => claimMutation.mutate()}
           disabled={!canSubmit || claimMutation.isPending}
-          className="w-full h-12 text-base rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold gap-2"
+          variant="brand-gradient"
+          className="w-full h-12 text-base rounded-xl gap-2"
         >
           {claimMutation.isPending ? (
             <Loader2 className="size-5 animate-spin" />

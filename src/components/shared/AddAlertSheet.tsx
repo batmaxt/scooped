@@ -215,7 +215,8 @@ export function AddAlertSheet({
           <Button
             onClick={() => createMutation.mutate()}
             disabled={!selectedId || createMutation.isPending}
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="w-full"
           >
             {createMutation.isPending ? (
               <Loader2 className="size-4 animate-spin mr-2" />

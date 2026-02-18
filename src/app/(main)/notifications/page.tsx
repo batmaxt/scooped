@@ -46,9 +46,9 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-white pb-20">
+    <div className="min-h-dvh bg-white dark:bg-background pb-20 animate-in fade-in duration-200">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-neutral-100">
+      <header className="sticky top-0 z-10 bg-gradient-to-r from-pink-50 via-white to-amber-50/40 dark:from-rose-950/20 dark:via-background dark:to-background backdrop-blur-md border-b border-pink-100/50 dark:border-white/5">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-3">
             <Link
@@ -93,8 +93,8 @@ export default function NotificationsPage() {
         </div>
       ) : !notifications || notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-          <div className="rounded-full bg-neutral-100 p-5 mb-4">
-            <Bell className="size-8 text-neutral-300" />
+          <div className="rounded-full bg-neutral-100 dark:bg-neutral-800 p-5 mb-4">
+            <Bell className="size-8 text-neutral-300 dark:text-neutral-600" />
           </div>
           <h3 className="font-semibold mb-1">No notifications yet</h3>
           <p className="text-sm text-muted-foreground max-w-[240px]">
@@ -103,7 +103,7 @@ export default function NotificationsPage() {
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-neutral-100">
+        <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
           {notifications.map((notification) => (
             <NotificationRow
               key={notification.id}

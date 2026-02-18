@@ -35,7 +35,7 @@ const PAGE_SIZE = 20;
 function NotLoggedIn() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center">
-      <div className="rounded-full bg-pink-50 p-5 mb-5">
+      <div className="rounded-full bg-pink-50 dark:bg-rose-900/20 p-5 mb-5">
         <Newspaper className="size-10 text-pink-400" />
       </div>
       <h2 className="text-xl font-bold mb-2">Your Feed</h2>
@@ -46,7 +46,8 @@ function NotLoggedIn() {
       <Link href="/login">
         <Button
           size="lg"
-          className="gap-2 bg-pink-500 hover:bg-pink-600 text-white"
+          variant="brand"
+          className="gap-2"
         >
           <LogIn className="size-4" />
           Sign In or Sign Up
@@ -63,7 +64,7 @@ function NotLoggedIn() {
 function EmptyFeed() {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-      <div className="rounded-full bg-pink-50 p-5 mb-5">
+      <div className="rounded-full bg-pink-50 dark:bg-rose-900/20 p-5 mb-5">
         <Users className="size-10 text-pink-300" />
       </div>
       <h2 className="text-lg font-bold mb-2">Your feed is empty</h2>
@@ -85,7 +86,8 @@ function EmptyFeed() {
         <Link href="/checkin/new">
           <Button
             size="sm"
-            className="gap-1.5 bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="gap-1.5"
           >
             Check In
           </Button>
@@ -109,7 +111,7 @@ function UserSearchOverlay({ onClose }: { onClose: () => void }) {
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-white animate-in fade-in slide-in-from-top-2 duration-200">
+    <div className="fixed inset-0 z-50 bg-white dark:bg-background animate-in fade-in slide-in-from-top-2 duration-200">
       <div className="flex items-center gap-3 px-4 py-3 border-b">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-400" />
@@ -243,11 +245,11 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-50 pb-20">
+    <div className="min-h-dvh bg-neutral-50 dark:bg-background pb-20 animate-in fade-in duration-200">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b px-4 py-3">
+      <div className="sticky top-0 z-30 bg-gradient-to-r from-pink-50 via-white to-amber-50/40 dark:from-rose-950/20 dark:via-background dark:to-background backdrop-blur-sm border-b border-pink-100/50 dark:border-white/5 px-4 py-3">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold">Feed</h1>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-transparent">Feed</h1>
           <div className="flex items-center gap-1">
             <Link
               href="/notifications"

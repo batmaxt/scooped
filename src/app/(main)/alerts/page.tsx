@@ -100,7 +100,7 @@ function AlertRow({
             <button
               type="button"
               onClick={() => onDelete(alert.id)}
-              className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors"
+              className="p-2.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors"
             >
               <Trash2 className="size-4" />
             </button>
@@ -168,7 +168,8 @@ export default function AlertsPage() {
         <Link href="/login">
           <Button
             size="lg"
-            className="gap-2 bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="gap-2"
           >
             Sign In
           </Button>
@@ -178,9 +179,9 @@ export default function AlertsPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-50 pb-20">
+    <div className="min-h-dvh bg-neutral-50 dark:bg-background pb-20 animate-in fade-in duration-200">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-neutral-100">
+      <header className="sticky top-0 z-10 bg-gradient-to-r from-orange-50 via-white to-amber-50/40 dark:from-amber-950/15 dark:via-background dark:to-background backdrop-blur-md border-b border-orange-100/50 dark:border-white/5">
         <div className="flex items-center gap-3 px-4 h-14">
           <Link
             href="/settings"
@@ -188,13 +189,13 @@ export default function AlertsPage() {
           >
             <ArrowLeft className="size-5" />
           </Link>
-          <h1 className="text-base font-semibold">Flavor Alerts</h1>
+          <h1 className="text-base font-semibold bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">Flavor Alerts</h1>
         </div>
       </header>
 
       <div className="px-4 py-5 space-y-4">
         {/* Info card */}
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-xl p-4">
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/20 border border-orange-100 dark:border-orange-900/50 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <BellRing className="size-5 text-orange-500 mt-0.5 shrink-0" />
             <div>
@@ -214,8 +215,8 @@ export default function AlertsPage() {
           ))
         ) : alerts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="rounded-full bg-neutral-100 p-5 mb-4">
-              <BellRing className="size-8 text-neutral-300" />
+            <div className="rounded-full bg-neutral-100 dark:bg-neutral-800 p-5 mb-4">
+              <BellRing className="size-8 text-neutral-300 dark:text-neutral-600" />
             </div>
             <h3 className="font-semibold mb-1">No alerts yet</h3>
             <p className="text-sm text-muted-foreground max-w-xs mb-6">
@@ -224,7 +225,8 @@ export default function AlertsPage() {
             </p>
             <Button
               onClick={() => setSheetOpen(true)}
-              className="gap-2 bg-pink-500 hover:bg-pink-600 text-white"
+              variant="brand"
+              className="gap-2"
             >
               <Plus className="size-4" />
               Add Your First Alert
@@ -246,7 +248,8 @@ export default function AlertsPage() {
             {/* Add alert button */}
             <Button
               onClick={() => setSheetOpen(true)}
-              className="w-full h-12 text-base rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold gap-2"
+              variant="brand-gradient"
+              className="w-full h-12 text-base rounded-xl gap-2"
             >
               <Plus className="size-5" />
               Add Alert

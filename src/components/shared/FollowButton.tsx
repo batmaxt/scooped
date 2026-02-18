@@ -95,7 +95,8 @@ export function FollowButton({ targetUserId, className }: FollowButtonProps) {
       size="sm"
       onClick={() => followMutation.mutate()}
       disabled={isPending}
-      className={`bg-pink-500 hover:bg-pink-600 text-white ${className || ""}`}
+      variant="brand"
+      className={className || ""}
     >
       <UserPlus className="size-4 mr-1" />
       Follow

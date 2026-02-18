@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   IceCreamCone,
   MapPin,
@@ -14,11 +14,12 @@ import {
   Clock,
   LogIn,
   Loader2,
+  Camera,
 } from "lucide-react";
 
 import { useAuth } from "@/components/providers/AuthProvider";
 import { fetchUserCheckins } from "@/queries/checkins";
-import { updateProfile } from "@/queries/social";
+import { updateProfile, uploadAvatar } from "@/queries/social";
 import { BadgeGrid } from "@/components/shared/BadgeGrid";
 import { ListsTab } from "@/components/shared/ListsTab";
 
@@ -76,7 +77,7 @@ function LoggedOutPrompt() {
         and build your scooping profile.
       </p>
       <Link href="/login">
-        <Button size="lg" className="gap-2 bg-pink-500 hover:bg-pink-600 text-white">
+        <Button size="lg" variant="brand" className="gap-2">
           <LogIn className="size-4" />
           Sign In or Sign Up
         </Button>
@@ -127,18 +128,21 @@ function CheckinCard({ checkin }: { checkin: Checkin }) {
   const primaryRating = checkin.flavor_rating || checkin.location_rating || 0;
 
   return (
-    <Card className="gap-0 py-0 overflow-hidden">
+    <Card className="gap-0 py-0 overflow-hidden border-0 elevation-1">
+      <div className="h-0.5 bg-gradient-to-r from-pink-300 via-rose-300 to-amber-200" />
       <CardContent className="px-4 py-4 space-y-2.5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <MapPin className="size-3.5 text-pink-400 shrink-0" />
+              <div className="flex items-center justify-center size-5 rounded-full bg-pink-50 shrink-0">
+                <MapPin className="size-3 text-pink-400" />
+              </div>
               <span className="font-semibold text-sm truncate">
                 {locationName}
               </span>
             </div>
             {cityState && (
-              <p className="text-xs text-muted-foreground ml-5">{cityState}</p>
+              <p className="text-xs text-muted-foreground ml-6">{cityState}</p>
             )}
           </div>
           <span className="text-xs text-muted-foreground whitespace-nowrap flex items-center gap-1">
@@ -165,6 +169,17 @@ function CheckinCard({ checkin }: { checkin: Checkin }) {
         )}
 
         {primaryRating > 0 && <StarRatingDisplay rating={primaryRating} />}
+
+        {checkin.photo_url && (
+          <div className="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 -mx-1">
+            <img
+              src={checkin.photo_url}
+              alt="Check-in photo"
+              loading="lazy"
+              className="w-full max-h-48 object-cover"
+            />
+          </div>
+        )}
 
         {checkin.notes && (
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -258,6 +273,7 @@ function EditProfileSheet({
   currentDisplayName,
   currentBio,
   currentFavoriteFlavor,
+  currentAvatarUrl,
   userId,
 }: {
   open: boolean;
@@ -265,25 +281,63 @@ function EditProfileSheet({
   currentDisplayName: string;
   currentBio: string;
   currentFavoriteFlavor: string;
+  currentAvatarUrl: string;
   userId: string;
 }) {
   const [displayName, setDisplayName] = useState(currentDisplayName);
   const [bio, setBio] = useState(currentBio);
   const [favoriteFlavor, setFavoriteFlavor] = useState(currentFavoriteFlavor);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { refreshProfile } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Max 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be under 5MB");
+      return;
+    }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
 
   const mutation = useMutation({
-    mutationFn: () =>
-      updateProfile(userId, {
+    mutationFn: async () => {
+      let avatarUrl: string | undefined;
+
+      // Upload avatar first if there's a new one
+      if (avatarFile) {
+        setUploadingAvatar(true);
+        avatarUrl = await uploadAvatar(userId, avatarFile);
+        setUploadingAvatar(false);
+      }
+
+      return updateProfile(userId, {
         display_name: displayName.trim() || undefined,
         bio: bio.trim() || undefined,
         favorite_flavor: favoriteFlavor.trim() || undefined,
-      }),
+        ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+      });
+    },
     onSuccess: async () => {
       await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      setAvatarFile(null);
+      setAvatarPreview(null);
       onOpenChange(false);
     },
+    onError: () => {
+      setUploadingAvatar(false);
+    },
   });
+
+  const initials = getInitials(currentDisplayName || "?");
+  const displayAvatarUrl = avatarPreview || currentAvatarUrl;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -292,6 +346,35 @@ function EditProfileSheet({
           <SheetTitle>Edit Profile</SheetTitle>
         </SheetHeader>
         <div className="space-y-4 py-4">
+          {/* Avatar picker */}
+          <div className="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="relative group"
+            >
+              <Avatar className="size-20 ring-4 ring-neutral-100">
+                {displayAvatarUrl && (
+                  <AvatarImage src={displayAvatarUrl} alt="Profile photo" />
+                )}
+                <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-xl font-bold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity">
+                <Camera className="size-6 text-white" />
+              </div>
+            </button>
+            <span className="text-xs text-muted-foreground">Tap to change photo</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="displayName">Display Name</Label>
             <Input
@@ -323,12 +406,17 @@ function EditProfileSheet({
           <Button
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending}
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="w-full"
           >
             {mutation.isPending ? (
-              <Loader2 className="size-4 animate-spin mr-2" />
-            ) : null}
-            Save Changes
+              <>
+                <Loader2 className="size-4 animate-spin mr-2" />
+                {uploadingAvatar ? "Uploading photo..." : "Saving..."}
+              </>
+            ) : (
+              "Save Changes"
+            )}
           </Button>
           {mutation.isError && (
             <p className="text-xs text-red-500 text-center">
@@ -356,8 +444,8 @@ function StatItem({
 }) {
   const content = (
     <div className="flex flex-col items-center">
-      <span className="text-lg font-bold text-foreground">{value}</span>
-      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-xl font-bold text-foreground">{value}</span>
+      <span className="text-[11px] text-muted-foreground uppercase tracking-wide">{label}</span>
     </div>
   );
 
@@ -389,31 +477,36 @@ export default function ProfilePage() {
   if (!user || !profile) return <LoggedOutPrompt />;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-pink-50/60 via-white to-white">
-      {/* Header */}
-      <header className="relative px-4 pt-8 pb-6">
-        <div className="absolute top-4 right-4">
+    <div className="min-h-dvh bg-white dark:bg-background">
+      {/* Hero header with gradient */}
+      <header className="relative">
+        {/* Background gradient */}
+        <div className="absolute inset-0 h-44 bg-gradient-to-br from-pink-400 via-rose-400 to-amber-300 dark:from-rose-500/50 dark:via-pink-600/30 dark:to-amber-500/20" />
+        <div className="absolute inset-0 h-44 bg-gradient-to-t from-white dark:from-background via-transparent to-transparent" />
+
+        {/* Settings button */}
+        <div className="absolute top-4 right-4 z-10">
           <Link href="/settings">
-            <Button variant="ghost" size="icon" aria-label="Settings">
-              <Settings className="size-5 text-muted-foreground" />
+            <Button variant="ghost" size="icon" aria-label="Settings" className="bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white">
+              <Settings className="size-5" />
             </Button>
           </Link>
         </div>
 
-        <div className="flex flex-col items-center text-center">
-          <Avatar className="size-20 ring-4 ring-white shadow-md mb-3">
+        <div className="relative flex flex-col items-center text-center px-4 pt-12 pb-6">
+          <Avatar className="size-24 ring-4 ring-white dark:ring-background shadow-lg mb-3">
             {profile.avatar_url && (
               <AvatarImage
                 src={profile.avatar_url}
                 alt={profile.display_name || profile.username}
               />
             )}
-            <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-xl font-bold">
+            <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-2xl font-bold">
               {initials}
             </AvatarFallback>
           </Avatar>
 
-          <h1 className="text-lg font-bold leading-tight">
+          <h1 className="text-xl font-bold leading-tight">
             {profile.display_name || profile.username}
           </h1>
           <p className="text-sm text-muted-foreground">@{profile.username}</p>
@@ -424,16 +517,23 @@ export default function ProfilePage() {
             </p>
           )}
 
+          {profile.favorite_flavor && (
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-1 rounded-full">
+              <IceCreamCone className="size-3" />
+              <span className="font-medium">{profile.favorite_flavor}</span>
+            </div>
+          )}
+
           {/* Stats */}
-          <div className="flex items-center justify-center gap-4 mt-5">
+          <div className="flex items-center justify-center gap-5 mt-5 bg-white dark:bg-card rounded-2xl elevation-1 px-6 py-3">
             <StatItem value={profile.total_checkins} label="Check-ins" />
-            <div className="h-8 w-px bg-border" />
+            <div className="h-8 w-px bg-neutral-200 dark:bg-neutral-700" />
             <StatItem
               value={profile.follower_count}
               label="Followers"
               href={`/profile/${profile.username}/followers`}
             />
-            <div className="h-8 w-px bg-border" />
+            <div className="h-8 w-px bg-neutral-200 dark:bg-neutral-700" />
             <StatItem
               value={profile.following_count}
               label="Following"
@@ -445,7 +545,7 @@ export default function ProfilePage() {
           <Button
             variant="outline"
             size="sm"
-            className="mt-5 gap-1.5 border-pink-200 text-pink-600 hover:bg-pink-50"
+            className="mt-4 gap-1.5 border-pink-200 text-pink-600 hover:bg-pink-50"
             onClick={() => setEditOpen(true)}
           >
             <Pencil className="size-3.5" />
@@ -493,6 +593,7 @@ export default function ProfilePage() {
         currentDisplayName={profile.display_name || ""}
         currentBio={profile.bio || ""}
         currentFavoriteFlavor={profile.favorite_flavor || ""}
+        currentAvatarUrl={profile.avatar_url || ""}
         userId={user.id}
       />
     </div>

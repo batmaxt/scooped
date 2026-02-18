@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { IceCreamCone } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -64,15 +65,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-4">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold tracking-tight">Scooped</h1>
+    <div className="flex min-h-dvh flex-col items-center justify-center px-4 bg-gradient-to-b from-pink-50 via-white to-amber-50/30 dark:from-rose-950/15 dark:via-background dark:to-background">
+      <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-400 to-amber-300 mb-4 elevation-brand">
+          <IceCreamCone className="size-8 text-white" />
+        </div>
+        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">Scooped</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Discover ice cream, track flavors, share scoops.
         </p>
       </div>
 
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm elevation-2 border-0 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
@@ -108,7 +112,7 @@ export default function LoginPage() {
               <p className="text-destructive text-sm text-center">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" variant="brand-gradient" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>

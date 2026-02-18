@@ -123,9 +123,9 @@ export function CommentSheet({ checkinId, open, onOpenChange }: CommentSheetProp
                       <button
                         type="button"
                         onClick={() => deleteMutation.mutate(comment.id)}
-                        className="ml-auto text-muted-foreground hover:text-red-500 transition-colors"
+                        className="ml-auto min-w-[36px] min-h-[36px] flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors -mr-2"
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 className="size-4" />
                       </button>
                     )}
                   </div>
@@ -155,7 +155,8 @@ export function CommentSheet({ checkinId, open, onOpenChange }: CommentSheetProp
               type="submit"
               size="icon"
               disabled={!newComment.trim() || addMutation.isPending}
-              className="shrink-0 size-10 rounded-full bg-pink-500 hover:bg-pink-600"
+              variant="brand"
+              className="shrink-0 size-10 rounded-full"
             >
               {addMutation.isPending ? (
                 <Loader2 className="size-4 animate-spin" />

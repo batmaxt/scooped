@@ -50,8 +50,10 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
       />
 
       {/* Bottom sheet card */}
-      <div className="absolute bottom-20 left-4 right-4 z-40 animate-in slide-in-from-bottom-4 duration-200">
-        <div className="bg-white rounded-2xl shadow-xl border p-4 relative">
+      <div className="absolute bottom-20 left-4 right-4 z-40 animate-in slide-in-from-bottom-4 duration-300 ease-out">
+        <div className="bg-white rounded-2xl elevation-2 border p-4 relative">
+          {/* Drag handle */}
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-neutral-200" />
           {/* Close button */}
           <button
             onClick={(e) => {

@@ -13,11 +13,11 @@ const ICON_MAP: Record<LocationType, typeof IceCreamCone> = {
 };
 
 const COLOR_MAP: Record<LocationType, string> = {
-  scoop_shop: "bg-pink-300",
-  supermarket: "bg-sky-300",
-  farmers_market: "bg-emerald-300",
-  restaurant: "bg-amber-300",
-  food_truck: "bg-violet-300",
+  scoop_shop: "bg-pink-400",
+  supermarket: "bg-sky-400",
+  farmers_market: "bg-emerald-400",
+  restaurant: "bg-amber-400",
+  food_truck: "bg-violet-400",
 };
 
 interface LocationMarkerProps {
@@ -27,17 +27,19 @@ interface LocationMarkerProps {
 
 export function LocationMarker({ locationType, isSelected }: LocationMarkerProps) {
   const Icon = ICON_MAP[locationType] || IceCreamCone;
-  const color = COLOR_MAP[locationType] || "bg-pink-500";
+  const color = COLOR_MAP[locationType] || "bg-pink-400";
 
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full shadow-md transition-transform cursor-pointer",
+        "flex items-center justify-center rounded-full ring-2 ring-white transition-all duration-200 cursor-pointer",
         color,
-        isSelected ? "w-10 h-10 scale-110" : "w-8 h-8"
+        isSelected
+          ? "w-11 h-11 elevation-2 animate-marker-pulse"
+          : "w-8 h-8 shadow-md hover:w-9 hover:h-9"
       )}
     >
-      <Icon className="w-4 h-4 text-white" />
+      <Icon className={cn("text-white transition-all duration-200", isSelected ? "w-5 h-5" : "w-4 h-4")} />
     </div>
   );
 }

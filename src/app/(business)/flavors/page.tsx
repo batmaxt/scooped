@@ -300,7 +300,8 @@ function AddFlavorSheet({
               <Button
                 onClick={() => addMutation.mutate()}
                 disabled={addMutation.isPending}
-                className="w-full h-12 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold gap-2"
+                variant="brand-gradient"
+                className="w-full h-12 rounded-xl gap-2"
               >
                 {addMutation.isPending ? (
                   <Loader2 className="size-5 animate-spin" />
@@ -406,7 +407,8 @@ export default function FlavorManagerPage() {
         <Link href="/login">
           <Button
             size="lg"
-            className="gap-2 bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="gap-2"
           >
             <LogIn className="size-4" />
             Sign In
@@ -453,7 +455,8 @@ export default function FlavorManagerPage() {
           </div>
           <Button
             size="sm"
-            className="gap-1.5 bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="gap-1.5"
             onClick={() => setAddSheetOpen(true)}
           >
             <Plus className="size-4" />
@@ -501,7 +504,8 @@ export default function FlavorManagerPage() {
             available.
           </p>
           <Button
-            className="gap-1.5 bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="gap-1.5"
             onClick={() => setAddSheetOpen(true)}
           >
             <Plus className="size-4" />

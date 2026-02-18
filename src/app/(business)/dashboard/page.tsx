@@ -98,7 +98,8 @@ export default function BusinessDashboardPage() {
         <Link href="/login">
           <Button
             size="lg"
-            className="gap-2 bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="gap-2"
           >
             <LogIn className="size-4" />
             Sign In
@@ -232,7 +233,7 @@ export default function BusinessDashboardPage() {
         {/* Actions */}
         <div className="space-y-3">
           <Link href="/flavors" className="block">
-            <Button className="w-full h-12 text-base rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold gap-2">
+            <Button variant="brand-gradient" className="w-full h-12 text-base rounded-xl gap-2">
               <IceCreamCone className="size-5" />
               Manage Flavors
               {totalFlavors > 0 && (

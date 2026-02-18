@@ -173,7 +173,7 @@ export async function updateNotificationPrefs(
 
 export async function updateProfile(
   userId: string,
-  updates: { display_name?: string; bio?: string; favorite_flavor?: string }
+  updates: { display_name?: string; bio?: string; favorite_flavor?: string; avatar_url?: string }
 ): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
@@ -188,4 +188,22 @@ export async function updateProfile(
   }
 
   return data as Profile;
+}
+
+export async function uploadAvatar(
+  userId: string,
+  file: File
+): Promise<string> {
+  const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const filePath = `${userId}/avatar.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(filePath, file, { upsert: true });
+
+  if (uploadError) throw new Error(uploadError.message);
+
+  const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+  // Append cache-buster so the browser doesn't show the old image
+  return `${data.publicUrl}?t=${Date.now()}`;
 }

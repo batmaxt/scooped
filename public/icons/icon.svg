@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="scoop1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDE8E8"/>
+      <stop offset="100%" stop-color="#F9B4C2"/>
+    </linearGradient>
+    <linearGradient id="scoop2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A7F3D0"/>
+      <stop offset="100%" stop-color="#6EE7B7"/>
+    </linearGradient>
+    <linearGradient id="scoop3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#FCD34D"/>
+    </linearGradient>
+    <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4A574"/>
+      <stop offset="100%" stop-color="#B8860B"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="url(#bg)"/>
+  <!-- Cone -->
+  <polygon points="190,300 322,300 270,440 242,440" fill="url(#cone)" stroke="#A0522D" stroke-width="3"/>
+  <!-- Waffle pattern -->
+  <line x1="210" y1="320" x2="262" y2="420" stroke="#A0522D" stroke-width="2" opacity="0.4"/>
+  <line x1="240" y1="320" x2="258" y2="420" stroke="#A0522D" stroke-width="2" opacity="0.4"/>
+  <line x1="270" y1="320" x2="254" y2="420" stroke="#A0522D" stroke-width="2" opacity="0.4"/>
+  <line x1="300" y1="320" x2="250" y2="420" stroke="#A0522D" stroke-width="2" opacity="0.4"/>
+  <line x1="195" y1="340" x2="310" y2="340" stroke="#A0522D" stroke-width="2" opacity="0.4"/>
+  <line x1="210" y1="370" x2="295" y2="370" stroke="#A0522D" stroke-width="2" opacity="0.4"/>
+  <line x1="230" y1="400" x2="275" y2="400" stroke="#A0522D" stroke-width="2" opacity="0.4"/>
+  <!-- Bottom scoop (vanilla/strawberry) -->
+  <ellipse cx="256" cy="280" rx="80" ry="55" fill="url(#scoop1)" stroke="#E8A0B0" stroke-width="2"/>
+  <!-- Middle scoop (mint) -->
+  <ellipse cx="256" cy="210" rx="72" ry="50" fill="url(#scoop2)" stroke="#86D4B0" stroke-width="2"/>
+  <!-- Top scoop (lemon/mango) -->
+  <ellipse cx="256" cy="148" rx="64" ry="46" fill="url(#scoop3)" stroke="#D4B44A" stroke-width="2"/>
+  <!-- Cherry on top -->
+  <circle cx="256" cy="98" r="16" fill="#EF4444" stroke="#DC2626" stroke-width="2"/>
+  <ellipse cx="252" cy="93" rx="5" ry="4" fill="#FCA5A5" opacity="0.7"/>
+  <!-- Cherry stem -->
+  <path d="M256,82 Q262,65 272,60" fill="none" stroke="#166534" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -91,7 +91,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
         value={filters.searchQuery}
         onChange={(e) => setFilters({ searchQuery: e.target.value })}
         onFocus={() => setIsFocused(true)}
-        className="pl-10 pr-10 h-11 rounded-full bg-white/95 backdrop-blur-sm border-neutral-200 shadow-sm"
+        className="pl-10 pr-10 h-11 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-neutral-200 dark:border-neutral-700 shadow-sm"
       />
       {filters.searchQuery && (
         <button
@@ -99,7 +99,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
             setFilters({ searchQuery: "" });
             setIsFocused(false);
           }}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 z-10"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-neutral-400 hover:text-neutral-600 z-10"
         >
           <X className="w-4 h-4" />
         </button>
@@ -107,10 +107,10 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
 
       {/* Search results dropdown */}
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-neutral-100 overflow-hidden max-h-[60vh] overflow-y-auto z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-neutral-900 rounded-2xl elevation-2 border border-neutral-100 dark:border-neutral-800 overflow-hidden max-h-[60vh] overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           {results.length > 0 ? (
             <>
-              <div className="px-3 py-2 border-b border-neutral-100">
+              <div className="px-3 py-2 border-b border-neutral-100 dark:border-neutral-800">
                 <span className="text-xs text-neutral-400">
                   {results.length} result{results.length !== 1 ? "s" : ""}
                 </span>
@@ -120,7 +120,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
                   key={location.id}
                   href={`/location/${location.slug}`}
                   onClick={() => setIsFocused(false)}
-                  className="flex items-center gap-3 px-3 py-3 hover:bg-neutral-50 active:bg-neutral-100 transition-colors border-b border-neutral-50 last:border-b-0"
+                  className="flex items-center gap-3 px-3 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors border-b border-neutral-50 dark:border-neutral-800 last:border-b-0"
                 >
                   <span className="text-xl shrink-0" role="img" aria-hidden="true">
                     {TYPE_EMOJIS[location.location_type] || "📍"}
@@ -137,7 +137,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
                     </div>
                   </div>
                   <div className="flex flex-col items-end shrink-0 gap-0.5">
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-neutral-100 text-neutral-500">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
                       {TYPE_LABELS[location.location_type] ||
                         location.location_type}
                     </span>

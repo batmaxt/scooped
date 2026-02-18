@@ -163,9 +163,9 @@ export default function DiscoverPage() {
   // If no WebGL, show list view
   if (!webglSupported) {
     return (
-      <div className="min-h-dvh bg-white pb-20">
+      <div className="min-h-dvh bg-white dark:bg-background pb-20">
         {/* Search + Filters */}
-        <div className="sticky top-0 z-30 bg-white p-4 space-y-2 border-b">
+        <div className="sticky top-0 z-30 bg-white dark:bg-background p-4 space-y-2 border-b dark:border-white/5">
           <SearchBar locations={locations} />
           <FilterChips />
         </div>
@@ -267,8 +267,9 @@ export default function DiscoverPage() {
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-md">
-          <span className="text-sm text-neutral-500">
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-5 py-2.5 elevation-2 flex items-center gap-2.5 animate-in fade-in duration-200">
+          <div className="size-4 rounded-full border-2 border-pink-400 border-t-transparent animate-spin" />
+          <span className="text-sm font-medium text-neutral-600">
             {searchMode === "flavors" ? "Searching flavors..." : "Loading locations..."}
           </span>
         </div>
@@ -276,10 +277,12 @@ export default function DiscoverPage() {
 
       {/* Flavor search prompt (no query yet) */}
       {searchMode === "flavors" && flavorQuery.length < 2 && !selectedLocation && (
-        <div className="absolute top-32 left-4 right-4 z-30 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border p-6 text-center">
-          <IceCreamCone className="w-8 h-8 text-pink-400 mx-auto mb-2" />
-          <p className="font-medium text-neutral-700">Find a flavor near you</p>
-          <p className="text-sm text-neutral-500 mt-1">
+        <div className="absolute top-32 left-4 right-4 z-30 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-2xl elevation-3 border border-pink-100/50 dark:border-white/5 p-6 text-center animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="inline-flex items-center justify-center size-14 rounded-full bg-gradient-to-br from-pink-100 to-amber-100 dark:from-rose-800/25 dark:to-amber-800/20 mb-3">
+            <IceCreamCone className="w-7 h-7 text-pink-500" />
+          </div>
+          <p className="font-semibold text-neutral-800 dark:text-neutral-200">Find a flavor near you</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
             Type a flavor or brand name above to see which shops carry it
           </p>
         </div>
@@ -287,8 +290,8 @@ export default function DiscoverPage() {
 
       {/* Flavor results count */}
       {searchMode === "flavors" && flavorQuery.length >= 2 && flavorResults.length > 0 && !selectedLocation && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-pink-500 text-white rounded-full px-4 py-2 shadow-md">
-          <span className="text-sm font-medium">
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full px-5 py-2.5 elevation-brand animate-in fade-in zoom-in-95 duration-200">
+          <span className="text-sm font-semibold">
             {flavorResults.length} shop{flavorResults.length !== 1 ? "s" : ""} found
           </span>
         </div>

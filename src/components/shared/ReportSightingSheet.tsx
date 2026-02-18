@@ -149,7 +149,8 @@ export function ReportSightingSheet({
           <Button
             onClick={() => mutation.mutate()}
             disabled={!selectedId || mutation.isPending}
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="w-full"
           >
             {mutation.isPending ? (
               <Loader2 className="size-4 animate-spin mr-2" />

@@ -24,12 +24,17 @@ import {
   Store,
   ShieldCheck,
   BellRing,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useTheme, type Theme } from "@/components/providers/ThemeProvider";
 import { updateProfile, updateNotificationPrefs } from "@/queries/social";
 import { fetchClaimedLocation, fetchAllClaims } from "@/queries/business";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -117,7 +122,8 @@ function EditProfileSheet({
           <Button
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending}
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+            variant="brand"
+            className="w-full"
           >
             {mutation.isPending ? (
               <Loader2 className="size-4 animate-spin mr-2" />
@@ -155,11 +161,11 @@ function SettingRow({
   const Wrapper = onClick ? "button" : "div";
   return (
     <Wrapper
-      className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-neutral-50 transition-colors"
+      className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
       onClick={onClick}
     >
-      <div className="flex items-center justify-center size-9 rounded-lg bg-neutral-100 shrink-0">
-        <Icon className="size-4.5 text-neutral-600" />
+      <div className="flex items-center justify-center size-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 shrink-0">
+        <Icon className="size-4.5 text-neutral-600 dark:text-neutral-400" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-foreground">{label}</p>
@@ -189,8 +195,8 @@ function SettingToggle({
 }) {
   return (
     <div className="flex items-center gap-3 w-full px-4 py-3.5">
-      <div className="flex items-center justify-center size-9 rounded-lg bg-neutral-100 shrink-0">
-        <Icon className="size-4.5 text-neutral-600" />
+      <div className="flex items-center justify-center size-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 shrink-0">
+        <Icon className="size-4.5 text-neutral-600 dark:text-neutral-400" />
       </div>
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium ${disabled ? "text-muted-foreground" : "text-foreground"}`}>
@@ -219,6 +225,53 @@ function SectionHeader({ title }: { title: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// Theme selector (segmented control)
+// ---------------------------------------------------------------------------
+
+const THEME_OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
+];
+
+function ThemeSelector() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <div className="px-4 py-3.5">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center justify-center size-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 shrink-0">
+          <Sun className="size-4.5 text-neutral-600 dark:text-neutral-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-foreground">Appearance</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Choose your preferred theme</p>
+        </div>
+      </div>
+      <div className="flex gap-1 p-1 rounded-xl bg-neutral-100 dark:bg-neutral-800">
+        {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
+          const active = theme === value;
+          return (
+            <button
+              key={value}
+              onClick={() => setTheme(value)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                active
+                  ? "bg-white dark:bg-neutral-700 text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon className="size-3.5" />
+              {label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main settings page
 // ---------------------------------------------------------------------------
 
@@ -239,6 +292,9 @@ function SettingsContent() {
   const [useMiles, setUseMiles] = useLocalStorage("scooped:useMiles", true);
   const [compactFeed, setCompactFeed] = useLocalStorage("scooped:compactFeed", false);
   const [satelliteMap, setSatelliteMap] = useLocalStorage("scooped:satelliteMap", false);
+
+  // Push notifications
+  const push = usePushNotifications();
 
   const ADMIN_ID = "ed1906c8-2e71-4b6c-ac4a-8af4466edc1c";
   const isAdmin = user?.id === ADMIN_ID;
@@ -275,9 +331,9 @@ function SettingsContent() {
   };
 
   return (
-    <div className="min-h-dvh bg-white pb-20">
+    <div className="min-h-dvh bg-white dark:bg-background pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-neutral-100">
+      <header className="sticky top-0 z-10 bg-white/80 dark:bg-card/80 backdrop-blur-md border-b border-neutral-100 dark:border-white/5">
         <div className="flex items-center gap-3 px-4 h-14">
           <Link
             href="/profile"
@@ -291,7 +347,7 @@ function SettingsContent() {
 
       {/* Account */}
       <SectionHeader title="Account" />
-      <div className="divide-y divide-neutral-100">
+      <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
         <SettingRow
           icon={Pencil}
           label="Edit Profile"
@@ -321,7 +377,7 @@ function SettingsContent() {
       {isAdmin && (
         <>
           <SectionHeader title="Admin" />
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
             <SettingRow
               icon={ShieldCheck}
               label="Review Claims"
@@ -345,7 +401,8 @@ function SettingsContent() {
 
       {/* Display */}
       <SectionHeader title="Display" />
-      <div className="divide-y divide-neutral-100">
+      <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+        <ThemeSelector />
         <SettingToggle
           icon={Ruler}
           label="Use Miles"
@@ -371,14 +428,28 @@ function SettingsContent() {
 
       {/* Notifications */}
       <SectionHeader title="Notifications" />
-      <div className="divide-y divide-neutral-100">
+      <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
         <SettingToggle
           icon={Bell}
           label="Push Notifications"
-          description="Coming soon"
-          checked={false}
-          onCheckedChange={() => {}}
-          disabled
+          description={
+            !push.isSupported
+              ? "Not supported on this browser"
+              : push.permission === "denied"
+                ? "Blocked — enable in browser settings"
+                : push.isSubscribed
+                  ? "Receiving push notifications"
+                  : "Get notified even when the app is closed"
+          }
+          checked={push.isSubscribed}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              push.subscribe();
+            } else {
+              push.unsubscribe();
+            }
+          }}
+          disabled={!push.isSupported || push.permission === "denied" || push.isLoading}
         />
         <SettingToggle
           icon={UserPlus}
@@ -411,7 +482,7 @@ function SettingsContent() {
 
       {/* About */}
       <SectionHeader title="About" />
-      <div className="divide-y divide-neutral-100">
+      <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
         <SettingRow
           icon={Info}
           label="Version"

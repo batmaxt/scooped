@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +31,7 @@ import {
 } from "@/queries/checkins";
 import { fetchAllLocations } from "@/queries/locations";
 import { checkAndAwardBadges } from "@/queries/badges";
+import { uploadCheckinPhoto } from "@/queries/checkinPhotos";
 import { BadgeCelebration } from "@/components/shared/BadgeCelebration";
 import type { Location, Flavor, Availability } from "@/types/models";
 
@@ -589,16 +590,39 @@ function StepRate({
 function StepDetails({
   notes,
   tags,
+  photoPreview,
   onNotesChange,
   onTagsChange,
+  onPhotoChange,
   onNext,
 }: {
   notes: string;
   tags: string[];
+  photoPreview: string | null;
   onNotesChange: (v: string) => void;
   onTagsChange: (v: string[]) => void;
+  onPhotoChange: (file: File | null) => void;
   onNext: () => void;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      return;
+    }
+
+    onPhotoChange(file);
+  };
+
   const toggleTag = (tag: string) => {
     if (tags.includes(tag)) {
       onTagsChange(tags.filter((t) => t !== tag));
@@ -618,7 +642,7 @@ function StepDetails({
 
       {/* Notes */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-neutral-700">Notes</label>
+        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Notes</label>
         <textarea
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
@@ -633,24 +657,53 @@ function StepDetails({
         />
       </div>
 
-      {/* Photo (UI only) */}
+      {/* Photo */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-neutral-700">Photo</label>
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2 w-full h-24 rounded-xl border-2 border-dashed border-neutral-200 text-neutral-400 hover:border-neutral-300 hover:text-neutral-500 transition-colors"
-        >
-          <Camera className="w-5 h-5" />
-          <span className="text-sm">Add a photo</span>
-        </button>
+        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Photo</label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+
+        {photoPreview ? (
+          <div className="relative rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700">
+            <img
+              src={photoPreview}
+              alt="Check-in photo preview"
+              className="w-full max-h-64 object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                onPhotoChange(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center justify-center gap-2 w-full h-24 rounded-xl border-2 border-dashed border-neutral-200 dark:border-neutral-700 text-neutral-400 hover:border-pink-300 hover:text-pink-400 dark:hover:border-pink-700 dark:hover:text-pink-400 transition-colors"
+          >
+            <Camera className="w-5 h-5" />
+            <span className="text-sm">Add a photo</span>
+          </button>
+        )}
         <p className="text-xs text-neutral-400">
-          Photo upload coming soon
+          JPG, PNG, or WebP — max 10 MB
         </p>
       </div>
 
       {/* Tags */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-neutral-700">Tags</label>
+        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Tags</label>
         <div className="flex flex-wrap gap-2">
           {SUGGESTED_TAGS.map((tag) => {
             const isActive = tags.includes(tag);
@@ -663,7 +716,7 @@ function StepDetails({
                   "px-3 py-1.5 rounded-full text-xs font-medium border transition-all active:scale-95",
                   isActive
                     ? "bg-neutral-900 text-white border-neutral-900"
-                    : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+                    : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300"
                 )}
               >
                 {tag}
@@ -694,6 +747,7 @@ function StepReview({
   ratings,
   notes,
   tags,
+  photoPreview,
   isSubmitting,
   onSubmit,
 }: {
@@ -708,6 +762,7 @@ function StepReview({
   };
   notes: string;
   tags: string[];
+  photoPreview: string | null;
   isSubmitting: boolean;
   onSubmit: () => void;
 }) {
@@ -798,6 +853,19 @@ function StepReview({
               </div>
             )}
           </div>
+
+          {/* Photo */}
+          {photoPreview && (
+            <div className="border-t pt-4">
+              <div className="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700">
+                <img
+                  src={photoPreview}
+                  alt="Check-in photo"
+                  className="w-full max-h-48 object-cover"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Notes */}
           {notes && (
@@ -905,8 +973,26 @@ function NewCheckinPageInner() {
   });
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [posted, setPosted] = useState(false);
   const [newBadgeIds, setNewBadgeIds] = useState<string[]>([]);
+
+  // Photo handler — sets file + instant preview via object URL
+  const handlePhotoChange = useCallback((file: File | null) => {
+    // Revoke previous preview URL to avoid memory leaks
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview);
+    }
+
+    if (file) {
+      setPhotoFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    } else {
+      setPhotoFile(null);
+      setPhotoPreview(null);
+    }
+  }, [photoPreview]);
 
   // Stable callback for StepLocation
   const handleLocationSelect = useCallback((loc: Location) => {
@@ -939,8 +1025,20 @@ function NewCheckinPageInner() {
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!user || !selectedLocation) return;
+
+    let photoUrl: string | null = null;
+
+    // Upload photo first if one was selected
+    if (photoFile) {
+      try {
+        photoUrl = await uploadCheckinPhoto(user.id, photoFile);
+      } catch (err) {
+        console.error("Photo upload failed:", err);
+        // Continue without photo rather than blocking the check-in
+      }
+    }
 
     checkinMutation.mutate({
       user_id: user.id,
@@ -953,6 +1051,7 @@ function NewCheckinPageInner() {
       selection_rating: ratings.selection || null,
       notes: notes.trim() || null,
       tags: tags.length > 0 ? tags : null,
+      photo_url: photoUrl,
       is_public: true,
     });
   };
@@ -977,7 +1076,7 @@ function NewCheckinPageInner() {
   // Success state
   if (posted && selectedLocation) {
     return (
-      <div className="min-h-dvh bg-white">
+      <div className="min-h-dvh bg-white dark:bg-background">
         <SuccessState locationSlug={selectedLocation.slug} />
         {newBadgeIds.length > 0 && (
           <BadgeCelebration
@@ -990,9 +1089,9 @@ function NewCheckinPageInner() {
   }
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="min-h-dvh bg-white dark:bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b">
+      <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-b dark:border-white/5">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             type="button"
@@ -1052,8 +1151,10 @@ function NewCheckinPageInner() {
         <StepDetails
           notes={notes}
           tags={tags}
+          photoPreview={photoPreview}
           onNotesChange={setNotes}
           onTagsChange={setTags}
+          onPhotoChange={handlePhotoChange}
           onNext={() => setStep(4)}
         />
       )}
@@ -1086,6 +1187,7 @@ function NewCheckinPageInner() {
           ratings={ratings}
           notes={notes}
           tags={tags}
+          photoPreview={photoPreview}
           isSubmitting={checkinMutation.isPending}
           onSubmit={handleSubmit}
         />

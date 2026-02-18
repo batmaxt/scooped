@@ -74,12 +74,14 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
   const primaryRating = item.flavor_rating || item.location_rating || 0;
 
   return (
-    <Card className="gap-0 py-0 overflow-hidden press-card">
+    <Card className="gap-0 py-0 overflow-hidden press-card border-0 elevation-2">
+      {/* Colored accent bar */}
+      <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-400 to-amber-300 dark:from-rose-400/60 dark:via-pink-400/40 dark:to-amber-400/30" />
       <CardContent className="px-4 py-4 space-y-3">
         {/* User row */}
         <div className="flex items-center gap-2.5">
           <Link href={`/profile/${item.profile_username}`}>
-            <Avatar className="size-9">
+            <Avatar className="size-10 ring-2 ring-pink-100 dark:ring-rose-800/30">
               {item.profile_avatar_url && (
                 <AvatarImage
                   src={item.profile_avatar_url}
@@ -111,7 +113,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
         {/* Location */}
         <Link
           href={`/location/${item.location_slug}`}
-          className="flex items-center gap-1.5 hover:underline"
+          className="flex items-center gap-1.5 bg-pink-50/60 dark:bg-white/[0.04] rounded-lg px-2.5 py-1.5 -mx-1 hover:bg-pink-50 dark:hover:bg-white/[0.07] transition-colors"
         >
           <MapPin className="size-3.5 text-pink-400 shrink-0" />
           <span className="font-medium text-sm truncate">
@@ -127,7 +129,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
           <div className="flex items-center gap-2 flex-wrap">
             <Badge
               variant="secondary"
-              className="bg-amber-50 text-amber-700 border border-amber-200"
+              className="bg-amber-50 dark:bg-amber-900/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700/30"
             >
               <IceCreamCone className="size-3 mr-1" />
               {item.flavor_name}
@@ -156,6 +158,18 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
           </div>
         )}
 
+        {/* Photo */}
+        {!compact && item.photo_url && (
+          <div className="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 -mx-1">
+            <img
+              src={item.photo_url}
+              alt="Check-in photo"
+              loading="lazy"
+              className="w-full max-h-72 object-cover"
+            />
+          </div>
+        )}
+
         {/* Notes */}
         {!compact && item.notes && (
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -175,7 +189,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
         )}
 
         {/* Actions: like + comment */}
-        <div className="flex items-center gap-4 pt-1 border-t border-neutral-100">
+        <div className="flex items-center gap-4 pt-1 border-t border-neutral-100 dark:border-neutral-800">
           <button
             type="button"
             onClick={handleLikeToggle}

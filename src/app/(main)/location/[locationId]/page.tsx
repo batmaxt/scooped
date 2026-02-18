@@ -22,12 +22,15 @@ import {
   Settings,
   BellRing,
   Eye,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AddToListSheet } from "@/components/shared/AddToListSheet";
 import { AddAlertSheet } from "@/components/shared/AddAlertSheet";
 import { ReportSightingSheet } from "@/components/shared/ReportSightingSheet";
 import { FreshnessBadge } from "@/components/shared/FreshnessBadge";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -168,30 +171,47 @@ export default function LocationDetailPage({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-dvh gap-3">
-        <div className="text-4xl animate-bounce">{"\uD83C\uDF68"}</div>
-        <Loader2 className="w-5 h-5 animate-spin text-pink-400" />
-        <p className="text-sm text-neutral-400">Loading the scoop...</p>
+      <div className="min-h-dvh bg-white dark:bg-background animate-in fade-in duration-200">
+        <Skeleton className="h-48 w-full" />
+        <div className="px-4 py-5 space-y-4">
+          <Skeleton className="h-7 w-2/3" />
+          <Skeleton className="h-4 w-1/2" />
+          <div className="flex gap-3 pt-2">
+            {Array.from({ length: 4 }, (_, i) => (
+              <Skeleton key={i} className="size-10 rounded-full" />
+            ))}
+          </div>
+          <Skeleton className="h-10 w-full rounded-xl mt-4" />
+          <div className="flex gap-4 pt-4">
+            <Skeleton className="h-8 w-20 rounded-full" />
+            <Skeleton className="h-8 w-20 rounded-full" />
+            <Skeleton className="h-8 w-20 rounded-full" />
+          </div>
+          {Array.from({ length: 3 }, (_, i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-xl" />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (!location) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 gap-3">
-        <div className="text-5xl">{"\uD83E\uDD37"}</div>
-        <p className="text-neutral-500 font-medium">
-          We couldn&apos;t find that spot
-        </p>
-        <p className="text-sm text-neutral-400">
-          It may have melted away...
-        </p>
-        <Link href="/discover">
-          <Button variant="outline" className="mt-2">
-            Back to map
-          </Button>
-        </Link>
-      </div>
+      <EmptyState
+        icon={MapPin}
+        iconColor="text-neutral-400"
+        bgColor="bg-neutral-100"
+        title="We couldn't find that spot"
+        description="It may have melted away..."
+        className="min-h-[60vh]"
+        action={
+          <Link href="/discover">
+            <Button variant="outline" className="mt-2">
+              Back to map
+            </Button>
+          </Link>
+        }
+      />
     );
   }
 
@@ -204,9 +224,9 @@ export default function LocationDetailPage({
       : null;
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="min-h-dvh bg-white dark:bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b">
+      <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-b dark:border-white/5">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link href="/discover" className="p-1 -ml-1">
             <ArrowLeft className="w-5 h-5" />
@@ -214,7 +234,7 @@ export default function LocationDetailPage({
           <h1 className="font-semibold truncate flex-1">{location.name}</h1>
           <button
             onClick={handleShare}
-            className="p-2 -mr-2 rounded-full hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+            className="p-2 -mr-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 transition-colors"
             aria-label="Share location"
           >
             <Share2 className="w-5 h-5 text-neutral-600" />
@@ -285,7 +305,7 @@ export default function LocationDetailPage({
           href={`/checkin/new?location=${location.id}`}
           className="flex-1"
         >
-          <Button className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-lg shadow-pink-500/25 font-semibold gap-2">
+          <Button variant="brand-gradient" className="w-full h-12 text-base rounded-xl gap-2">
             <IceCreamCone className="w-5 h-5" />
             Check In Here
           </Button>
@@ -396,16 +416,13 @@ export default function LocationDetailPage({
               })}
             </>
           ) : (
-            <div className="text-center py-16">
-              <div className="text-5xl mb-4">{"\uD83C\uDF68"}</div>
-              <p className="font-medium text-neutral-600 mb-1">
-                No flavors scooped yet
-              </p>
-              <p className="text-sm text-neutral-400 max-w-[240px] mx-auto">
-                Be the first to check in and let everyone know what&apos;s in
-                the freezer!
-              </p>
-            </div>
+            <EmptyState
+              icon={IceCreamCone}
+              iconColor="text-pink-300"
+              bgColor="bg-pink-50"
+              title="No flavors scooped yet"
+              description="Be the first to check in and let everyone know what's in the freezer!"
+            />
           )}
         </TabsContent>
 
@@ -461,15 +478,13 @@ export default function LocationDetailPage({
               })}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <div className="text-5xl mb-4">{"\uD83D\uDCDD"}</div>
-              <p className="font-medium text-neutral-600 mb-1">
-                No reviews yet
-              </p>
-              <p className="text-sm text-neutral-400 max-w-[240px] mx-auto">
-                Every scoop has a story. Check in and share your experience!
-              </p>
-            </div>
+            <EmptyState
+              icon={MessageCircle}
+              iconColor="text-blue-300"
+              bgColor="bg-blue-50"
+              title="No reviews yet"
+              description="Every scoop has a story. Check in and share your experience!"
+            />
           )}
         </TabsContent>
 
@@ -481,7 +496,7 @@ export default function LocationDetailPage({
               href={getDirectionsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors group"
+              className="flex items-start gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors group"
             >
               <MapPin className="w-5 h-5 text-neutral-400 mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
@@ -500,7 +515,7 @@ export default function LocationDetailPage({
             {location.phone && (
               <a
                 href={`tel:${location.phone}`}
-                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors"
               >
                 <Phone className="w-5 h-5 text-neutral-400 shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -520,7 +535,7 @@ export default function LocationDetailPage({
                 }
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors group"
+                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors group"
               >
                 <Globe className="w-5 h-5 text-neutral-400 shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -539,7 +554,7 @@ export default function LocationDetailPage({
                 href={`https://instagram.com/${location.instagram}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors group"
+                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors group"
               >
                 <Instagram className="w-5 h-5 text-neutral-400 shrink-0" />
                 <div className="flex-1 min-w-0">

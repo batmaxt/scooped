@@ -52,8 +52,8 @@ function StarRatingDisplay({ rating }: { rating: number }) {
           key={i}
           className={`size-3.5 ${
             i < rating
-              ? "fill-amber-400 text-amber-400"
-              : "fill-none text-neutral-300"
+              ? "fill-pink-400 text-pink-400"
+              : "fill-none text-neutral-300 dark:text-neutral-600"
           }`}
         />
       ))}
@@ -155,7 +155,7 @@ function CheckinCard({ checkin }: { checkin: Checkin }) {
           <div className="flex items-center gap-2 flex-wrap">
             <Badge
               variant="secondary"
-              className="bg-amber-50 text-amber-700 border border-amber-200"
+              className="bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-700/30 rounded-full px-3"
             >
               <IceCreamCone className="size-3 mr-1" />
               {flavorName}
@@ -171,7 +171,7 @@ function CheckinCard({ checkin }: { checkin: Checkin }) {
         {primaryRating > 0 && <StarRatingDisplay rating={primaryRating} />}
 
         {checkin.photo_url && (
-          <div className="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 -mx-1">
+          <div className="rounded-xl overflow-hidden border border-pink-100 dark:border-neutral-700 -mx-1">
             <img
               src={checkin.photo_url}
               alt="Check-in photo"
@@ -353,7 +353,7 @@ function EditProfileSheet({
               onClick={() => fileInputRef.current?.click()}
               className="relative group"
             >
-              <Avatar className="size-20 ring-4 ring-neutral-100">
+              <Avatar className="size-20 ring-4 ring-pink-200 dark:ring-pink-800/40">
                 {displayAvatarUrl && (
                   <AvatarImage src={displayAvatarUrl} alt="Profile photo" />
                 )}
@@ -443,15 +443,15 @@ function StatItem({
   href?: string;
 }) {
   const content = (
-    <div className="flex flex-col items-center">
-      <span className="text-xl font-bold text-foreground">{value}</span>
-      <span className="text-[11px] text-muted-foreground uppercase tracking-wide">{label}</span>
+    <div className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-pink-100 dark:border-neutral-700 flex-1">
+      <span className="text-xl font-bold text-pink-500">{value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}</span>
+      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{label}</span>
     </div>
   );
 
   if (href) {
     return (
-      <Link href={href} className="hover:opacity-70 transition-opacity">
+      <Link href={href} className="flex-1 hover:opacity-70 transition-opacity">
         {content}
       </Link>
     );
@@ -477,63 +477,57 @@ export default function ProfilePage() {
   if (!user || !profile) return <LoggedOutPrompt />;
 
   return (
-    <div className="min-h-dvh bg-white dark:bg-background">
-      {/* Hero header with gradient */}
-      <header className="relative">
-        {/* Background gradient */}
-        <div className="absolute inset-0 h-44 bg-gradient-to-br from-pink-400 via-rose-400 to-amber-300 dark:from-rose-500/50 dark:via-pink-600/30 dark:to-amber-500/20" />
-        <div className="absolute inset-0 h-44 bg-gradient-to-t from-white dark:from-background via-transparent to-transparent" />
-
-        {/* Settings button */}
-        <div className="absolute top-4 right-4 z-10">
+    <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background">
+      {/* Header */}
+      <header className="relative bg-white dark:bg-card">
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <Link href="/settings">
-            <Button variant="ghost" size="icon" aria-label="Settings" className="bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white">
+            <Button variant="ghost" size="icon" aria-label="Settings" className="text-muted-foreground hover:text-foreground">
               <Settings className="size-5" />
             </Button>
           </Link>
+          <h1 className="text-lg font-bold text-pink-500">Scooped</h1>
+          <div className="size-10" /> {/* Spacer for alignment */}
         </div>
 
-        <div className="relative flex flex-col items-center text-center px-4 pt-12 pb-6">
-          <Avatar className="size-24 ring-4 ring-white dark:ring-background shadow-lg mb-3">
+        <div className="flex flex-col items-center text-center px-4 pb-6">
+          <Avatar className="size-24 ring-4 ring-pink-400 dark:ring-pink-500 shadow-lg mb-3">
             {profile.avatar_url && (
               <AvatarImage
                 src={profile.avatar_url}
                 alt={profile.display_name || profile.username}
               />
             )}
-            <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-2xl font-bold">
+            <AvatarFallback className="bg-gradient-to-br from-pink-400 to-rose-500 text-white text-2xl font-bold">
               {initials}
             </AvatarFallback>
           </Avatar>
 
-          <h1 className="text-xl font-bold leading-tight">
+          <h2 className="text-xl font-bold leading-tight">
             {profile.display_name || profile.username}
-          </h1>
-          <p className="text-sm text-muted-foreground">@{profile.username}</p>
+          </h2>
+          {profile.favorite_flavor && (
+            <p className="text-sm text-pink-500 font-medium mt-0.5">
+              Ice Cream Enthusiast 🍦
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground mt-0.5">@{profile.username}</p>
 
           {profile.bio && (
-            <p className="mt-2 text-sm text-foreground/80 max-w-xs leading-relaxed">
+            <p className="mt-2 text-sm text-foreground/70 max-w-xs leading-relaxed">
               {profile.bio}
             </p>
           )}
 
-          {profile.favorite_flavor && (
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-1 rounded-full">
-              <IceCreamCone className="size-3" />
-              <span className="font-medium">{profile.favorite_flavor}</span>
-            </div>
-          )}
-
-          {/* Stats */}
-          <div className="flex items-center justify-center gap-5 mt-5 bg-white dark:bg-card rounded-2xl elevation-1 px-6 py-3">
+          {/* Stat boxes — bordered row */}
+          <div className="flex items-stretch gap-3 mt-5 w-full max-w-xs">
             <StatItem value={profile.total_checkins} label="Check-ins" />
-            <div className="h-8 w-px bg-neutral-200 dark:bg-neutral-700" />
             <StatItem
               value={profile.follower_count}
               label="Followers"
               href={`/profile/${profile.username}/followers`}
             />
-            <div className="h-8 w-px bg-neutral-200 dark:bg-neutral-700" />
             <StatItem
               value={profile.following_count}
               label="Following"
@@ -541,11 +535,10 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* Edit button */}
+          {/* Full-width edit button */}
           <Button
-            variant="outline"
-            size="sm"
-            className="mt-4 gap-1.5 border-pink-200 text-pink-600 hover:bg-pink-50"
+            variant="brand"
+            className="mt-4 w-full max-w-xs gap-1.5 rounded-full h-11"
             onClick={() => setEditOpen(true)}
           >
             <Pencil className="size-3.5" />

@@ -40,10 +40,10 @@ import type { Location, Flavor, Availability } from "@/types/models";
 // ---------------------------------------------------------------------------
 
 const STEPS = [
-  { key: "location", label: "Location" },
-  { key: "flavor", label: "Flavor" },
-  { key: "rate", label: "Rate" },
-  { key: "details", label: "Details" },
+  { key: "location", label: "Where?" },
+  { key: "flavor", label: "What?" },
+  { key: "rate", label: "How?" },
+  { key: "details", label: "Show it!" },
   { key: "review", label: "Post" },
 ] as const;
 
@@ -81,23 +81,41 @@ const TYPE_LABELS: Record<string, string> = {
 
 function ProgressBar({ currentStep }: { currentStep: number }) {
   return (
-    <div className="flex items-center gap-1 px-4 py-2">
+    <div className="flex items-center justify-between px-6 py-3">
       {STEPS.map((step, i) => (
-        <div key={step.key} className="flex-1 flex flex-col items-center gap-1">
+        <div key={step.key} className="flex flex-col items-center gap-1.5 relative">
+          {/* Connector line */}
+          {i < STEPS.length - 1 && (
+            <div
+              className={cn(
+                "absolute top-3.5 left-[calc(50%+12px)] h-0.5 transition-colors duration-500",
+                i < currentStep ? "bg-pink-400" : "bg-neutral-200 dark:bg-neutral-700"
+              )}
+              style={{ width: "calc(100% + 8px)" }}
+            />
+          )}
+          {/* Circle */}
           <div
             className={cn(
-              "h-1 w-full rounded-full transition-all duration-500",
+              "relative z-10 flex items-center justify-center size-7 rounded-full text-xs font-bold transition-all duration-300",
               i < currentStep
-                ? "bg-neutral-900"
+                ? "bg-pink-500 text-white shadow-sm"
                 : i === currentStep
-                  ? "bg-neutral-400"
-                  : "bg-neutral-200"
+                  ? "bg-pink-500 text-white ring-4 ring-pink-100 dark:ring-pink-900/30 shadow-md"
+                  : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-500"
             )}
-          />
+          >
+            {i < currentStep ? (
+              <Check className="size-3.5" />
+            ) : (
+              i + 1
+            )}
+          </div>
+          {/* Label */}
           <span
             className={cn(
               "text-[10px] font-medium transition-colors duration-300",
-              i <= currentStep ? "text-neutral-700" : "text-neutral-400"
+              i <= currentStep ? "text-pink-600 dark:text-pink-400" : "text-neutral-400 dark:text-neutral-500"
             )}
           >
             {step.label}
@@ -224,7 +242,7 @@ function StepLocation({
                       </Badge>
                       {loc.avg_rating > 0 && (
                         <div className="flex items-center gap-0.5">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                          <Star className="w-3 h-3 fill-pink-400 text-pink-400" />
                           <span className="text-xs text-neutral-500">
                             {Number(loc.avg_rating).toFixed(1)}
                           </span>
@@ -294,8 +312,8 @@ function StepFlavor({
           className={cn(
             "flex-1 text-sm font-medium py-2 px-3 rounded-lg border transition-colors",
             mode === "location"
-              ? "bg-neutral-900 text-white border-neutral-900"
-              : "bg-white text-neutral-600 border-neutral-200"
+              ? "bg-pink-500 text-white border-pink-500"
+              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-pink-200 dark:border-neutral-700"
           )}
         >
           At this spot
@@ -306,8 +324,8 @@ function StepFlavor({
           className={cn(
             "flex-1 text-sm font-medium py-2 px-3 rounded-lg border transition-colors",
             mode === "search"
-              ? "bg-neutral-900 text-white border-neutral-900"
-              : "bg-white text-neutral-600 border-neutral-200"
+              ? "bg-pink-500 text-white border-pink-500"
+              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-pink-200 dark:border-neutral-700"
           )}
         >
           Search all
@@ -318,8 +336,8 @@ function StepFlavor({
           className={cn(
             "flex-1 text-sm font-medium py-2 px-3 rounded-lg border transition-colors",
             mode === "custom"
-              ? "bg-neutral-900 text-white border-neutral-900"
-              : "bg-white text-neutral-600 border-neutral-200"
+              ? "bg-pink-500 text-white border-pink-500"
+              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-pink-200 dark:border-neutral-700"
           )}
         >
           Custom
@@ -715,8 +733,8 @@ function StepDetails({
                 className={cn(
                   "px-3 py-1.5 rounded-full text-xs font-medium border transition-all active:scale-95",
                   isActive
-                    ? "bg-neutral-900 text-white border-neutral-900"
-                    : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300"
+                    ? "bg-pink-500 text-white border-pink-500"
+                    : "bg-white dark:bg-neutral-800 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-700/30 hover:border-pink-300 dark:hover:border-pink-600"
                 )}
               >
                 {tag}
@@ -773,8 +791,8 @@ function StepReview({
         className={cn(
           "w-4 h-4",
           i < count
-            ? "fill-yellow-400 text-yellow-400"
-            : "fill-transparent text-neutral-200"
+            ? "fill-pink-400 text-pink-400"
+            : "fill-transparent text-neutral-200 dark:text-neutral-600"
         )}
       />
     ));
@@ -1076,7 +1094,7 @@ function NewCheckinPageInner() {
   // Success state
   if (posted && selectedLocation) {
     return (
-      <div className="min-h-dvh bg-white dark:bg-background">
+      <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background">
         <SuccessState locationSlug={selectedLocation.slug} />
         {newBadgeIds.length > 0 && (
           <BadgeCelebration
@@ -1089,19 +1107,19 @@ function NewCheckinPageInner() {
   }
 
   return (
-    <div className="min-h-dvh bg-white dark:bg-background">
+    <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-b dark:border-white/5">
+      <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             type="button"
             onClick={goBack}
-            className="p-1 -ml-1"
+            className="p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="font-semibold">New Check-In</h1>
-          <span className="ml-auto text-xs text-neutral-400">
+          <h1 className="font-semibold text-pink-500">New Check-In</h1>
+          <span className="ml-auto text-xs text-muted-foreground">
             {step + 1} of {TOTAL_STEPS}
           </span>
         </div>

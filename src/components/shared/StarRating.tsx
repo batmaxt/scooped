@@ -29,7 +29,7 @@ export function StarRating({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <span className="text-sm font-medium text-neutral-700">{label}</span>
+        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{label}</span>
       )}
       <div className="flex items-center gap-2">
         <div className={cn("flex items-center", styles.gap)}>
@@ -58,8 +58,8 @@ export function StarRating({
                     styles.star,
                     "transition-colors duration-150",
                     isFilled
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "fill-transparent text-neutral-300"
+                      ? "fill-pink-400 text-pink-400"
+                      : "fill-transparent text-neutral-300 dark:text-neutral-600"
                   )}
                 />
               </button>
@@ -69,7 +69,7 @@ export function StarRating({
         {value > 0 && (
           <span
             className={cn(
-              "font-semibold text-neutral-700 tabular-nums",
+              "font-semibold text-pink-500 tabular-nums",
               styles.text
             )}
           >

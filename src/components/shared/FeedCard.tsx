@@ -124,12 +124,42 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
           </span>
         </Link>
 
-        {/* Flavor + brand */}
+        {/* Photo — prominent, full-bleed */}
+        {!compact && item.photo_url && (
+          <div className="rounded-2xl overflow-hidden -mx-1">
+            <img
+              src={item.photo_url}
+              alt="Check-in photo"
+              loading="lazy"
+              className="w-full max-h-80 object-cover"
+            />
+          </div>
+        )}
+
+        {/* Rating + timestamp row */}
+        {primaryRating > 0 && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 5 }, (_, i) => (
+                <Star
+                  key={i}
+                  className={`size-4 ${
+                    i < primaryRating
+                      ? "fill-pink-400 text-pink-400"
+                      : "fill-none text-neutral-200 dark:text-neutral-600"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Flavor + brand — pink pills */}
         {item.flavor_name && (
           <div className="flex items-center gap-2 flex-wrap">
             <Badge
               variant="secondary"
-              className="bg-amber-50 dark:bg-amber-900/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700/30"
+              className="bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-700/30 rounded-full px-3"
             >
               <IceCreamCone className="size-3 mr-1" />
               {item.flavor_name}
@@ -139,34 +169,6 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
                 by {item.brand_name}
               </span>
             )}
-          </div>
-        )}
-
-        {/* Rating */}
-        {primaryRating > 0 && (
-          <div className="flex items-center gap-0.5">
-            {Array.from({ length: 5 }, (_, i) => (
-              <Star
-                key={i}
-                className={`size-3.5 ${
-                  i < primaryRating
-                    ? "fill-amber-400 text-amber-400"
-                    : "fill-none text-neutral-300"
-                }`}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Photo */}
-        {!compact && item.photo_url && (
-          <div className="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 -mx-1">
-            <img
-              src={item.photo_url}
-              alt="Check-in photo"
-              loading="lazy"
-              className="w-full max-h-72 object-cover"
-            />
           </div>
         )}
 
@@ -188,8 +190,8 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
           </div>
         )}
 
-        {/* Actions: like + comment */}
-        <div className="flex items-center gap-4 pt-1 border-t border-neutral-100 dark:border-neutral-800">
+        {/* Actions: Melts + Comments */}
+        <div className="flex items-center gap-5 pt-2 border-t border-pink-100/60 dark:border-neutral-800">
           <button
             type="button"
             onClick={handleLikeToggle}
@@ -203,19 +205,19 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
                   : ""
               }`}
             />
-            {optimisticLikeCount > 0 && (
-              <span>{optimisticLikeCount}</span>
-            )}
+            <span className={optimisticLiked ? "text-pink-500 font-medium" : ""}>
+              {optimisticLikeCount > 0 ? `${optimisticLikeCount} Melts` : "Melt"}
+            </span>
           </button>
           <button
             type="button"
             onClick={onCommentTap}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-blue-500 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-pink-500 transition-colors"
           >
             <MessageCircle className="size-4" />
-            {item.comment_count > 0 && (
-              <span>{item.comment_count}</span>
-            )}
+            <span>
+              {item.comment_count > 0 ? `${item.comment_count} Comments` : "Comment"}
+            </span>
           </button>
         </div>
       </CardContent>

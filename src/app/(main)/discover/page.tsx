@@ -163,9 +163,9 @@ export default function DiscoverPage() {
   // If no WebGL, show list view
   if (!webglSupported) {
     return (
-      <div className="min-h-dvh bg-white dark:bg-background pb-20">
+      <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background pb-20">
         {/* Search + Filters */}
-        <div className="sticky top-0 z-30 bg-white dark:bg-background p-4 space-y-2 border-b dark:border-white/5">
+        <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md p-4 space-y-2 border-b border-pink-100/60 dark:border-white/5">
           <SearchBar locations={locations} />
           <FilterChips />
         </div>
@@ -231,7 +231,7 @@ export default function DiscoverPage() {
                           </div>
                           {location.avg_rating > 0 && (
                             <div className="flex items-center gap-1 mt-1">
-                              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                              <Star className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
                               <span className="text-sm">{Number(location.avg_rating).toFixed(1)}</span>
                               <span className="text-xs text-neutral-400">({location.total_ratings})</span>
                             </div>

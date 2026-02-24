@@ -108,9 +108,9 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
       onClick={onTap}
       className={`flex items-start gap-3 px-4 py-3.5 transition-colors ${
         notification.is_read
-          ? "bg-white"
-          : "bg-pink-50/50"
-      } hover:bg-neutral-50`}
+          ? "bg-card"
+          : "bg-pink-50/50 dark:bg-pink-950/20"
+      } hover:bg-neutral-50 dark:hover:bg-white/[0.04]`}
     >
       {/* Avatar */}
       <div className="relative shrink-0">
@@ -130,7 +130,7 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
           </AvatarFallback>
         </Avatar>
         <div
-          className={`absolute -bottom-0.5 -right-0.5 size-5 rounded-full bg-white flex items-center justify-center`}
+          className="absolute -bottom-0.5 -right-0.5 size-5 rounded-full bg-card ring-1 ring-border flex items-center justify-center"
         >
           <Icon className={`size-3 ${iconColor}`} />
         </div>

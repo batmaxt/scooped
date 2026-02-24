@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { MapPin, Star, ChevronRight, IceCreamCone } from "lucide-react";
+import { MapPin, Star, ChevronRight, IceCreamCone, Loader2 } from "lucide-react";
 import { MapView } from "@/components/map/MapView";
 import { MapBottomSheet } from "@/components/map/MapBottomSheet";
 import { SearchBar } from "@/components/shared/SearchBar";
@@ -63,7 +63,7 @@ export default function DiscoverPage() {
     queryKey: ["flavor-search-locations", flavorQuery, searchLat, searchLng],
     queryFn: () =>
       searchLocationsByFlavor(flavorQuery, searchLat, searchLng, 80000),
-    enabled: searchMode === "flavors" && flavorQuery.length >= 2,
+    enabled: searchMode === "flavors" && flavorQuery.length >= 1,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -83,7 +83,7 @@ export default function DiscoverPage() {
     if (!filters.searchQuery) return locations;
 
     const query = normalize(filters.searchQuery);
-    if (query.length < 2) return locations;
+    if (query.length < 1) return locations;
     return locations.filter(
       (loc) =>
         normalize(loc.name).includes(query) ||
@@ -163,7 +163,7 @@ export default function DiscoverPage() {
   // If no WebGL, show list view
   if (!webglSupported) {
     return (
-      <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background pb-20">
+      <div className="min-h-dvh bg-background pb-20">
         {/* Search + Filters */}
         <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md p-4 space-y-2 border-b border-pink-100/60 dark:border-white/5">
           <SearchBar locations={locations} />
@@ -173,7 +173,7 @@ export default function DiscoverPage() {
         {/* Loading */}
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mb-4" />
+            <Loader2 className="size-8 animate-spin text-pink-400 mb-4" />
             <span className="text-sm text-neutral-500">
               {searchMode === "flavors" ? "Searching for flavors..." : "Loading 250+ ice cream spots..."}
             </span>
@@ -268,7 +268,7 @@ export default function DiscoverPage() {
       {/* Loading indicator */}
       {isLoading && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-5 py-2.5 elevation-2 flex items-center gap-2.5 animate-in fade-in duration-200">
-          <div className="size-4 rounded-full border-2 border-pink-400 border-t-transparent animate-spin" />
+          <Loader2 className="size-4 animate-spin text-pink-400" />
           <span className="text-sm font-medium text-neutral-600">
             {searchMode === "flavors" ? "Searching flavors..." : "Loading locations..."}
           </span>

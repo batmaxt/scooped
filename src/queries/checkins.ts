@@ -99,7 +99,15 @@ export async function fetchFlavors(searchQuery: string): Promise<Flavor[]> {
     .order("name");
 
   if (searchQuery.trim()) {
-    query.ilike("name", `%${searchQuery.trim()}%`);
+    const term = searchQuery.trim();
+    // Search with both "and" and "&" variants so "ben and jerrys" matches "Ben & Jerry's"
+    const withAnd = term.replace(/&/g, " and ");
+    const withAmpersand = term.replace(/\band\b/gi, "&");
+    if (withAnd !== withAmpersand) {
+      query.or(`name.ilike.%${withAnd}%,name.ilike.%${withAmpersand}%`);
+    } else {
+      query.ilike("name", `%${term}%`);
+    }
   }
 
   const { data, error } = await query.limit(30);

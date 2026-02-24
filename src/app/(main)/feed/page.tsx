@@ -245,10 +245,10 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background pb-20 animate-in fade-in duration-200">
+    <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5 px-4 pt-3 pb-0">
-        <div className="flex items-center justify-between mb-3">
+      <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5 px-4 pt-3 pb-3">
+        <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-pink-500">Scooped</h1>
           <div className="flex items-center gap-1">
             <Link
@@ -270,18 +270,6 @@ export default function FeedPage() {
               <Search className="size-5" />
             </button>
           </div>
-        </div>
-        {/* Feed tabs */}
-        <div className="flex gap-0 -mx-4">
-          <button className="flex-1 py-2.5 text-sm font-semibold text-pink-500 border-b-2 border-pink-400">
-            Following
-          </button>
-          <button className="flex-1 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border-b-2 border-transparent transition-colors">
-            Trending
-          </button>
-          <button className="flex-1 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border-b-2 border-transparent transition-colors">
-            Nearby
-          </button>
         </div>
       </div>
 

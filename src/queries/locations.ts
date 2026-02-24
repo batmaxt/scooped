@@ -114,8 +114,12 @@ export async function searchLocationsByFlavor(
   lng: number,
   radiusMeters: number = 80000
 ): Promise<FlavorSearchResult[]> {
+  // Normalize "and" ↔ "&" so "ben and jerrys" matches "Ben & Jerry's"
+  const normalized = searchTerm.replace(/\band\b/gi, "&");
+  const term = normalized !== searchTerm ? normalized : searchTerm;
+
   const { data, error } = await supabase.rpc("search_locations_by_flavor", {
-    search_term: searchTerm,
+    search_term: term,
     user_lat: lat,
     user_lng: lng,
     radius_meters: radiusMeters,

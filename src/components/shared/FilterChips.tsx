@@ -32,7 +32,7 @@ export function FilterChips() {
           className={cn(
             "flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-colors",
             searchMode === "locations"
-              ? "bg-neutral-900 text-white"
+              ? "bg-pink-500 text-white"
               : "text-neutral-500 hover:text-neutral-700"
           )}
         >
@@ -64,7 +64,7 @@ export function FilterChips() {
               className={cn(
                 "shrink-0 px-3.5 py-2 rounded-full text-xs font-medium transition-colors",
                 isActive
-                  ? "bg-neutral-900 text-white"
+                  ? "bg-pink-500 text-white"
                   : "bg-white/90 dark:bg-neutral-900/90 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700"
               )}
             >

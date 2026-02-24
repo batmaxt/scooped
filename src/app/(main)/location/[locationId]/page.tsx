@@ -396,7 +396,7 @@ export default function LocationDetailPage({
                           />
                           {locRating > 0 && (
                             <div className="flex items-center gap-0.5">
-                              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                              <Star className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
                               <span className="text-sm">
                                 {locRating.toFixed(1)}
                               </span>
@@ -451,7 +451,7 @@ export default function LocationDetailPage({
                           </span>
                           {Number(checkin.flavor_rating) > 0 && (
                             <div className="flex items-center gap-0.5">
-                              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                              <Star className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
                               <span className="text-sm">
                                 {Number(checkin.flavor_rating)}
                               </span>

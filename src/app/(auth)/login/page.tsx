@@ -65,12 +65,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-4 bg-gradient-to-b from-pink-50 via-[#FFF8F5] to-white dark:from-rose-950/15 dark:via-background dark:to-background">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-4 bg-gradient-to-b from-pink-50 via-background to-white dark:from-rose-950/15 dark:via-background dark:to-background">
       <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
         <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-400 to-amber-300 mb-4 elevation-brand">
           <IceCreamCone className="size-8 text-white" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">Scooped</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-gradient-brand">Scooped</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Discover ice cream, track flavors, share scoops.
         </p>

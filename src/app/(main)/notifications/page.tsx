@@ -46,9 +46,9 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-white dark:bg-background pb-20 animate-in fade-in duration-200">
+    <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-gradient-to-r from-pink-50 via-white to-amber-50/40 dark:from-rose-950/20 dark:via-background dark:to-background backdrop-blur-md border-b border-pink-100/50 dark:border-white/5">
+      <header className="sticky top-0 z-10 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-3">
             <Link
@@ -57,7 +57,7 @@ export default function NotificationsPage() {
             >
               <ArrowLeft className="size-5" />
             </Link>
-            <h1 className="text-base font-semibold">Notifications</h1>
+            <h1 className="text-base font-semibold">Alerts</h1>
           </div>
           {hasUnread && (
             <Button
@@ -93,17 +93,17 @@ export default function NotificationsPage() {
         </div>
       ) : !notifications || notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-          <div className="rounded-full bg-neutral-100 dark:bg-neutral-800 p-5 mb-4">
-            <Bell className="size-8 text-neutral-300 dark:text-neutral-600" />
+          <div className="rounded-full bg-pink-50 dark:bg-pink-900/20 p-5 mb-4">
+            <Bell className="size-8 text-pink-400" />
           </div>
-          <h3 className="font-semibold mb-1">No notifications yet</h3>
+          <h3 className="font-semibold mb-1">No alerts yet</h3>
           <p className="text-sm text-muted-foreground max-w-[240px]">
             When people follow you, like or comment on your check-ins,
             you&apos;ll see it here.
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+        <div className="divide-y divide-pink-100/40 dark:divide-white/5">
           {notifications.map((notification) => (
             <NotificationRow
               key={notification.id}

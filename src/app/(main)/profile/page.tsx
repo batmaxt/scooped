@@ -20,6 +20,7 @@ import {
 import { useAuth } from "@/components/providers/AuthProvider";
 import { fetchUserCheckins } from "@/queries/checkins";
 import { updateProfile, uploadAvatar } from "@/queries/social";
+import { ModerationError } from "@/lib/moderation/nsfwCheck";
 import { BadgeGrid } from "@/components/shared/BadgeGrid";
 import { ListsTab } from "@/components/shared/ListsTab";
 
@@ -290,6 +291,7 @@ function EditProfileSheet({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { refreshProfile } = useAuth();
   const queryClient = useQueryClient();
@@ -297,9 +299,10 @@ function EditProfileSheet({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setAvatarError(null);
     // Max 5MB
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image must be under 5MB");
+      setAvatarError("Image must be under 5MB");
       return;
     }
     setAvatarFile(file);
@@ -331,8 +334,15 @@ function EditProfileSheet({
       setAvatarPreview(null);
       onOpenChange(false);
     },
-    onError: () => {
+    onError: (err) => {
       setUploadingAvatar(false);
+      if (err instanceof ModerationError) {
+        setAvatarError(
+          "This photo was flagged as inappropriate. Please choose a different image."
+        );
+        setAvatarFile(null);
+        setAvatarPreview(null);
+      }
     },
   });
 
@@ -366,6 +376,9 @@ function EditProfileSheet({
               </div>
             </button>
             <span className="text-xs text-muted-foreground">Tap to change photo</span>
+            {avatarError && (
+              <span className="text-xs text-destructive font-medium">{avatarError}</span>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -477,7 +490,7 @@ export default function ProfilePage() {
   if (!user || !profile) return <LoggedOutPrompt />;
 
   return (
-    <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background">
+    <div className="min-h-dvh bg-background">
       {/* Header */}
       <header className="relative bg-white dark:bg-card">
         {/* Top bar */}

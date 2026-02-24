@@ -146,7 +146,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
                   className={`size-4 ${
                     i < primaryRating
                       ? "fill-pink-400 text-pink-400"
-                      : "fill-none text-neutral-200 dark:text-neutral-600"
+                      : "fill-none text-neutral-300 dark:text-neutral-600"
                   }`}
                 />
               ))}

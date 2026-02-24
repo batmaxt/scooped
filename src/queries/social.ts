@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { createNotification } from "@/queries/notifications";
+import { checkImageSafety, ModerationError } from "@/lib/moderation/nsfwCheck";
 import type { Profile, FeedItem } from "@/types/models";
 
 const supabase = createClient();
@@ -194,6 +195,15 @@ export async function uploadAvatar(
   userId: string,
   file: File
 ): Promise<string> {
+  // NSFW moderation gate
+  const moderationResult = await checkImageSafety(file);
+  if (!moderationResult.safe) {
+    throw new ModerationError(
+      moderationResult.flaggedCategory!,
+      moderationResult.confidence!
+    );
+  }
+
   const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const filePath = `${userId}/avatar.${fileExt}`;
 

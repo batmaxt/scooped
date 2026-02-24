@@ -47,7 +47,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
   const rawQuery = filters.searchQuery.trim();
   const query = normalize(rawQuery);
   const results =
-    query.length >= 2
+    query.length >= 1
       ? locations
           .filter(
             (loc) =>
@@ -59,7 +59,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
       : [];
 
   // Only show location dropdown in locations mode (flavor results come from the page)
-  const showDropdown = isFocused && query.length >= 2 && searchMode === "locations";
+  const showDropdown = isFocused && query.length >= 1 && searchMode === "locations";
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -137,13 +137,13 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
                     </div>
                   </div>
                   <div className="flex flex-col items-end shrink-0 gap-0.5">
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
                       {TYPE_LABELS[location.location_type] ||
                         location.location_type}
                     </span>
                     {location.avg_rating > 0 && (
                       <div className="flex items-center gap-0.5">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        <Star className="w-3 h-3 fill-pink-400 text-pink-400" />
                         <span className="text-xs text-neutral-600">
                           {Number(location.avg_rating).toFixed(1)}
                         </span>

@@ -51,9 +51,9 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
 
       {/* Bottom sheet card */}
       <div className="absolute bottom-20 left-4 right-4 z-40 animate-in slide-in-from-bottom-4 duration-300 ease-out">
-        <div className="bg-white rounded-2xl elevation-2 border p-4 relative">
+        <div className="bg-card rounded-2xl elevation-2 border dark:border-neutral-700 p-4 relative">
           {/* Drag handle */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-neutral-200" />
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-neutral-200 dark:bg-neutral-600" />
           {/* Close button */}
           <button
             onClick={(e) => {
@@ -61,15 +61,15 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
               e.stopPropagation();
               onClose();
             }}
-            className="absolute top-3 right-3 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
+            className="absolute top-3 right-3 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors"
             aria-label="Close"
           >
-            <X className="w-4 h-4 text-neutral-500" />
+            <X className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
           </button>
 
           <Link
             href={`/location/${location.slug}`}
-            className="block active:bg-neutral-50 transition-colors"
+            className="block active:bg-neutral-50 dark:active:bg-neutral-800 transition-colors rounded-xl"
           >
             <div className="flex items-start justify-between gap-3 pr-6">
               <div className="flex-1 min-w-0">
@@ -98,35 +98,35 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
                     />
                   </div>
                 )}
-                <div className="flex items-center gap-1 text-sm text-neutral-500 mt-1">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                   <MapPin className="w-3.5 h-3.5" />
                   <span className="truncate">{location.address_line1}</span>
                 </div>
                 <div className="flex items-center gap-3 mt-2">
                   {location.avg_rating > 0 && (
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star className="w-4 h-4 fill-pink-400 text-pink-400" />
                       <span className="text-sm font-medium">
                         {location.avg_rating.toFixed(1)}
                       </span>
-                      <span className="text-xs text-neutral-400">
+                      <span className="text-xs text-muted-foreground">
                         ({location.total_ratings})
                       </span>
                     </div>
                   )}
                   {location.total_checkins > 0 && (
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-muted-foreground">
                       {location.total_checkins} check-ins
                     </span>
                   )}
                   {location.distance_meters != null && (
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-muted-foreground">
                       {formatDistance(location.distance_meters, useMiles)}
                     </span>
                   )}
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-neutral-300 mt-1 shrink-0" />
+              <ChevronRight className="w-5 h-5 text-neutral-300 dark:text-neutral-600 mt-1 shrink-0" />
             </div>
           </Link>
         </div>

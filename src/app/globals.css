@@ -85,7 +85,7 @@
 .dark {
   --background: oklch(0.16 0.006 30);
   --foreground: oklch(0.93 0.01 60);
-  --card: oklch(0.21 0.008 30);
+  --card: oklch(0.23 0.008 30);
   --card-foreground: oklch(0.93 0.01 60);
   --popover: oklch(0.21 0.008 30);
   --popover-foreground: oklch(0.93 0.01 60);
@@ -98,7 +98,7 @@
   --accent: oklch(0.27 0.008 30);
   --accent-foreground: oklch(0.93 0.01 60);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0.01 60 / 10%);
+  --border: oklch(1 0.01 60 / 15%);
   --input: oklch(1 0.01 60 / 12%);
   --ring: oklch(0.556 0.02 30);
   --chart-1: oklch(0.488 0.243 264.376);
@@ -202,6 +202,14 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Consistent loading spinner */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Subtle hover lift for cards */

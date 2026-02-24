@@ -32,6 +32,7 @@ import {
 import { fetchAllLocations } from "@/queries/locations";
 import { checkAndAwardBadges } from "@/queries/badges";
 import { uploadCheckinPhoto } from "@/queries/checkinPhotos";
+import { ModerationError } from "@/lib/moderation/nsfwCheck";
 import { BadgeCelebration } from "@/components/shared/BadgeCelebration";
 import type { Location, Flavor, Availability } from "@/types/models";
 
@@ -41,8 +42,8 @@ import type { Location, Flavor, Availability } from "@/types/models";
 
 const STEPS = [
   { key: "location", label: "Where?" },
-  { key: "flavor", label: "What?" },
   { key: "rate", label: "How?" },
+  { key: "flavor", label: "What?" },
   { key: "details", label: "Show it!" },
   { key: "review", label: "Post" },
 ] as const;
@@ -500,9 +501,9 @@ function StepFlavor({
       <button
         type="button"
         onClick={() => onSelect({ name: "" })}
-        className="text-sm text-neutral-400 underline text-center mt-2"
+        className="w-full py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 text-sm font-medium text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 active:scale-[0.98] transition-all"
       >
-        Skip — just rate the location
+        Skip — I just want to rate the location
       </button>
     </div>
   );
@@ -609,6 +610,7 @@ function StepDetails({
   notes,
   tags,
   photoPreview,
+  moderationError,
   onNotesChange,
   onTagsChange,
   onPhotoChange,
@@ -617,6 +619,7 @@ function StepDetails({
   notes: string;
   tags: string[];
   photoPreview: string | null;
+  moderationError?: string | null;
   onNotesChange: (v: string) => void;
   onTagsChange: (v: string[]) => void;
   onPhotoChange: (file: File | null) => void;
@@ -717,6 +720,11 @@ function StepDetails({
         <p className="text-xs text-neutral-400">
           JPG, PNG, or WebP — max 10 MB
         </p>
+        {moderationError && (
+          <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <p className="text-sm text-red-700 dark:text-red-400">{moderationError}</p>
+          </div>
+        )}
       </div>
 
       {/* Tags */}
@@ -941,11 +949,11 @@ function SuccessState({ locationSlug }: { locationSlug: string }) {
     <div className="flex flex-col items-center justify-center min-h-[70vh] p-6 text-center animate-in fade-in zoom-in-95 duration-500">
       {/* Animated checkmark */}
       <div className="relative mb-6">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center animate-in zoom-in-0 duration-500">
-          <Check className="w-10 h-10 text-green-600" strokeWidth={3} />
+        <div className="w-20 h-20 rounded-full bg-pink-100 dark:bg-pink-900/20 flex items-center justify-center animate-in zoom-in-0 duration-500">
+          <Check className="w-10 h-10 text-pink-600 dark:text-pink-400" strokeWidth={3} />
         </div>
         {/* Decorative rings */}
-        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-green-200 animate-ping opacity-30" />
+        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-pink-200 dark:border-pink-800 animate-ping opacity-30" />
       </div>
 
       <h2 className="text-2xl font-bold mb-1">Scooped!</h2>
@@ -995,6 +1003,7 @@ function NewCheckinPageInner() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [posted, setPosted] = useState(false);
   const [newBadgeIds, setNewBadgeIds] = useState<string[]>([]);
+  const [moderationError, setModerationError] = useState<string | null>(null);
 
   // Photo handler — sets file + instant preview via object URL
   const handlePhotoChange = useCallback((file: File | null) => {
@@ -1045,6 +1054,7 @@ function NewCheckinPageInner() {
 
   const handleSubmit = async () => {
     if (!user || !selectedLocation) return;
+    setModerationError(null);
 
     let photoUrl: string | null = null;
 
@@ -1053,6 +1063,13 @@ function NewCheckinPageInner() {
       try {
         photoUrl = await uploadCheckinPhoto(user.id, photoFile);
       } catch (err) {
+        if (err instanceof ModerationError) {
+          setModerationError(
+            "This photo was flagged as potentially inappropriate. Please choose a different image."
+          );
+          setStep(3);
+          return;
+        }
         console.error("Photo upload failed:", err);
         // Continue without photo rather than blocking the check-in
       }
@@ -1094,7 +1111,7 @@ function NewCheckinPageInner() {
   // Success state
   if (posted && selectedLocation) {
     return (
-      <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background">
+      <div className="min-h-dvh bg-background">
         <SuccessState locationSlug={selectedLocation.slug} />
         {newBadgeIds.length > 0 && (
           <BadgeCelebration
@@ -1107,7 +1124,7 @@ function NewCheckinPageInner() {
   }
 
   return (
-    <div className="min-h-dvh bg-[#FFF8F5] dark:bg-background">
+    <div className="min-h-dvh bg-background">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5">
         <div className="flex items-center gap-3 px-4 py-3">
@@ -1146,22 +1163,22 @@ function NewCheckinPageInner() {
         />
       )}
 
-      {step === 1 && selectedLocation && (
-        <StepFlavor
-          locationId={selectedLocation.id}
-          onSelect={(flavor) => {
-            setSelectedFlavor(flavor.name ? flavor : null);
-            setStep(2);
-          }}
-        />
-      )}
-
-      {step === 2 && (
+      {step === 1 && (
         <StepRate
           flavorName={selectedFlavor?.name || ""}
           ratings={ratings}
           onChange={setRatings}
-          onNext={() => setStep(3)}
+          onNext={() => setStep(2)}
+        />
+      )}
+
+      {step === 2 && selectedLocation && (
+        <StepFlavor
+          locationId={selectedLocation.id}
+          onSelect={(flavor) => {
+            setSelectedFlavor(flavor.name ? flavor : null);
+            setStep(3);
+          }}
         />
       )}
 
@@ -1170,6 +1187,7 @@ function NewCheckinPageInner() {
           notes={notes}
           tags={tags}
           photoPreview={photoPreview}
+          moderationError={moderationError}
           onNotesChange={setNotes}
           onTagsChange={setTags}
           onPhotoChange={handlePhotoChange}

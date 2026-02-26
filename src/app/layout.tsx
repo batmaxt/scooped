@@ -34,7 +34,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#ffffff",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5e6f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a1030" },
+  ],
 };
 
 export default function RootLayout({
@@ -48,7 +51,7 @@ export default function RootLayout({
         {/* Anti-flash: apply dark class synchronously before first paint */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("scooped:theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme:dark)").matches);if(d){document.documentElement.classList.add("dark");var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content","#1a1a1a")}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem("scooped:theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme:dark)").matches);if(d){document.documentElement.classList.add("dark");var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content","#1a1030")}}catch(e){}})();`,
           }}
         />
       </head>

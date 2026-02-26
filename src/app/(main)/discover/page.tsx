@@ -26,11 +26,11 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  scoop_shop: "bg-pink-100 text-pink-700",
-  supermarket: "bg-blue-100 text-blue-700",
-  farmers_market: "bg-green-100 text-green-700",
-  restaurant: "bg-orange-100 text-orange-700",
-  food_truck: "bg-purple-100 text-purple-700",
+  scoop_shop: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
+  supermarket: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
+  farmers_market: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  restaurant: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+  food_truck: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
 };
 
 export default function DiscoverPage() {
@@ -268,7 +268,7 @@ export default function DiscoverPage() {
       {/* Loading indicator */}
       {isLoading && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-5 py-2.5 elevation-2 flex items-center gap-2.5 animate-in fade-in duration-200">
-          <Loader2 className="size-4 animate-spin text-pink-400" />
+          <Loader2 className="size-4 animate-spin text-cyan-500" />
           <span className="text-sm font-medium text-neutral-600">
             {searchMode === "flavors" ? "Searching flavors..." : "Loading locations..."}
           </span>

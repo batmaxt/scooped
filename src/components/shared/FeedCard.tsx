@@ -74,21 +74,21 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
   const primaryRating = item.flavor_rating || item.location_rating || 0;
 
   return (
-    <Card className="gap-0 py-0 overflow-hidden press-card border-0 elevation-2">
+    <Card className="gap-0 py-0 overflow-hidden press-card border-0 elevation-2 gradient-border">
       {/* Colored accent bar */}
-      <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-400 to-amber-300 dark:from-rose-400/60 dark:via-pink-400/40 dark:to-amber-400/30" />
+      <div className="h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 dark:from-pink-400/60 dark:via-purple-400/40 dark:to-cyan-400/30" />
       <CardContent className="px-4 py-4 space-y-3">
         {/* User row */}
         <div className="flex items-center gap-2.5">
           <Link href={`/profile/${item.profile_username}`}>
-            <Avatar className="size-10 ring-2 ring-pink-100 dark:ring-rose-800/30">
+            <Avatar className="size-10 ring-2 ring-purple-200 dark:ring-purple-800/30">
               {item.profile_avatar_url && (
                 <AvatarImage
                   src={item.profile_avatar_url}
                   alt={item.profile_display_name || item.profile_username}
                 />
               )}
-              <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-xs font-bold">
+              <AvatarFallback className="bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-400 text-white text-xs font-bold">
                 {getInitials(item.profile_display_name, item.profile_username)}
               </AvatarFallback>
             </Avatar>
@@ -113,7 +113,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
         {/* Location */}
         <Link
           href={`/location/${item.location_slug}`}
-          className="flex items-center gap-1.5 bg-pink-50/60 dark:bg-white/[0.04] rounded-lg px-2.5 py-1.5 -mx-1 hover:bg-pink-50 dark:hover:bg-white/[0.07] transition-colors"
+          className="flex items-center gap-1.5 bg-gradient-to-r from-pink-50/60 to-purple-50/40 dark:from-white/[0.04] dark:to-white/[0.02] rounded-lg px-2.5 py-1.5 -mx-1 hover:from-pink-50 hover:to-purple-50 dark:hover:from-white/[0.07] dark:hover:to-white/[0.05] transition-colors"
         >
           <MapPin className="size-3.5 text-pink-400 shrink-0" />
           <span className="font-medium text-sm truncate">
@@ -159,7 +159,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
           <div className="flex items-center gap-2 flex-wrap">
             <Badge
               variant="secondary"
-              className="bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-700/30 rounded-full px-3"
+              className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/15 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-700/30 rounded-full px-3 shadow-sm"
             >
               <IceCreamCone className="size-3 mr-1" />
               {item.flavor_name}
@@ -191,7 +191,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
         )}
 
         {/* Actions: Melts + Comments */}
-        <div className="flex items-center gap-5 pt-2 border-t border-pink-100/60 dark:border-neutral-800">
+        <div className="flex items-center gap-5 pt-2 border-t border-pink-100/40 dark:border-purple-900/20">
           <button
             type="button"
             onClick={handleLikeToggle}

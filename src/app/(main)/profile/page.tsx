@@ -456,8 +456,8 @@ function StatItem({
   href?: string;
 }) {
   const content = (
-    <div className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-pink-100 dark:border-neutral-700 flex-1">
-      <span className="text-xl font-bold text-pink-500">{value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}</span>
+    <div className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-purple-100 dark:border-purple-800/30 flex-1">
+      <span className="text-xl font-bold text-gradient-cool">{value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}</span>
       <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{label}</span>
     </div>
   );
@@ -490,7 +490,7 @@ export default function ProfilePage() {
   if (!user || !profile) return <LoggedOutPrompt />;
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh bg-background section-profile">
       {/* Header */}
       <header className="relative bg-white dark:bg-card">
         {/* Top bar */}
@@ -500,21 +500,23 @@ export default function ProfilePage() {
               <Settings className="size-5" />
             </Button>
           </Link>
-          <h1 className="text-lg font-bold text-pink-500">Scooped</h1>
+          <h1 className="text-lg font-bold text-gradient-cool">Scooped</h1>
           <div className="size-10" /> {/* Spacer for alignment */}
         </div>
 
         <div className="flex flex-col items-center text-center px-4 pb-6">
-          <Avatar className="size-24 ring-4 ring-pink-400 dark:ring-pink-500 shadow-lg mb-3">
-            {profile.avatar_url && (
-              <AvatarImage
-                src={profile.avatar_url}
-                alt={profile.display_name || profile.username}
-              />
-            )}
-            <AvatarFallback className="bg-gradient-to-br from-pink-400 to-rose-500 text-white text-2xl font-bold">
-              {initials}
-            </AvatarFallback>
+          <Avatar className="size-24 ring-4 ring-transparent shadow-lg mb-3" style={{ background: "linear-gradient(135deg, #ec4899, #a855f7, #06b6d4)", padding: "3px" }}>
+            <div className="w-full h-full rounded-full overflow-hidden">
+              {profile.avatar_url && (
+                <AvatarImage
+                  src={profile.avatar_url}
+                  alt={profile.display_name || profile.username}
+                />
+              )}
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400 text-white text-2xl font-bold">
+                {initials}
+              </AvatarFallback>
+            </div>
           </Avatar>
 
           <h2 className="text-xl font-bold leading-tight">

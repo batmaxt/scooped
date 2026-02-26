@@ -30,10 +30,10 @@ export function FilterChips() {
         <button
           onClick={() => setSearchMode("locations")}
           className={cn(
-            "flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-colors",
+            "flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all",
             searchMode === "locations"
-              ? "bg-pink-500 text-white"
-              : "text-neutral-500 hover:text-neutral-700"
+              ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-sm"
+              : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
           )}
         >
           <MapPin className="size-3.5" />
@@ -42,10 +42,10 @@ export function FilterChips() {
         <button
           onClick={() => setSearchMode("flavors")}
           className={cn(
-            "flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-colors",
+            "flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all",
             searchMode === "flavors"
-              ? "bg-pink-500 text-white"
-              : "text-neutral-500 hover:text-neutral-700"
+              ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-sm"
+              : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
           )}
         >
           <IceCreamCone className="size-3.5" />
@@ -62,9 +62,9 @@ export function FilterChips() {
               key={value}
               onClick={() => toggleType(value)}
               className={cn(
-                "shrink-0 px-3.5 py-2 rounded-full text-xs font-medium transition-colors",
+                "shrink-0 px-3.5 py-2 rounded-full text-xs font-medium transition-all",
                 isActive
-                  ? "bg-pink-500 text-white"
+                  ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-sm"
                   : "bg-white/90 dark:bg-neutral-900/90 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700"
               )}
             >

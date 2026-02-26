@@ -65,26 +65,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-4 bg-gradient-to-b from-pink-50 via-background to-white dark:from-rose-950/15 dark:via-background dark:to-background">
-      <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-400 to-amber-300 mb-4 elevation-brand">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center px-4 bg-[#1a1025] overflow-hidden">
+      {/* Decorative blurred orbs */}
+      <div className="absolute top-20 -left-20 w-72 h-72 rounded-full bg-pink-500/20 blur-[100px]" />
+      <div className="absolute top-40 -right-20 w-80 h-80 rounded-full bg-purple-500/20 blur-[100px]" />
+      <div className="absolute -bottom-20 left-1/3 w-64 h-64 rounded-full bg-cyan-500/15 blur-[100px]" />
+
+      <div className="relative z-10 mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-400 mb-4 elevation-brand">
           <IceCreamCone className="size-8 text-white" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight text-gradient-brand">Scooped</h1>
-        <p className="text-muted-foreground mt-2 text-sm">
+        <h1 className="text-4xl font-bold tracking-tight text-white">Scooped</h1>
+        <p className="text-white/60 mt-2 text-sm">
           Discover ice cream, track flavors, share scoops.
         </p>
       </div>
 
-      <Card className="w-full max-w-sm elevation-2 border-0 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
+      <Card className="relative z-10 w-full max-w-sm border-0 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 bg-white/5 backdrop-blur-xl" style={{ borderColor: "rgba(255,255,255,0.1)", borderWidth: "1px" }}>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
+          <CardTitle className="text-xl text-white">Welcome back</CardTitle>
+          <CardDescription className="text-white/50">Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailLogin} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-white/70">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -93,10 +98,11 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                className="bg-white/10 border-white/10 text-white placeholder:text-white/30"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-white/70">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -105,6 +111,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                className="bg-white/10 border-white/10 text-white placeholder:text-white/30"
               />
             </div>
 
@@ -119,10 +126,10 @@ export default function LoginPage() {
 
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card text-muted-foreground px-2">
+              <span className="bg-transparent text-white/40 px-2">
                 Or continue with
               </span>
             </div>
@@ -130,7 +137,7 @@ export default function LoginPage() {
 
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full bg-white/10 border-white/10 text-white hover:bg-white/20"
             onClick={handleGoogleLogin}
             type="button"
           >
@@ -155,18 +162,18 @@ export default function LoginPage() {
             Continue with Google
           </Button>
 
-          <p className="text-muted-foreground mt-4 text-center text-sm">
+          <p className="text-white/40 mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="text-primary font-medium hover:underline"
+              className="text-pink-400 font-medium hover:underline"
             >
               Sign up
             </Link>
           </p>
 
           <Link href="/discover" className="mt-2 block text-center">
-            <Button variant="ghost" className="w-full text-muted-foreground text-sm">
+            <Button variant="ghost" className="w-full text-white/40 hover:text-white/60 text-sm">
               Skip for now
             </Button>
           </Link>

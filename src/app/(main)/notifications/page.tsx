@@ -46,9 +46,9 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200">
+    <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200 section-notifications">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5">
+      <header className="sticky top-0 z-10 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-amber-100/40 dark:border-white/5">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-3">
             <Link

@@ -245,11 +245,11 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200">
+    <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200 section-feed">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5 px-4 pt-3 pb-3">
+      <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-pink-100/40 dark:border-white/5 px-4 pt-3 pb-3">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-pink-500">Scooped</h1>
+          <h1 className="text-xl font-bold text-gradient-vibrant">Scooped</h1>
           <div className="flex items-center gap-1">
             <Link
               href="/notifications"

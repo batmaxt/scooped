@@ -36,18 +36,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = useCallback(
     async (userId: string) => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+      // Fetch profile and follower/following counts in parallel
+      const [profileResult, followerResult, followingResult] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", userId).single(),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", userId),
+      ]);
 
-      if (error && error.code !== "PGRST116") {
-        console.error("Error fetching profile:", error);
+      if (profileResult.error && profileResult.error.code !== "PGRST116") {
+        console.error("Error fetching profile:", profileResult.error);
         return null;
       }
 
-      return data as Profile | null;
+      if (!profileResult.data) return null;
+
+      return {
+        ...profileResult.data,
+        follower_count: followerResult.count ?? 0,
+        following_count: followingResult.count ?? 0,
+      } as Profile;
     },
     [supabase]
   );

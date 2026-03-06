@@ -7,7 +7,6 @@ import {
   Newspaper,
   Search,
   Bell,
-  X,
   LogIn,
   Loader2,
   Users,
@@ -44,11 +43,7 @@ function NotLoggedIn() {
         and join the conversation.
       </p>
       <Link href="/login">
-        <Button
-          size="lg"
-          variant="brand"
-          className="gap-2"
-        >
+        <Button size="lg" variant="brand" className="gap-2">
           <LogIn className="size-4" />
           Sign In or Sign Up
         </Button>
@@ -176,7 +171,7 @@ export default function FeedPage() {
   const [commentCheckinId, setCommentCheckinId] = useState<string | null>(null);
   const observerRef = useRef<HTMLDivElement>(null);
 
-  // Infinite feed query
+  // Infinite feed query — check-ins from people you follow
   const {
     data,
     fetchNextPage,

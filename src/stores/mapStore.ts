@@ -1,7 +1,5 @@
 import { create } from "zustand";
 
-export type SearchMode = "locations" | "flavors";
-
 interface MapState {
   viewport: {
     longitude: number;
@@ -9,14 +7,12 @@ interface MapState {
     zoom: number;
   };
   selectedLocationId: string | null;
-  searchMode: SearchMode;
   filters: {
     locationTypes: string[];
     searchQuery: string;
   };
   setViewport: (viewport: MapState["viewport"]) => void;
   setSelectedLocationId: (id: string | null) => void;
-  setSearchMode: (mode: SearchMode) => void;
   setFilters: (filters: Partial<MapState["filters"]>) => void;
   resetFilters: () => void;
 }
@@ -33,15 +29,9 @@ export const useMapStore = create<MapState>((set) => ({
     zoom: 12,
   },
   selectedLocationId: null,
-  searchMode: "locations" as SearchMode,
   filters: { ...DEFAULT_FILTERS },
   setViewport: (viewport) => set({ viewport }),
   setSelectedLocationId: (id) => set({ selectedLocationId: id }),
-  setSearchMode: (mode) =>
-    set((state) => ({
-      searchMode: mode,
-      filters: { ...state.filters, searchQuery: "" },
-    })),
   setFilters: (filters) =>
     set((state) => ({
       filters: { ...state.filters, ...filters },

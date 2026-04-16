@@ -47,7 +47,7 @@ function CheckinCard({ checkin }: { checkin: Checkin }) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <MapPin className="size-3.5 text-pink-400 shrink-0" />
+              <MapPin className="size-3.5 text-[#F2B45A] shrink-0" />
               <span className="font-semibold text-sm truncate">
                 {locationName}
               </span>
@@ -141,8 +141,8 @@ function CheckinsTab({ userId }: { userId: string }) {
   if (!checkins || checkins.length === 0) {
     return (
       <div className="flex flex-col items-center py-16 text-center">
-        <div className="rounded-full bg-pink-50 p-4 mb-4">
-          <IceCreamCone className="size-8 text-pink-300" />
+        <div className="rounded-full bg-[#FFF3EE] p-4 mb-4">
+          <IceCreamCone className="size-8 text-[#F46B8F]" />
         </div>
         <h3 className="font-semibold mb-1">No check-ins yet</h3>
         <p className="text-sm text-muted-foreground max-w-[240px]">
@@ -244,7 +244,7 @@ export default function UserProfilePage() {
         <p className="text-sm text-muted-foreground">
           @{username} doesn&apos;t exist.
         </p>
-        <Link href="/feed" className="mt-4 text-sm text-pink-500 font-medium">
+        <Link href="/home" className="mt-4 text-sm text-[#F46B8F] font-medium">
           Back to Feed
         </Link>
       </div>
@@ -252,11 +252,11 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-pink-50/60 via-white to-white pb-20">
+    <div className="min-h-dvh bg-gradient-to-b from-[#FFF3EE]/60 via-white to-white pb-20">
       {/* Header */}
       <header className="relative px-4 pt-8 pb-6">
         <Link
-          href="/feed"
+          href="/home"
           className="absolute top-4 left-4 p-1 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-5" />
@@ -270,7 +270,7 @@ export default function UserProfilePage() {
                 alt={profile.display_name || profile.username}
               />
             )}
-            <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-xl font-bold">
+            <AvatarFallback className="bg-gradient-to-br from-[#F46B8F] to-[#F2B45A] text-white text-xl font-bold">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -313,7 +313,7 @@ export default function UserProfilePage() {
           {isOwnProfile && (
             <Link
               href="/profile"
-              className="mt-3 text-xs text-pink-500 font-medium"
+              className="mt-3 text-xs text-[#F46B8F] font-medium"
             >
               Go to your profile
             </Link>

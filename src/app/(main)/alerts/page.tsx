@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
+  Bell,
   BellRing,
   IceCreamCone,
   Tag,
@@ -12,10 +12,12 @@ import {
   Plus,
   Trash2,
   Loader2,
+  Sparkles,
+  LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DemoButton } from "@/components/shared/DemoButton";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/components/providers/AuthProvider";
 import {
@@ -32,10 +34,10 @@ const TYPE_ICONS: Record<string, React.ElementType> = {
   location: MapPin,
 };
 
-const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  flavor: { bg: "bg-pink-50", text: "text-pink-600" },
-  brand: { bg: "bg-blue-50", text: "text-blue-600" },
-  location: { bg: "bg-green-50", text: "text-green-600" },
+const ACCENT_COLORS: Record<string, string> = {
+  flavor: "bg-[#C4364A]",
+  brand: "bg-[#F2B45A]",
+  location: "bg-[#7C5CBF]",
 };
 
 // ---------------------------------------------------------------------------
@@ -52,7 +54,7 @@ function AlertRow({
   onDelete: (id: string) => void;
 }) {
   const Icon = TYPE_ICONS[alert.alert_type] || BellRing;
-  const colors = TYPE_COLORS[alert.alert_type] || TYPE_COLORS.flavor;
+  const accentColor = ACCENT_COLORS[alert.alert_type] || "bg-[#7C5CBF]";
 
   const name =
     alert.alert_type === "flavor"
@@ -62,57 +64,56 @@ function AlertRow({
         : alert.location?.name;
 
   const subtitle =
-    alert.alert_type === "flavor" && alert.flavor
-      ? undefined
-      : alert.alert_type === "location" && alert.location
-        ? `${alert.location.city}, ${alert.location.state}`
-        : undefined;
+    alert.alert_type === "location" && alert.location
+      ? `${alert.location.city}, ${alert.location.state}`
+      : alert.alert_type === "brand"
+        ? "Brand alert"
+        : alert.alert_type === "flavor"
+          ? "Flavor alert"
+          : undefined;
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex items-center justify-center size-10 rounded-full ${colors.bg} shrink-0`}
-          >
-            <Icon className={`size-5 ${colors.text}`} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold truncate">
-                {name || "Unknown"}
-              </p>
-              <span
-                className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${colors.bg} ${colors.text} capitalize`}
-              >
-                {alert.alert_type}
-              </span>
-            </div>
-            {subtitle && (
-              <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Switch
-              checked={alert.is_active}
-              onCheckedChange={(checked) => onToggle(alert.id, checked)}
-            />
-            <button
-              type="button"
-              onClick={() => onDelete(alert.id)}
-              className="p-2.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors"
-            >
-              <Trash2 className="size-4" />
-            </button>
-          </div>
+    <div className="flex bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 overflow-hidden">
+      {/* Accent bar */}
+      <div className={`w-1.5 ${accentColor} shrink-0`} />
+
+      <div className="flex items-center gap-3 p-4 flex-1 min-w-0">
+        <div className="flex items-center justify-center size-10 rounded-full bg-[#FFF3EE] dark:bg-[#332520]/30 shrink-0">
+          <Icon className="size-5 text-[#F46B8F]" />
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
+            {name || "Unknown"}
+          </p>
+          {subtitle && (
+            <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+          )}
+          <p className="text-[11px] text-[#F46B8F] font-medium mt-0.5">
+            {alert.is_active ? "Watching for updates" : "Paused"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <Switch
+            checked={alert.is_active}
+            onCheckedChange={(checked) => onToggle(alert.id, checked)}
+          />
+          <button
+            type="button"
+            onClick={() => onDelete(alert.id)}
+            className="p-2 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors"
+          >
+            <Trash2 className="size-4" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Alerts Page
+// Main Alerts Page
 // ---------------------------------------------------------------------------
 
 export default function AlertsPage() {
@@ -142,98 +143,117 @@ export default function AlertsPage() {
     },
   });
 
-  // Auth loading
   if (authLoading) {
     return (
-      <div className="p-4 space-y-4">
-        <Skeleton className="h-14 w-full" />
+      <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background p-5 pt-14 space-y-4">
+        <Skeleton className="h-6 w-32" />
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-24 w-full rounded-2xl" />
         {Array.from({ length: 3 }, (_, i) => (
-          <Skeleton key={i} className="h-20 w-full rounded-xl" />
+          <Skeleton key={i} className="h-20 w-full rounded-2xl" />
         ))}
       </div>
     );
   }
 
-  // Not logged in
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center">
-        <div className="rounded-full bg-orange-50 p-5 mb-5">
-          <BellRing className="size-10 text-orange-400" />
+      <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16">
+        <div className="px-5 pt-14 pb-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F] mb-1">
+            Alerts
+          </p>
+          <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
+            Stay on top of your cravings
+          </h1>
         </div>
-        <h2 className="text-xl font-bold mb-2">Flavor Alerts</h2>
-        <p className="text-sm text-muted-foreground max-w-xs mb-8">
-          Sign in to set up alerts for your favorite flavors.
-        </p>
-        <Link href="/login">
-          <Button
-            size="lg"
-            variant="brand"
-            className="gap-2"
-          >
-            Sign In
-          </Button>
-        </Link>
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+          <div className="rounded-full bg-[#FFF3EE] dark:bg-[#332520]/20 p-5 mb-5">
+            <BellRing className="size-10 text-[#F46B8F]" />
+          </div>
+          <p className="text-sm text-muted-foreground max-w-xs mb-8">
+            Sign in to set up alerts for your favorite flavors.
+          </p>
+          <Link href="/login">
+            <Button size="lg" variant="brand" className="gap-2">
+              <LogIn className="size-4" />
+              Sign In
+            </Button>
+          </Link>
+          <DemoButton className="mt-3" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-50 dark:bg-background pb-20 animate-in fade-in duration-200">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-gradient-to-r from-orange-50 via-white to-amber-50/40 dark:from-amber-950/15 dark:via-background dark:to-background backdrop-blur-md border-b border-orange-100/50 dark:border-white/5">
-        <div className="flex items-center gap-3 px-4 h-14">
-          <Link
-            href="/settings"
-            className="p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="size-5" />
-          </Link>
-          <h1 className="text-base font-semibold bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">Flavor Alerts</h1>
-        </div>
-      </header>
+    <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">
+      {/* Hero */}
+      <div className="px-5 pt-14 pb-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F] mb-1">
+          Alerts
+        </p>
+        <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
+          Stay on top of your cravings
+        </h1>
+      </div>
 
-      <div className="px-4 py-5 space-y-4">
-        {/* Info card */}
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/20 border border-orange-100 dark:border-orange-900/50 rounded-xl p-4">
+      <div className="px-5 pt-3 space-y-4">
+        {/* Hero card */}
+        <div className="bg-gradient-to-br from-[#2E1F1B] to-[#5D4037] rounded-2xl p-5">
           <div className="flex items-start gap-3">
-            <BellRing className="size-5 text-orange-500 mt-0.5 shrink-0" />
+            <div className="flex items-center justify-center size-10 rounded-full bg-white/15 shrink-0">
+              <Bell className="size-5 text-white" />
+            </div>
+            <p className="text-sm text-white/90 leading-relaxed">
+              Flavor alerts are watching the city for you. We&apos;ll notify you
+              when your favorites show up nearby.
+            </p>
+          </div>
+        </div>
+
+        {/* Add a flavor alert CTA */}
+        <button
+          onClick={() => setSheetOpen(true)}
+          className="w-full bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-5 text-left hover:border-[#F46B8F]/30 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center size-12 rounded-full bg-[#FFF3EE] dark:bg-[#332520]/30">
+              <Plus className="size-6 text-[#F46B8F]" />
+            </div>
             <div>
-              <p className="text-sm font-medium">How alerts work</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Get notified when a business adds your favorite flavor, brand,
-                or updates a specific location.
+              <p className="font-bold text-[#2E1F1B] dark:text-[#F5E6DC]">
+                Watch a flavor
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Get notified when it&apos;s spotted near you
               </p>
             </div>
           </div>
-        </div>
+        </button>
 
         {/* Alerts list */}
         {isLoading ? (
           Array.from({ length: 3 }, (_, i) => (
-            <Skeleton key={i} className="h-20 w-full rounded-xl" />
+            <Skeleton key={i} className="h-20 w-full rounded-2xl" />
           ))
         ) : alerts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="rounded-full bg-neutral-100 dark:bg-neutral-800 p-5 mb-4">
               <BellRing className="size-8 text-neutral-300 dark:text-neutral-600" />
             </div>
-            <h3 className="font-semibold mb-1">No alerts yet</h3>
-            <p className="text-sm text-muted-foreground max-w-xs mb-6">
-              Set up alerts to get notified when your favorite flavors appear at
-              shops near you.
+            <h3 className="font-semibold text-[#2E1F1B] dark:text-[#F5E6DC] mb-1">
+              No alerts yet
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Tap &ldquo;Watch a flavor&rdquo; above to get started.
             </p>
-            <Button
-              onClick={() => setSheetOpen(true)}
-              variant="brand"
-              className="gap-2"
-            >
-              <Plus className="size-4" />
-              Add Your First Alert
-            </Button>
           </div>
         ) : (
           <>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              {alerts.length} active alert{alerts.length !== 1 ? "s" : ""}
+            </p>
             {alerts.map((alert) => (
               <AlertRow
                 key={alert.id}
@@ -244,29 +264,38 @@ export default function AlertsPage() {
                 onDelete={(id) => deleteMutation.mutate(id)}
               />
             ))}
-
-            {/* Add alert button */}
-            <Button
-              onClick={() => setSheetOpen(true)}
-              variant="brand-gradient"
-              className="w-full h-12 text-base rounded-xl gap-2"
-            >
-              <Plus className="size-5" />
-              Add Alert
-            </Button>
           </>
+        )}
+
+        {/* Smart alert suggestion card */}
+        {alerts.length > 0 && (
+          <div className="bg-[#FFF3EE] dark:bg-amber-900/10 rounded-2xl p-5 border border-[rgba(93,64,55,0.12)]/40 dark:border-white/5/20">
+            <div className="flex items-start gap-3">
+              <div className="flex items-center justify-center size-10 rounded-full bg-[#FFF3EE] dark:bg-amber-900/20 shrink-0">
+                <Sparkles className="size-5 text-[#F2B45A]" />
+              </div>
+              <div>
+                <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC]">
+                  Smart alert idea
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  Based on your check-ins, you might enjoy setting an alert for
+                  seasonal flavors near your favorite shops.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Mutation status */}
         {(toggleMutation.isPending || deleteMutation.isPending) && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-neutral-900 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2 shadow-lg">
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-neutral-900 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2 shadow-lg z-50">
             <Loader2 className="size-4 animate-spin" />
             Updating...
           </div>
         )}
       </div>
 
-      {/* Add Alert Sheet */}
       <AddAlertSheet open={sheetOpen} onOpenChange={setSheetOpen} />
     </div>
   );

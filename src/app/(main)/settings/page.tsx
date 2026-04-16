@@ -389,7 +389,7 @@ function SettingsContent() {
               onClick={() => { window.location.href = "/admin/claims"; }}
               rightElement={
                 pendingClaims.length > 0 ? (
-                  <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-pink-500 text-white text-xs font-bold">
+                  <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-[#F46B8F] text-white text-xs font-bold">
                     {pendingClaims.length}
                   </span>
                 ) : undefined

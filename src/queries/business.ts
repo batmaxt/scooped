@@ -163,6 +163,41 @@ export async function rejectClaim(
 }
 
 // ---------------------------------------------------------------------------
+// Business: unclaim a location (owner releases their claim)
+// ---------------------------------------------------------------------------
+
+export async function unclaimLocation(
+  locationId: string,
+  userId: string
+): Promise<void> {
+  // 1. Clear claim on the location
+  const { error: locError } = await supabase
+    .from("locations")
+    .update({
+      is_claimed: false,
+      claimed_by: null,
+    })
+    .eq("id", locationId)
+    .eq("claimed_by", userId); // Only the owner can unclaim
+
+  if (locError) throw new Error(locError.message);
+
+  // 2. Mark the approved claim as rejected (so they can re-claim later if needed)
+  const { error: claimError } = await supabase
+    .from("business_claims")
+    .update({
+      status: "rejected",
+      admin_notes: "Unclaimed by business owner",
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("location_id", locationId)
+    .eq("user_id", userId)
+    .eq("status", "approved");
+
+  if (claimError) throw new Error(claimError.message);
+}
+
+// ---------------------------------------------------------------------------
 // Business: fetch availability for managed location
 // ---------------------------------------------------------------------------
 

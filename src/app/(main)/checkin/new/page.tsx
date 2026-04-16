@@ -71,9 +71,6 @@ const SUGGESTED_TAGS = [
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
   supermarket: "Supermarket",
-  farmers_market: "Farmers Market",
-  restaurant: "Restaurant",
-  food_truck: "Food Truck",
 };
 
 // ---------------------------------------------------------------------------
@@ -90,7 +87,7 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
             <div
               className={cn(
                 "absolute top-3.5 left-[calc(50%+12px)] h-0.5 transition-colors duration-500",
-                i < currentStep ? "bg-pink-400" : "bg-neutral-200 dark:bg-neutral-700"
+                i < currentStep ? "bg-[#F46B8F]" : "bg-neutral-200 dark:bg-neutral-700"
               )}
               style={{ width: "calc(100% + 8px)" }}
             />
@@ -100,9 +97,9 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
             className={cn(
               "relative z-10 flex items-center justify-center size-7 rounded-full text-xs font-bold transition-all duration-300",
               i < currentStep
-                ? "bg-pink-500 text-white shadow-sm"
+                ? "bg-[#F46B8F] text-white shadow-sm"
                 : i === currentStep
-                  ? "bg-pink-500 text-white ring-4 ring-pink-100 dark:ring-pink-900/30 shadow-md"
+                  ? "bg-[#F46B8F] text-white ring-4 ring-[#FFF3EE] dark:ring-[#332520]/30 shadow-md"
                   : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-500"
             )}
           >
@@ -116,7 +113,7 @@ function ProgressBar({ currentStep }: { currentStep: number }) {
           <span
             className={cn(
               "text-[10px] font-medium transition-colors duration-300",
-              i <= currentStep ? "text-pink-600 dark:text-pink-400" : "text-neutral-400 dark:text-neutral-500"
+              i <= currentStep ? "text-[#F46B8F] dark:text-[#F46B8F]" : "text-neutral-400 dark:text-neutral-500"
             )}
           >
             {step.label}
@@ -243,7 +240,7 @@ function StepLocation({
                       </Badge>
                       {loc.avg_rating > 0 && (
                         <div className="flex items-center gap-0.5">
-                          <Star className="w-3 h-3 fill-pink-400 text-pink-400" />
+                          <Star className="w-3 h-3 fill-[#F2B45A] text-[#F2B45A]" />
                           <span className="text-xs text-neutral-500">
                             {Number(loc.avg_rating).toFixed(1)}
                           </span>
@@ -313,8 +310,8 @@ function StepFlavor({
           className={cn(
             "flex-1 text-sm font-medium py-2 px-3 rounded-lg border transition-colors",
             mode === "location"
-              ? "bg-pink-500 text-white border-pink-500"
-              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-pink-200 dark:border-neutral-700"
+              ? "bg-[#F46B8F] text-white border-[#F46B8F]"
+              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-[rgba(93,64,55,0.12)] dark:border-neutral-700"
           )}
         >
           At this spot
@@ -325,8 +322,8 @@ function StepFlavor({
           className={cn(
             "flex-1 text-sm font-medium py-2 px-3 rounded-lg border transition-colors",
             mode === "search"
-              ? "bg-pink-500 text-white border-pink-500"
-              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-pink-200 dark:border-neutral-700"
+              ? "bg-[#F46B8F] text-white border-[#F46B8F]"
+              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-[rgba(93,64,55,0.12)] dark:border-neutral-700"
           )}
         >
           Search all
@@ -337,8 +334,8 @@ function StepFlavor({
           className={cn(
             "flex-1 text-sm font-medium py-2 px-3 rounded-lg border transition-colors",
             mode === "custom"
-              ? "bg-pink-500 text-white border-pink-500"
-              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-pink-200 dark:border-neutral-700"
+              ? "bg-[#F46B8F] text-white border-[#F46B8F]"
+              : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-[rgba(93,64,55,0.12)] dark:border-neutral-700"
           )}
         >
           Custom
@@ -380,8 +377,8 @@ function StepFlavor({
                 >
                   <Card className="transition-all hover:shadow-md active:scale-[0.98]">
                     <CardContent className="flex items-center gap-3 p-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-50 shrink-0">
-                        <IceCreamCone className="w-5 h-5 text-pink-400" />
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FFF3EE] shrink-0">
+                        <IceCreamCone className="w-5 h-5 text-[#F46B8F]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">
@@ -455,8 +452,8 @@ function StepFlavor({
                 >
                   <Card className="transition-all hover:shadow-md active:scale-[0.98]">
                     <CardContent className="flex items-center gap-3 p-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-50 shrink-0">
-                        <IceCreamCone className="w-5 h-5 text-pink-400" />
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FFF3EE] shrink-0">
+                        <IceCreamCone className="w-5 h-5 text-[#F46B8F]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{flavor.name}</p>
@@ -711,7 +708,7 @@ function StepDetails({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center justify-center gap-2 w-full h-24 rounded-xl border-2 border-dashed border-neutral-200 dark:border-neutral-700 text-neutral-400 hover:border-pink-300 hover:text-pink-400 dark:hover:border-pink-700 dark:hover:text-pink-400 transition-colors"
+            className="flex items-center justify-center gap-2 w-full h-24 rounded-xl border-2 border-dashed border-neutral-200 dark:border-neutral-700 text-neutral-400 hover:border-[#F46B8F]/40 hover:text-[#F46B8F] dark:hover:border-[#F46B8F]/40 dark:hover:text-[#F46B8F] transition-colors"
           >
             <Camera className="w-5 h-5" />
             <span className="text-sm">Add a photo</span>
@@ -741,8 +738,8 @@ function StepDetails({
                 className={cn(
                   "px-3 py-1.5 rounded-full text-xs font-medium border transition-all active:scale-95",
                   isActive
-                    ? "bg-pink-500 text-white border-pink-500"
-                    : "bg-white dark:bg-neutral-800 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-700/30 hover:border-pink-300 dark:hover:border-pink-600"
+                    ? "bg-[#F46B8F] text-white border-[#F46B8F]"
+                    : "bg-white dark:bg-neutral-800 text-[#F46B8F] dark:text-[#F46B8F] border-[#FFF3EE] dark:border-[#332520]/30 hover:border-[#F46B8F]/40 dark:hover:border-[#F46B8F]/60"
                 )}
               >
                 {tag}
@@ -799,7 +796,7 @@ function StepReview({
         className={cn(
           "w-4 h-4",
           i < count
-            ? "fill-pink-400 text-pink-400"
+            ? "fill-[#F2B45A] text-[#F2B45A]"
             : "fill-transparent text-neutral-200 dark:text-neutral-600"
         )}
       />
@@ -832,8 +829,8 @@ function StepReview({
           {/* Flavor */}
           {flavorName && (
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-50 shrink-0">
-                <IceCreamCone className="w-5 h-5 text-pink-400" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FFF3EE] shrink-0">
+                <IceCreamCone className="w-5 h-5 text-[#F46B8F]" />
               </div>
               <div>
                 <p className="font-medium">{flavorName}</p>
@@ -949,11 +946,11 @@ function SuccessState({ locationSlug }: { locationSlug: string }) {
     <div className="flex flex-col items-center justify-center min-h-[70vh] p-6 text-center animate-in fade-in zoom-in-95 duration-500">
       {/* Animated checkmark */}
       <div className="relative mb-6">
-        <div className="w-20 h-20 rounded-full bg-pink-100 dark:bg-pink-900/20 flex items-center justify-center animate-in zoom-in-0 duration-500">
-          <Check className="w-10 h-10 text-pink-600 dark:text-pink-400" strokeWidth={3} />
+        <div className="w-20 h-20 rounded-full bg-[#FFF3EE] dark:bg-[#332520]/20 flex items-center justify-center animate-in zoom-in-0 duration-500">
+          <Check className="w-10 h-10 text-[#F46B8F] dark:text-[#F46B8F]" strokeWidth={3} />
         </div>
         {/* Decorative rings */}
-        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-pink-200 dark:border-pink-800 animate-ping opacity-30" />
+        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-[#F46B8F]/30 dark:border-[#332520] animate-ping opacity-30" />
       </div>
 
       <h2 className="text-2xl font-bold mb-1">Scooped!</h2>
@@ -1126,7 +1123,7 @@ function NewCheckinPageInner() {
   return (
     <div className="min-h-dvh bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-md border-b border-pink-100/60 dark:border-white/5">
+      <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-md border-b border-[rgba(93,64,55,0.12)]/60 dark:border-white/5">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             type="button"
@@ -1135,7 +1132,7 @@ function NewCheckinPageInner() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="font-semibold text-pink-500">New Check-In</h1>
+          <h1 className="font-semibold text-[#F46B8F]">New Check-In</h1>
           <span className="ml-auto text-xs text-muted-foreground">
             {step + 1} of {TOTAL_STEPS}
           </span>
@@ -1197,8 +1194,8 @@ function NewCheckinPageInner() {
 
       {step === 4 && selectedLocation && !user && (
         <div className="flex flex-col items-center justify-center py-16 px-6 text-center animate-in fade-in slide-in-from-right-4 duration-300">
-          <div className="rounded-full bg-pink-50 p-5 mb-5">
-            <IceCreamCone className="w-10 h-10 text-pink-400" />
+          <div className="rounded-full bg-[#FFF3EE] p-5 mb-5">
+            <IceCreamCone className="w-10 h-10 text-[#F46B8F]" />
           </div>
           <h2 className="text-xl font-bold mb-2">Almost there!</h2>
           <p className="text-sm text-neutral-500 max-w-xs mb-6">

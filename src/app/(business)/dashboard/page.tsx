@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -13,6 +15,7 @@ import {
   RefreshCw,
   Loader2,
   LogIn,
+  ShieldOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,15 +25,13 @@ import {
   fetchClaimedLocation,
   fetchBusinessAvailability,
   confirmAllFlavors,
+  unclaimLocation,
 } from "@/queries/business";
 import { getRelativeTime } from "@/lib/utils";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
   supermarket: "Supermarket",
-  farmers_market: "Farmers Market",
-  restaurant: "Restaurant",
-  food_truck: "Food Truck",
 };
 
 // ---------------------------------------------------------------------------
@@ -40,6 +41,8 @@ const TYPE_LABELS: Record<string, string> = {
 export default function BusinessDashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const [showUnclaimConfirm, setShowUnclaimConfirm] = useState(false);
 
   const { data: location, isLoading: locationLoading } = useQuery({
     queryKey: ["claimed-location", user?.id],
@@ -69,6 +72,15 @@ export default function BusinessDashboardPage() {
       queryClient.invalidateQueries({
         queryKey: ["business-availability", location?.id],
       });
+    },
+  });
+
+  const unclaimMutation = useMutation({
+    mutationFn: () => unclaimLocation(location!.id, user!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["claimed-location"] });
+      setShowUnclaimConfirm(false);
+      router.push("/discover");
     },
   });
 
@@ -134,7 +146,7 @@ export default function BusinessDashboardPage() {
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-neutral-100">
         <div className="flex items-center gap-3 px-4 h-14">
           <Link
-            href="/feed"
+            href="/home"
             className="p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="size-5" />
@@ -253,6 +265,56 @@ export default function BusinessDashboardPage() {
               View Public Page
             </Button>
           </Link>
+
+          {/* Unclaim */}
+          {!showUnclaimConfirm ? (
+            <Button
+              variant="ghost"
+              className="w-full h-11 rounded-xl gap-2 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+              onClick={() => setShowUnclaimConfirm(true)}
+            >
+              <ShieldOff className="size-4" />
+              Remove Business Claim
+            </Button>
+          ) : (
+            <Card className="border-red-200 bg-red-50/50">
+              <CardContent className="p-4 space-y-3">
+                <p className="text-sm font-medium text-red-800">
+                  Are you sure? This will remove your ownership of{" "}
+                  <strong>{location.name}</strong>. You&apos;ll lose access to
+                  the dashboard and flavor management.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowUnclaimConfirm(false)}
+                    disabled={unclaimMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                    onClick={() => unclaimMutation.mutate()}
+                    disabled={unclaimMutation.isPending}
+                  >
+                    {unclaimMutation.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      "Yes, Remove Claim"
+                    )}
+                  </Button>
+                </div>
+                {unclaimMutation.isError && (
+                  <p className="text-xs text-red-600">
+                    Something went wrong. Please try again.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

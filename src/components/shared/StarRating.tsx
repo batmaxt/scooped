@@ -58,7 +58,7 @@ export function StarRating({
                     styles.star,
                     "transition-colors duration-150",
                     isFilled
-                      ? "fill-pink-400 text-pink-400"
+                      ? "fill-[#F2B45A] text-[#F2B45A]"
                       : "fill-transparent text-neutral-300 dark:text-neutral-600"
                   )}
                 />
@@ -69,7 +69,7 @@ export function StarRating({
         {value > 0 && (
           <span
             className={cn(
-              "font-semibold text-pink-500 tabular-nums",
+              "font-semibold text-[#F2B45A] tabular-nums",
               styles.text
             )}
           >

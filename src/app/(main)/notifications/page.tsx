@@ -48,11 +48,11 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200 section-notifications">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-amber-100/40 dark:border-white/5">
+      <header className="sticky top-0 z-10 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-[rgba(93,64,55,0.12)]/40 dark:border-white/5">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-3">
             <Link
-              href="/feed"
+              href="/home"
               className="p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="size-5" />
@@ -63,7 +63,7 @@ export default function NotificationsPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-xs text-pink-500 hover:text-pink-600 gap-1"
+              className="text-xs text-[#F46B8F] hover:text-[#C4364A] gap-1"
               onClick={() => markAllMutation.mutate()}
               disabled={markAllMutation.isPending}
             >
@@ -93,8 +93,8 @@ export default function NotificationsPage() {
         </div>
       ) : !notifications || notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-          <div className="rounded-full bg-pink-50 dark:bg-pink-900/20 p-5 mb-4">
-            <Bell className="size-8 text-pink-400" />
+          <div className="rounded-full bg-[#FFF3EE] dark:bg-[#332520]/20 p-5 mb-4">
+            <Bell className="size-8 text-[#F46B8F]" />
           </div>
           <h3 className="font-semibold mb-1">No alerts yet</h3>
           <p className="text-sm text-muted-foreground max-w-[240px]">
@@ -103,7 +103,7 @@ export default function NotificationsPage() {
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-pink-100/40 dark:divide-white/5">
+        <div className="divide-y divide-[rgba(93,64,55,0.12)]/40 dark:divide-white/5">
           {notifications.map((notification) => (
             <NotificationRow
               key={notification.id}

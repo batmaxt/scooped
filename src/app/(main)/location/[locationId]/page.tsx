@@ -10,7 +10,6 @@ import {
   Globe,
   Instagram,
   Phone,
-  ChevronRight,
   Loader2,
   Share2,
   Navigation,
@@ -23,65 +22,51 @@ import {
   BellRing,
   Eye,
   MessageCircle,
+  Camera,
+  Bookmark,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { AddToListSheet } from "@/components/shared/AddToListSheet";
 import { AddAlertSheet } from "@/components/shared/AddAlertSheet";
 import { ReportSightingSheet } from "@/components/shared/ReportSightingSheet";
+import { ScanMenuSheet } from "@/components/shared/ScanMenuSheet";
 import { FreshnessBadge } from "@/components/shared/FreshnessBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   fetchLocationBySlug,
   fetchLocationFlavors,
   fetchLocationCheckins,
 } from "@/queries/locations";
+import { fetchMenuPhotos, type MenuPhoto } from "@/queries/menuPhotos";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
   supermarket: "Supermarket",
-  farmers_market: "Farmers Market",
-  restaurant: "Restaurant",
-  food_truck: "Food Truck",
 };
 
-const TYPE_COLORS: Record<string, { bg: string; text: string; gradient: string }> = {
+const TYPE_COLORS: Record<string, { gradient: string; badge: string }> = {
   scoop_shop: {
-    bg: "bg-pink-100",
-    text: "text-pink-700",
-    gradient: "from-pink-500 to-rose-400",
+    gradient: "from-[#F46B8F] to-[#C4364A]",
+    badge: "bg-[#FFF3EE] text-[#F46B8F]",
   },
   supermarket: {
-    bg: "bg-blue-100",
-    text: "text-blue-700",
-    gradient: "from-blue-500 to-cyan-400",
+    gradient: "from-[#F2B45A] to-[#D4A030]",
+    badge: "bg-[#FFF3EE] text-[#2E1F1B]",
   },
-  farmers_market: {
-    bg: "bg-green-100",
-    text: "text-green-700",
-    gradient: "from-green-500 to-emerald-400",
-  },
-  restaurant: {
-    bg: "bg-orange-100",
-    text: "text-orange-700",
-    gradient: "from-orange-500 to-amber-400",
-  },
-  food_truck: {
-    bg: "bg-purple-100",
-    text: "text-purple-700",
-    gradient: "from-purple-500 to-violet-400",
-  },
+};
+
+const LOCATION_HERO_IMAGES: Record<string, string> = {
+  scoop_shop: "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?auto=format&fit=crop&w=1200&q=80",
+  supermarket: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=1200&q=80",
 };
 
 const TYPE_EMOJI: Record<string, string> = {
   scoop_shop: "\uD83C\uDF68",
   supermarket: "\uD83D\uDED2",
-  farmers_market: "\uD83C\uDF3D",
-  restaurant: "\uD83C\uDF7D\uFE0F",
-  food_truck: "\uD83D\uDE9A",
 };
 
 function timeAgo(dateString: string): string {
@@ -114,7 +99,6 @@ function getDirectionsUrl(location: {
 }): string {
   const address = `${location.address_line1}, ${location.city}, ${location.state}${location.zip ? ` ${location.zip}` : ""}`;
   const encoded = encodeURIComponent(address);
-  // Use Apple Maps on iOS/macOS, Google Maps otherwise
   const isApple =
     typeof navigator !== "undefined" &&
     /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
@@ -133,6 +117,7 @@ export default function LocationDetailPage({
   const [addToListOpen, setAddToListOpen] = useState(false);
   const [addAlertOpen, setAddAlertOpen] = useState(false);
   const [sightingOpen, setSightingOpen] = useState(false);
+  const [scanMenuOpen, setScanMenuOpen] = useState(false);
 
   const { data: location, isLoading } = useQuery({
     queryKey: ["location", locationId],
@@ -148,6 +133,12 @@ export default function LocationDetailPage({
   const { data: checkins = [] } = useQuery({
     queryKey: ["location-checkins", location?.id],
     queryFn: () => fetchLocationCheckins(location!.id),
+    enabled: !!location?.id,
+  });
+
+  const { data: menuPhotos = [] } = useQuery({
+    queryKey: ["menu-photos", location?.id],
+    queryFn: () => fetchMenuPhotos(location!.id),
     enabled: !!location?.id,
   });
 
@@ -171,21 +162,15 @@ export default function LocationDetailPage({
 
   if (isLoading) {
     return (
-      <div className="min-h-dvh bg-white dark:bg-background animate-in fade-in duration-200">
+      <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background animate-in fade-in duration-200">
         <Skeleton className="h-48 w-full" />
-        <div className="px-4 py-5 space-y-4">
+        <div className="px-5 py-5 space-y-4">
           <Skeleton className="h-7 w-2/3" />
           <Skeleton className="h-4 w-1/2" />
           <div className="flex gap-3 pt-2">
-            {Array.from({ length: 4 }, (_, i) => (
-              <Skeleton key={i} className="size-10 rounded-full" />
+            {Array.from({ length: 3 }, (_, i) => (
+              <Skeleton key={i} className="h-10 flex-1 rounded-xl" />
             ))}
-          </div>
-          <Skeleton className="h-10 w-full rounded-xl mt-4" />
-          <div className="flex gap-4 pt-4">
-            <Skeleton className="h-8 w-20 rounded-full" />
-            <Skeleton className="h-8 w-20 rounded-full" />
-            <Skeleton className="h-8 w-20 rounded-full" />
           </div>
           {Array.from({ length: 3 }, (_, i) => (
             <Skeleton key={i} className="h-20 w-full rounded-xl" />
@@ -217,6 +202,7 @@ export default function LocationDetailPage({
 
   const typeColors = TYPE_COLORS[location.location_type] || TYPE_COLORS.scoop_shop;
   const typeEmoji = TYPE_EMOJI[location.location_type] || "\uD83C\uDF68";
+  const isShop = location.location_type === "scoop_shop";
 
   const lastCheckin =
     checkins.length > 0
@@ -224,169 +210,129 @@ export default function LocationDetailPage({
       : null;
 
   return (
-    <div className="min-h-dvh bg-white dark:bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-b dark:border-white/5">
+    <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-40 bg-[#FFF7ED]/95 dark:bg-background/95 backdrop-blur-sm border-b border-[rgba(93,64,55,0.12)]/30 dark:border-white/5">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link href="/discover" className="p-1 -ml-1">
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-[#2E1F1B] dark:text-[#F5E6DC]" />
           </Link>
-          <h1 className="font-semibold truncate flex-1">{location.name}</h1>
+          <h1 className="font-semibold truncate flex-1 text-[#2E1F1B] dark:text-[#F5E6DC]">
+            {location.name}
+          </h1>
           <button
             onClick={handleShare}
-            className="p-2 -mr-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 transition-colors"
+            className="p-2 -mr-2 rounded-full hover:bg-[#FFF3EE] dark:hover:bg-neutral-800 transition-colors"
             aria-label="Share location"
           >
-            <Share2 className="w-5 h-5 text-neutral-600" />
+            <Share2 className="w-5 h-5 text-[#2E1F1B] dark:text-[#F5E6DC]" />
           </button>
         </div>
       </div>
 
-      {/* Gradient Hero Section */}
-      <div
-        className={`bg-gradient-to-br ${typeColors.gradient} px-4 pt-6 pb-5 text-white`}
-      >
+      {/* Hero gradient */}
+      <div className="relative overflow-hidden">
+        <img
+          src={LOCATION_HERO_IMAGES[location.location_type] || LOCATION_HERO_IMAGES.scoop_shop}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-40"
+        />
+        <div className={`relative bg-gradient-to-br ${typeColors.gradient} px-5 pt-6 pb-6 text-white`}>
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm"
-            >
-              <span>{typeEmoji}</span>
-              {TYPE_LABELS[location.location_type] || location.location_type}
-            </span>
-            {location.is_claimed && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm">
-                Verified
-              </span>
-            )}
-          </div>
-          <span className="text-4xl drop-shadow-md">{"\uD83C\uDF68"}</span>
+          <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 text-xs font-medium gap-1.5">
+            <span>{typeEmoji}</span>
+            {TYPE_LABELS[location.location_type] || location.location_type}
+          </Badge>
+          {location.is_claimed && (
+            <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 text-xs">
+              Verified
+            </Badge>
+          )}
         </div>
 
-        <h2 className="text-2xl font-bold mb-1 drop-shadow-sm">
+        <h2 className="text-2xl font-bold font-heading mb-1 drop-shadow-sm">
           {location.name}
         </h2>
 
-        <div className="flex items-center gap-1.5 text-white/80 mb-3">
+        <div className="flex items-center gap-1.5 text-white/80 mb-4">
           <MapPin className="w-4 h-4 shrink-0" />
           <span className="text-sm">
-            {location.address_line1}, {location.city}, {location.state}
+            {location.city}, {location.state}
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Stat pills */}
+        <div className="flex items-center gap-2 flex-wrap">
           {location.avg_rating > 0 && (
-            <div className="flex items-center gap-1">
-              <Star className="w-5 h-5 fill-yellow-300 text-yellow-300" />
-              <span className="font-bold">
-                {Number(location.avg_rating).toFixed(1)}
-              </span>
-              <span className="text-sm text-white/70">
-                ({location.total_ratings})
-              </span>
-            </div>
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium">
+              <Star className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+              {Number(location.avg_rating).toFixed(1)}
+            </span>
           )}
-          <span className="text-sm text-white/70">
-            {location.total_checkins} check-in
-            {location.total_checkins !== 1 ? "s" : ""}
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm">
+            {location.total_checkins} check-in{location.total_checkins !== 1 ? "s" : ""}
           </span>
           {lastCheckin && typeof lastCheckin.created_at === "string" && (
-            <div className="flex items-center gap-1 text-sm text-white/70">
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm">
               <Clock className="w-3.5 h-3.5" />
-              <span>Last visited {timeAgo(lastCheckin.created_at)}</span>
-            </div>
+              {timeAgo(lastCheckin.created_at)}
+            </span>
           )}
         </div>
       </div>
-
-      {/* Action Buttons */}
-      <div className="px-4 py-4 flex gap-3">
-        <Link
-          href={`/checkin/new?location=${location.id}`}
-          className="flex-1"
-        >
-          <Button variant="brand-gradient" className="w-full h-12 text-base rounded-xl gap-2">
-            <IceCreamCone className="w-5 h-5" />
-            Check In Here
-          </Button>
-        </Link>
-        {user && (
-          <Button
-            variant="outline"
-            className="h-12 px-4 rounded-xl border-neutral-200"
-            onClick={() => setAddToListOpen(true)}
-          >
-            <ListPlus className="w-5 h-5" />
-          </Button>
-        )}
-        {user && (
-          <Button
-            variant="outline"
-            className="h-12 px-4 rounded-xl border-neutral-200"
-            onClick={() => setAddAlertOpen(true)}
-          >
-            <BellRing className="w-5 h-5" />
-          </Button>
-        )}
-        {user && (
-          <Button
-            variant="outline"
-            className="h-12 px-4 rounded-xl border-neutral-200"
-            onClick={() => setSightingOpen(true)}
-            title="Report a flavor sighting"
-          >
-            <Eye className="w-5 h-5" />
-          </Button>
-        )}
-        <a
-          href={getDirectionsUrl(location)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Button
-            variant="outline"
-            className="h-12 px-4 rounded-xl border-neutral-200"
-          >
-            <Navigation className="w-5 h-5" />
-          </Button>
-        </a>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="flavors" className="px-4">
-        <TabsList className="w-full">
-          <TabsTrigger value="flavors" className="flex-1">
-            Flavors
-          </TabsTrigger>
-          <TabsTrigger value="reviews" className="flex-1">
-            Reviews
-          </TabsTrigger>
-          <TabsTrigger value="info" className="flex-1">
-            Info
-          </TabsTrigger>
-        </TabsList>
+      {/* Share + Save row */}
+      <div className="px-5 py-4 flex gap-3">
+        <button
+          onClick={handleShare}
+          className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors"
+        >
+          <Share2 className="size-4" />
+          Share
+        </button>
+        {user && (
+          <button
+            onClick={() => setAddToListOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors"
+          >
+            <Bookmark className="size-4" />
+            Save
+          </button>
+        )}
+      </div>
 
-        {/* Flavors Tab */}
-        <TabsContent value="flavors" className="mt-4 space-y-2 pb-8">
+      {/* Content sections */}
+      <div className="px-5 space-y-5">
+        {/* Flavors section */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-2">
+              <IceCreamCone className="size-4 text-[#F46B8F]" />
+              {isShop ? "Flavors here now" : "Pints spotted here"}
+            </h3>
+            <span className="text-xs text-muted-foreground">
+              {flavors.length} item{flavors.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+
           {flavors.length > 0 ? (
-            <>
-              <p className="text-sm text-neutral-500 mb-3">
-                {flavors.length} flavor{flavors.length !== 1 ? "s" : ""}{" "}
-                available
-              </p>
+            <div className="space-y-2">
               {flavors.map((item: Record<string, unknown>) => {
                 const locRating = Number(item.location_flavor_avg_rating) || 0;
-                const locRatingCount = Number(item.location_flavor_total_ratings) || 0;
                 return (
-                  <Card key={item.availability_id as string}>
-                    <CardContent className="flex items-center justify-between p-4">
-                      <div>
-                        <h4 className="font-medium">
+                  <div
+                    key={item.availability_id as string}
+                    className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
                           {(item.flavor_name as string) || "Unknown Flavor"}
-                        </h4>
+                        </p>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                           {!!item.brand_name && (
-                            <span className="text-xs text-neutral-500">
+                            <span className="text-xs text-muted-foreground">
                               {item.brand_name as string}
                             </span>
                           )}
@@ -394,205 +340,271 @@ export default function LocationDetailPage({
                             lastConfirmedAt={(item.last_confirmed_at as string) || null}
                             source={item.source as string}
                           />
-                          {locRating > 0 && (
-                            <div className="flex items-center gap-0.5">
-                              <Star className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
-                              <span className="text-sm">
-                                {locRating.toFixed(1)}
-                              </span>
-                              {locRatingCount > 0 && (
-                                <span className="text-xs text-neutral-400">
-                                  ({locRatingCount})
-                                </span>
-                              )}
-                            </div>
-                          )}
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-neutral-300" />
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </>
-          ) : (
-            <EmptyState
-              icon={IceCreamCone}
-              iconColor="text-pink-300"
-              bgColor="bg-pink-50"
-              title="No flavors scooped yet"
-              description="Be the first to check in and let everyone know what's in the freezer!"
-            />
-          )}
-        </TabsContent>
-
-        {/* Reviews Tab */}
-        <TabsContent value="reviews" className="mt-4 pb-8">
-          {checkins.length > 0 ? (
-            <div className="space-y-3">
-              {checkins.map((checkin: Record<string, unknown>) => {
-                const profile = checkin.profile as Record<
-                  string,
-                  unknown
-                > | null;
-                const flavor = checkin.flavor as Record<
-                  string,
-                  unknown
-                > | null;
-                return (
-                  <Card key={checkin.id as string}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">
-                            {(profile?.display_name as string) ||
-                              (profile?.username as string) ||
-                              "Anonymous"}
+                      {locRating > 0 && (
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Star className="w-3.5 h-3.5 fill-[#F2B45A] text-[#F2B45A]" />
+                          <span className="text-sm font-semibold">
+                            {locRating.toFixed(1)}
                           </span>
-                          {Number(checkin.flavor_rating) > 0 && (
-                            <div className="flex items-center gap-0.5">
-                              <Star className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
-                              <span className="text-sm">
-                                {Number(checkin.flavor_rating)}
-                              </span>
-                            </div>
-                          )}
                         </div>
-                        {typeof checkin.created_at === "string" && (
-                          <span className="text-xs text-neutral-400">
-                            {timeAgo(checkin.created_at)}
-                          </span>
-                        )}
-                      </div>
-                      {flavor && (
-                        <p className="text-sm text-neutral-500">
-                          {flavor.name as string}
-                        </p>
                       )}
-                      {typeof checkin.notes === "string" && checkin.notes && (
-                        <p className="text-sm mt-1">{checkin.notes}</p>
-                      )}
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })}
             </div>
           ) : (
-            <EmptyState
-              icon={MessageCircle}
-              iconColor="text-blue-300"
-              bgColor="bg-blue-50"
-              title="No reviews yet"
-              description="Every scoop has a story. Check in and share your experience!"
-            />
+            <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-6 text-center">
+              <IceCreamCone className="size-8 text-[#F46B8F]/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                No flavors scooped yet. Be the first!
+              </p>
+            </div>
           )}
-        </TabsContent>
+        </section>
 
-        {/* Info Tab */}
-        <TabsContent value="info" className="mt-4 space-y-4 pb-8">
-          <div className="space-y-3">
-            {/* Address with directions link */}
+        {/* Scan menu / freezer card */}
+        {user && (
+          <button
+            onClick={() => setScanMenuOpen(true)}
+            className="w-full bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-5 text-left hover:border-[#F46B8F]/30 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center size-12 rounded-full bg-[#FFF3EE] dark:bg-[#332520]/30">
+                <Camera className="size-6 text-[#F46B8F]" />
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-[#2E1F1B] dark:text-[#F5E6DC]">
+                  {isShop ? "Scan the menu" : "Scan the freezer"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Take a photo and we&apos;ll extract flavors automatically
+                </p>
+              </div>
+              <ChevronRight className="size-4 text-neutral-300 shrink-0" />
+            </div>
+          </button>
+        )}
+
+        {/* Menu photos gallery */}
+        {menuPhotos.length > 0 && (
+          <section>
+            <h3 className="font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-2 mb-3">
+              <Camera className="size-4 text-[#F46B8F]" />
+              Menu Photos
+              <span className="text-xs font-normal text-muted-foreground ml-auto">
+                {menuPhotos.length} photo{menuPhotos.length !== 1 ? "s" : ""}
+              </span>
+            </h3>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+              {menuPhotos.map((photo: MenuPhoto) => (
+                <div key={photo.id} className="shrink-0 w-48">
+                  <img
+                    src={photo.photo_url}
+                    alt="Menu board"
+                    className="w-48 h-36 object-cover rounded-xl border border-[rgba(93,64,55,0.12)] dark:border-white/10"
+                  />
+                  <div className="mt-1.5 px-0.5">
+                    <p className="text-[10px] text-muted-foreground">
+                      {photo.profile?.display_name || photo.profile?.username || "User"} &middot;{" "}
+                      {timeAgo(photo.created_at)}
+                    </p>
+                    {photo.new_flavors_added > 0 && (
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                        +{photo.new_flavors_added} new flavor{photo.new_flavors_added !== 1 ? "s" : ""}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Location / Directions section */}
+        <section>
+          <h3 className="font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-2 mb-3">
+            <MapPin className="size-4 text-[#F2B45A]" />
+            Location
+          </h3>
+          <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-4">
+            <p className="text-sm text-[#2E1F1B] dark:text-[#F5E6DC]">
+              {location.address_line1}
+              {location.address_line2 && `, ${location.address_line2}`}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {location.city}, {location.state} {location.zip}
+            </p>
+
+            {/* Contact info */}
+            <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-[#FFF3EE] dark:border-white/5">
+              {location.phone && (
+                <a
+                  href={`tel:${location.phone}`}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#F46B8F]"
+                >
+                  <Phone className="size-3.5" />
+                  {location.phone}
+                </a>
+              )}
+              {location.website && (
+                <a
+                  href={
+                    location.website.startsWith("http")
+                      ? location.website
+                      : `https://${location.website}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#F46B8F]"
+                >
+                  <Globe className="size-3.5" />
+                  Website
+                  <ExternalLink className="size-2.5" />
+                </a>
+              )}
+              {location.instagram && (
+                <a
+                  href={`https://instagram.com/${location.instagram}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#F46B8F]"
+                >
+                  <Instagram className="size-3.5" />
+                  @{location.instagram}
+                </a>
+              )}
+            </div>
+
             <a
               href={getDirectionsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors group"
+              className="mt-4 w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-[#2E1F1B] dark:bg-[#FFF3EE] text-white dark:text-[#2E1F1B] text-sm font-semibold hover:bg-[#3A1C1A] transition-colors"
             >
-              <MapPin className="w-5 h-5 text-neutral-400 mt-0.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">Address</p>
-                <p className="text-sm text-neutral-500">
-                  {location.address_line1}
-                  {location.address_line2 && `, ${location.address_line2}`}
-                  <br />
-                  {location.city}, {location.state} {location.zip}
+              <Navigation className="size-4" />
+              Directions
+            </a>
+          </div>
+        </section>
+
+        {/* Check-in CTA */}
+        <Link href={`/checkin/new?location=${location.id}`} className="block">
+          <div className="bg-gradient-to-br from-[#F46B8F] to-[#C4364A] rounded-2xl p-5 text-white">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center size-12 rounded-full bg-white/20">
+                <IceCreamCone className="size-6" />
+              </div>
+              <div className="flex-1">
+                <p className="font-bold">
+                  {isShop ? "Post a fresh scoop moment" : "Report a pint sighting"}
+                </p>
+                <p className="text-sm text-white/80 mt-0.5">
+                  Check in and share what you found
                 </p>
               </div>
-              <Navigation className="w-4 h-4 text-neutral-300 mt-0.5 shrink-0 group-hover:text-neutral-500 transition-colors" />
-            </a>
-
-            {/* Phone - clickable tel link */}
-            {location.phone && (
-              <a
-                href={`tel:${location.phone}`}
-                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors"
-              >
-                <Phone className="w-5 h-5 text-neutral-400 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Phone</p>
-                  <p className="text-sm text-neutral-500">{location.phone}</p>
-                </div>
-              </a>
-            )}
-
-            {/* Website - clickable external link */}
-            {location.website && (
-              <a
-                href={
-                  location.website.startsWith("http")
-                    ? location.website
-                    : `https://${location.website}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors group"
-              >
-                <Globe className="w-5 h-5 text-neutral-400 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Website</p>
-                  <p className="text-sm text-neutral-500 truncate">
-                    {location.website}
-                  </p>
-                </div>
-                <ExternalLink className="w-4 h-4 text-neutral-300 shrink-0 group-hover:text-neutral-500 transition-colors" />
-              </a>
-            )}
-
-            {/* Instagram - clickable link */}
-            {location.instagram && (
-              <a
-                href={`https://instagram.com/${location.instagram}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 -mx-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-700 transition-colors group"
-              >
-                <Instagram className="w-5 h-5 text-neutral-400 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Instagram</p>
-                  <p className="text-sm text-neutral-500">
-                    @{location.instagram}
-                  </p>
-                </div>
-                <ExternalLink className="w-4 h-4 text-neutral-300 shrink-0 group-hover:text-neutral-500 transition-colors" />
-              </a>
-            )}
-            {/* Business Claim / Manage */}
-            {user && !location.is_claimed && (
-              <Link href={`/claim?location=${location.slug}`}>
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 h-11 rounded-xl gap-2 border-neutral-200"
-                >
-                  <Store className="w-4 h-4" />
-                  Claim this business
-                </Button>
-              </Link>
-            )}
-            {user && location.is_claimed && location.claimed_by === user.id && (
-              <Link href="/dashboard">
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 h-11 rounded-xl gap-2 border-neutral-200"
-                >
-                  <Settings className="w-4 h-4" />
-                  Manage Business
-                </Button>
-              </Link>
-            )}
+              <ChevronRight className="size-5 text-white/60 shrink-0" />
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        </Link>
 
+        {/* Quick actions row (alert, sighting) */}
+        {user && (
+          <div className="flex gap-3">
+            <button
+              onClick={() => setAddAlertOpen(true)}
+              className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors"
+            >
+              <BellRing className="size-4" />
+              Set Alert
+            </button>
+            <button
+              onClick={() => setSightingOpen(true)}
+              className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors"
+            >
+              <Eye className="size-4" />
+              Report Sighting
+            </button>
+          </div>
+        )}
+
+        {/* Top scoop notes (reviews) */}
+        {checkins.length > 0 && (
+          <section>
+            <h3 className="font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-2 mb-3">
+              <MessageCircle className="size-4 text-[#F2B45A]" />
+              Top scoop notes
+            </h3>
+            <div className="space-y-2">
+              {checkins.slice(0, 5).map((checkin: Record<string, unknown>) => {
+                const profile = checkin.profile as Record<string, unknown> | null;
+                const flavor = checkin.flavor as Record<string, unknown> | null;
+                return (
+                  <div
+                    key={checkin.id as string}
+                    className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-4"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-[#2E1F1B] dark:text-[#F5E6DC]">
+                          {(profile?.display_name as string) ||
+                            (profile?.username as string) ||
+                            "Anonymous"}
+                        </span>
+                        {Number(checkin.flavor_rating) > 0 && (
+                          <div className="flex items-center gap-0.5">
+                            <Star className="w-3.5 h-3.5 fill-[#F2B45A] text-[#F2B45A]" />
+                            <span className="text-xs font-medium">
+                              {Number(checkin.flavor_rating)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      {typeof checkin.created_at === "string" && (
+                        <span className="text-xs text-muted-foreground">
+                          {timeAgo(checkin.created_at)}
+                        </span>
+                      )}
+                    </div>
+                    {flavor && (
+                      <p className="text-xs text-[#F46B8F] font-medium">
+                        {flavor.name as string}
+                      </p>
+                    )}
+                    {typeof checkin.notes === "string" && checkin.notes && (
+                      <p className="text-sm text-[#2E1F1B] dark:text-[#F5E6DC]/80 mt-1">
+                        {checkin.notes}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Business claim/manage */}
+        {user && !location.is_claimed && (
+          <Link href={`/claim?location=${location.slug}`}>
+            <button className="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors">
+              <Store className="size-4" />
+              Claim this business
+            </button>
+          </Link>
+        )}
+        {user && location.is_claimed && location.claimed_by === user.id && (
+          <Link href="/dashboard">
+            <button className="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors">
+              <Settings className="size-4" />
+              Manage Business
+            </button>
+          </Link>
+        )}
+      </div>
+
+      {/* Bottom sheets */}
       {user && location && (
         <AddToListSheet
           open={addToListOpen}
@@ -614,6 +626,14 @@ export default function LocationDetailPage({
         <ReportSightingSheet
           open={sightingOpen}
           onOpenChange={setSightingOpen}
+          locationId={location.id}
+          locationName={location.name}
+        />
+      )}
+      {user && location && (
+        <ScanMenuSheet
+          open={scanMenuOpen}
+          onOpenChange={setScanMenuOpen}
           locationId={location.id}
           locationName={location.name}
         />

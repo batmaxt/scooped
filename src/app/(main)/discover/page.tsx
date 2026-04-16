@@ -3,71 +3,91 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { MapPin, Star, ChevronRight, IceCreamCone, Loader2 } from "lucide-react";
+import { MapPin, Star, ChevronRight, ChevronDown, Loader2, X, Navigation, Map as MapIcon, Store } from "lucide-react";
 import { MapView } from "@/components/map/MapView";
 import { MapBottomSheet } from "@/components/map/MapBottomSheet";
 import { SearchBar } from "@/components/shared/SearchBar";
-import { FilterChips } from "@/components/shared/FilterChips";
-import { FreshnessBadge } from "@/components/shared/FreshnessBadge";
 import { useLocation } from "@/hooks/useLocation";
 import { useMapStore } from "@/stores/mapStore";
-import { fetchNearbyLocations, searchLocationsByFlavor } from "@/queries/locations";
-import type { FlavorSearchResult } from "@/queries/locations";
-import { Card, CardContent } from "@/components/ui/card";
+import { fetchNearbyLocations } from "@/queries/locations";
 import { Badge } from "@/components/ui/badge";
 import type { Location } from "@/types/models";
 
 const TYPE_LABELS: Record<string, string> = {
-  scoop_shop: "Scoop Shop",
-  supermarket: "Supermarket",
-  farmers_market: "Farmers Market",
-  restaurant: "Restaurant",
-  food_truck: "Food Truck",
+  scoop_shop: "Shop",
+  supermarket: "Market",
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  scoop_shop: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
-  supermarket: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
-  farmers_market: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-  restaurant: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-  food_truck: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  scoop_shop: "bg-[#FFF3EE] text-[#C4364A] dark:bg-[#332520]/30 dark:text-[#F46B8F]",
+  supermarket: "bg-[#FFF3EE] text-[#2E1F1B] dark:bg-[#2A1E1A]/30 dark:text-[#A8897E]",
 };
+
+const TYPE_IMAGES: Record<string, string[]> = {
+  scoop_shop: [
+    "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?auto=format&fit=crop&w=200&q=80",
+    "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=200&q=80",
+    "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=200&q=80",
+  ],
+  supermarket: [
+    "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=200&q=80",
+    "https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=200&q=80",
+  ],
+};
+
+function locationThumbnail(name: string, type: string): string {
+  const images = TYPE_IMAGES[type] || TYPE_IMAGES.scoop_shop;
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return images[Math.abs(hash) % images.length];
+}
+
+const FILTER_OPTIONS = [
+  { key: "all", label: "All" },
+  { key: "scoop_shop", label: "Shops" },
+  { key: "supermarket", label: "Supermarkets" },
+];
+
+function formatDistance(meters: number): string {
+  const miles = meters / 1609.34;
+  if (miles < 0.1) return "nearby";
+  if (miles < 10) return `${miles.toFixed(1)} mi`;
+  return `${Math.round(miles)} mi`;
+}
+
+interface SearchCenter {
+  lat: number;
+  lng: number;
+  label: string;
+}
+
+// A display item is either a single location or a collapsed chain group
+type DisplayItem =
+  | { type: "location"; location: Location }
+  | { type: "chain_group"; chainName: string; closest: Location; others: Location[] };
 
 export default function DiscoverPage() {
   const { position } = useLocation();
-  const { filters, setSelectedLocationId, searchMode } = useMapStore();
+  const { filters, setSelectedLocationId } = useMapStore();
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [searchCenter, setSearchCenter] = useState<SearchCenter | null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [expandedChains, setExpandedChains] = useState<Set<string>>(new Set());
 
-  // Default to NYC center if no GPS position yet
-  const searchLat = position?.latitude ?? 40.748;
-  const searchLng = position?.longitude ?? -73.985;
+  const activeLat = searchCenter?.lat ?? position?.latitude ?? 40.748;
+  const activeLng = searchCenter?.lng ?? position?.longitude ?? -73.985;
 
-  // ---- Location search (default mode) ----
-  const { data: locations = [], isLoading: locationsLoading } = useQuery({
-    queryKey: ["nearby-locations", searchLat, searchLng, filters.locationTypes],
+  const filterTypes = typeFilter === "all" ? undefined : [typeFilter];
+
+  const { data: locations = [], isLoading } = useQuery({
+    queryKey: ["nearby-locations", activeLat, activeLng, filterTypes],
     queryFn: () =>
-      fetchNearbyLocations(
-        searchLat,
-        searchLng,
-        80000,
-        filters.locationTypes.length > 0 ? filters.locationTypes : undefined
-      ),
+      fetchNearbyLocations(activeLat, activeLng, 800000, filterTypes),
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
-    enabled: searchMode === "locations",
   });
 
-  // ---- Flavor search mode ----
-  const flavorQuery = filters.searchQuery.trim();
-  const { data: flavorResults = [], isLoading: flavorLoading } = useQuery({
-    queryKey: ["flavor-search-locations", flavorQuery, searchLat, searchLng],
-    queryFn: () =>
-      searchLocationsByFlavor(flavorQuery, searchLat, searchLng, 80000),
-    enabled: searchMode === "flavors" && flavorQuery.length >= 1,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // Normalize text for search: strip punctuation, normalize & ↔ "and"
   const normalize = useCallback((text: string): string => {
     return text
       .toLowerCase()
@@ -78,10 +98,8 @@ export default function DiscoverPage() {
       .trim();
   }, []);
 
-  // Client-side search filter for location mode
   const filteredLocations = useMemo(() => {
     if (!filters.searchQuery) return locations;
-
     const query = normalize(filters.searchQuery);
     if (query.length < 1) return locations;
     return locations.filter(
@@ -92,49 +110,78 @@ export default function DiscoverPage() {
     );
   }, [locations, filters.searchQuery, normalize]);
 
-  // Convert flavor results to Location objects for the map
-  const flavorLocationsForMap = useMemo((): Location[] => {
-    return flavorResults.map((r: FlavorSearchResult) => ({
-      id: r.id,
-      name: r.name,
-      slug: r.slug,
-      location_type: r.location_type,
-      address_line1: r.address_line1,
-      city: r.city,
-      state: r.state,
-      zip: r.zip,
-      phone: r.phone,
-      website: r.website,
-      instagram: r.instagram,
-      hours: r.hours,
-      photo_url: r.photo_url,
-      avg_rating: r.avg_rating,
-      total_ratings: r.total_ratings,
-      total_checkins: r.total_checkins,
-      is_claimed: r.is_claimed,
-      latitude: r.latitude,
-      longitude: r.longitude,
-      distance_meters: r.distance_meters,
-      is_active: true,
-    })) as Location[];
-  }, [flavorResults]);
+  // Auto-detect chains: any base name with 5+ locations gets grouped.
+  // Also respects explicit chain_name from DB.
+  const displayItems = useMemo<DisplayItem[]>(() => {
+    const MIN_GROUP_SIZE = 5;
 
-  const isLoading = searchMode === "locations" ? locationsLoading : flavorLoading;
-  const displayLocations = searchMode === "locations" ? filteredLocations : flavorLocationsForMap;
+    // Extract base name by stripping location suffixes like "- Syosset"
+    const getGroupKey = (loc: Location): string => {
+      if (loc.is_chain && loc.chain_name) return loc.chain_name;
+      return loc.name
+        .replace(/\s+[-–—]\s*[A-Z][a-zA-Z\s.']+$/, "")
+        .replace(/\s*\([^)]+\)\s*$/, "")
+        .trim();
+    };
 
-  // Build a map from location ID → flavor info for the bottom sheet
-  const flavorInfoMap = useMemo(() => {
-    const map = new Map<string, { flavorName: string; brandName: string | null; lastConfirmedAt: string | null; source: string }>();
-    for (const r of flavorResults) {
-      map.set(r.id, {
-        flavorName: r.matching_flavor_name,
-        brandName: r.matching_brand_name,
-        lastConfirmedAt: r.last_confirmed_at,
-        source: r.availability_source,
-      });
+    // First pass: count occurrences of each base name
+    const groupCounts = new Map<string, number>();
+    for (const loc of filteredLocations) {
+      const key = getGroupKey(loc);
+      groupCounts.set(key, (groupCounts.get(key) || 0) + 1);
     }
-    return map;
-  }, [flavorResults]);
+
+    // Second pass: build groups for names with 5+ locations
+    const chainGroups = new Map<string, Location[]>();
+    for (const loc of filteredLocations) {
+      const key = getGroupKey(loc);
+      if ((loc.is_chain && loc.chain_name) || (groupCounts.get(key) || 0) >= MIN_GROUP_SIZE) {
+        const groupName = loc.is_chain && loc.chain_name ? loc.chain_name : key;
+        const group = chainGroups.get(groupName) || [];
+        group.push(loc);
+        chainGroups.set(groupName, group);
+      }
+    }
+
+    // Build combined list preserving distance order
+    const items: DisplayItem[] = [];
+    const usedChains = new Set<string>();
+
+    for (const loc of filteredLocations) {
+      const key = getGroupKey(loc);
+      const groupName = loc.is_chain && loc.chain_name ? loc.chain_name : key;
+      const isGrouped = chainGroups.has(groupName);
+
+      if (isGrouped) {
+        if (usedChains.has(groupName)) continue;
+        usedChains.add(groupName);
+        const group = chainGroups.get(groupName)!;
+        if (group.length === 1) {
+          items.push({ type: "location", location: group[0] });
+        } else {
+          items.push({
+            type: "chain_group",
+            chainName: groupName,
+            closest: group[0],
+            others: group.slice(1),
+          });
+        }
+      } else {
+        items.push({ type: "location", location: loc });
+      }
+    }
+
+    return items;
+  }, [filteredLocations]);
+
+  const toggleChainExpand = useCallback((chainName: string) => {
+    setExpandedChains((prev) => {
+      const next = new Set(prev);
+      if (next.has(chainName)) next.delete(chainName);
+      else next.add(chainName);
+      return next;
+    });
+  }, []);
 
   const handleMarkerClick = useCallback(
     (location: Location) => {
@@ -149,7 +196,20 @@ export default function DiscoverPage() {
     setSelectedLocationId(null);
   }, [setSelectedLocationId]);
 
-  // Detect WebGL support on mount
+  const handleAddressSelect = useCallback(
+    (lat: number, lng: number, label: string) => {
+      setSearchCenter({ lat, lng, label });
+      setSelectedLocation(null);
+      setSelectedLocationId(null);
+    },
+    [setSelectedLocationId]
+  );
+
+  const clearSearchCenter = useCallback(() => {
+    setSearchCenter(null);
+  }, []);
+
+  // WebGL detection
   const webglSupported = useMemo(() => {
     if (typeof window === "undefined") return true;
     try {
@@ -160,151 +220,260 @@ export default function DiscoverPage() {
     }
   }, []);
 
-  // If no WebGL, show list view
-  if (!webglSupported) {
-    return (
-      <div className="min-h-dvh bg-background pb-20">
-        {/* Search + Filters */}
-        <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md p-4 space-y-2 border-b border-pink-100/60 dark:border-white/5">
-          <SearchBar locations={locations} />
-          <FilterChips />
-        </div>
+  // Total unique locations count (expanding chain groups)
+  const totalCount = useMemo(() => {
+    return displayItems.reduce((sum, item) => {
+      if (item.type === "location") return sum + 1;
+      return sum + 1 + item.others.length;
+    }, 0);
+  }, [displayItems]);
 
-        {/* Loading */}
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="size-8 animate-spin text-pink-400 mb-4" />
-            <span className="text-sm text-neutral-500">
-              {searchMode === "flavors" ? "Searching for flavors..." : "Loading 250+ ice cream spots..."}
-            </span>
+  return (
+    <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">
+      {/* Hero */}
+      <div className="px-5 pt-14 pb-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F] mb-1">
+          Discover
+        </p>
+        <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
+          Scoop spots near you
+        </h1>
+      </div>
+
+      {/* Search + Map toggle */}
+      <div className="px-5 py-3">
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <SearchBar locations={locations} onAddressSelect={handleAddressSelect} />
           </div>
-        )}
-
-        {/* Results */}
-        <div className="p-4 space-y-2">
-          {searchMode === "flavors" && flavorQuery.length < 2 ? (
-            <div className="text-center py-16">
-              <IceCreamCone className="w-10 h-10 text-pink-300 mx-auto mb-3" />
-              <p className="font-medium text-neutral-600">Search for a flavor</p>
-              <p className="text-sm text-neutral-400 mt-1">
-                Type a flavor or brand name to find nearby shops
-              </p>
-            </div>
-          ) : (
-            <>
-              <p className="text-sm text-neutral-500 mb-3">
-                {displayLocations.length} location{displayLocations.length !== 1 ? "s" : ""}{" "}
-                {searchMode === "flavors" ? "found" : "nearby"}
-              </p>
-              {displayLocations.map((location) => {
-                const flavorInfo = flavorInfoMap.get(location.id);
-                return (
-                  <Link key={location.id} href={`/location/${location.slug}`}>
-                    <Card className="hover:bg-neutral-50 transition-colors">
-                      <CardContent className="flex items-center justify-between p-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium truncate">{location.name}</h3>
-                            <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 shrink-0 ${TYPE_COLORS[location.location_type] || ""}`}>
-                              {TYPE_LABELS[location.location_type] || location.location_type}
-                            </Badge>
-                          </div>
-                          {flavorInfo && (
-                            <div className="flex items-center gap-2 mb-1">
-                              <IceCreamCone className="w-3.5 h-3.5 text-pink-400 shrink-0" />
-                              <span className="text-sm text-pink-600 font-medium truncate">
-                                {flavorInfo.flavorName}
-                                {flavorInfo.brandName && ` by ${flavorInfo.brandName}`}
-                              </span>
-                              <FreshnessBadge
-                                lastConfirmedAt={flavorInfo.lastConfirmedAt}
-                                source={flavorInfo.source}
-                                compact
-                              />
-                            </div>
-                          )}
-                          <div className="flex items-center gap-1 text-sm text-neutral-500">
-                            <MapPin className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">
-                              {location.address_line1}, {location.city}
-                            </span>
-                          </div>
-                          {location.avg_rating > 0 && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <Star className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
-                              <span className="text-sm">{Number(location.avg_rating).toFixed(1)}</span>
-                              <span className="text-xs text-neutral-400">({location.total_ratings})</span>
-                            </div>
-                          )}
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-neutral-300 shrink-0 ml-2" />
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </>
+          {webglSupported && (
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className={`shrink-0 size-12 rounded-full flex items-center justify-center border transition-colors ${
+                showMap
+                  ? "bg-[#C4364A] text-white border-[#C4364A]"
+                  : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border-[rgba(93,64,55,0.12)] dark:border-white/10"
+              }`}
+            >
+              <MapIcon className="size-5" />
+            </button>
           )}
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="relative h-dvh w-full">
-      {/* Map */}
-      <MapView
-        locations={displayLocations}
-        onMarkerClick={handleMarkerClick}
-        userPosition={position}
-      />
+      {/* "Near: [address]" pill */}
+      {searchCenter && (
+        <div className="px-5 mb-3">
+          <div className="flex items-center gap-2 bg-[#FFF3EE] dark:bg-[#332520]/30 rounded-full px-4 py-2.5">
+            <Navigation className="size-3.5 text-[#F46B8F] shrink-0" />
+            <span className="text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] truncate flex-1">
+              Near: {searchCenter.label}
+            </span>
+            <button
+              onClick={clearSearchCenter}
+              className="p-1 rounded-full hover:bg-[#C4364A]/10 text-[#F46B8F] shrink-0"
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
-      {/* Search + Filters overlay */}
-      <div className="absolute top-0 left-0 right-0 z-30 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] space-y-2">
-        <SearchBar locations={locations} />
-        <FilterChips />
+      {/* Filter chips */}
+      <div className="px-5 pb-3">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {FILTER_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setTypeFilter(opt.key)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                typeFilter === opt.key
+                  ? "bg-[#2E1F1B] text-white dark:bg-[#FFF3EE] dark:text-[#2E1F1B]"
+                  : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border border-[rgba(93,64,55,0.12)] dark:border-white/10"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-5 py-2.5 elevation-2 flex items-center gap-2.5 animate-in fade-in duration-200">
-          <Loader2 className="size-4 animate-spin text-cyan-500" />
-          <span className="text-sm font-medium text-neutral-600">
-            {searchMode === "flavors" ? "Searching flavors..." : "Loading locations..."}
-          </span>
-        </div>
-      )}
-
-      {/* Flavor search prompt (no query yet) */}
-      {searchMode === "flavors" && flavorQuery.length < 2 && !selectedLocation && (
-        <div className="absolute top-32 left-4 right-4 z-30 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-2xl elevation-3 border border-pink-100/50 dark:border-white/5 p-6 text-center animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="inline-flex items-center justify-center size-14 rounded-full bg-gradient-to-br from-pink-100 to-amber-100 dark:from-rose-800/25 dark:to-amber-800/20 mb-3">
-            <IceCreamCone className="w-7 h-7 text-pink-500" />
+      {/* Map (collapsible) */}
+      {showMap && webglSupported && (
+        <div className="px-5 mb-4">
+          <div
+            className="relative rounded-2xl overflow-hidden border-2 border-[rgba(93,64,55,0.12)] dark:border-white/5/50"
+            style={{ height: "240px" }}
+          >
+            <MapView
+              locations={filteredLocations}
+              onMarkerClick={handleMarkerClick}
+              userPosition={
+                searchCenter
+                  ? { latitude: searchCenter.lat, longitude: searchCenter.lng }
+                  : position
+              }
+            />
+            {isLoading && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin text-[#2E1F1B]" />
+                <span className="text-xs font-medium text-neutral-600">Loading...</span>
+              </div>
+            )}
           </div>
-          <p className="font-semibold text-neutral-800 dark:text-neutral-200">Find a flavor near you</p>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
-            Type a flavor or brand name above to see which shops carry it
-          </p>
         </div>
       )}
 
-      {/* Flavor results count */}
-      {searchMode === "flavors" && flavorQuery.length >= 2 && flavorResults.length > 0 && !selectedLocation && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full px-5 py-2.5 elevation-brand animate-in fade-in zoom-in-95 duration-200">
-          <span className="text-sm font-semibold">
-            {flavorResults.length} shop{flavorResults.length !== 1 ? "s" : ""} found
-          </span>
-        </div>
-      )}
+      {/* Count */}
+      <div className="px-5 pb-3">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          {totalCount} spot{totalCount !== 1 ? "s" : ""} found
+        </p>
+      </div>
 
-      {/* Location preview bottom sheet */}
+      {/* Location list */}
+      <div className="px-5 space-y-3">
+        {isLoading && !locations.length ? (
+          Array.from({ length: 4 }, (_, i) => (
+            <div
+              key={i}
+              className="h-24 rounded-2xl bg-neutral-100 dark:bg-neutral-800 animate-pulse"
+            />
+          ))
+        ) : (
+          displayItems.map((item, index) => {
+            if (item.type === "location") {
+              return (
+                <LocationCard
+                  key={item.location.id}
+                  location={item.location}
+                  index={index}
+                />
+              );
+            }
+            // Chain group
+            const isExpanded = expandedChains.has(item.chainName);
+            return (
+              <div key={`chain-${item.chainName}`} className="space-y-2">
+                <LocationCard
+                  location={item.closest}
+                  index={index}
+                  chainBadge={
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleChainExpand(item.chainName);
+                      }}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0E6FF] dark:bg-purple-900/30 text-[#7C3AED] dark:text-purple-300 text-[10px] font-semibold shrink-0 hover:bg-[#E4D4FF] transition-colors"
+                    >
+                      <Store className="size-2.5" />
+                      +{item.others.length} nearby
+                      <ChevronDown
+                        className={`size-2.5 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  }
+                />
+                {isExpanded &&
+                  item.others.map((loc, i) => (
+                    <div key={loc.id} className="ml-4">
+                      <LocationCard location={loc} index={index + i + 1} isChainChild />
+                    </div>
+                  ))}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Bottom sheet for selected marker */}
       {selectedLocation && (
         <MapBottomSheet
           location={selectedLocation}
           onClose={handleCloseSheet}
-          flavorMatch={flavorInfoMap.get(selectedLocation.id)}
         />
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Location Card component
+// ---------------------------------------------------------------------------
+
+function LocationCard({
+  location,
+  index,
+  chainBadge,
+  isChainChild,
+}: {
+  location: Location;
+  index: number;
+  chainBadge?: React.ReactNode;
+  isChainChild?: boolean;
+}) {
+  return (
+    <Link
+      href={`/location/${location.slug}`}
+      className="block animate-fade-in-up"
+      style={{ animationDelay: `${Math.min(index, 10) * 0.05}s` }}
+    >
+      <div
+        className={`bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-4 hover:border-[#C4364A]/30 transition-colors ${
+          isChainChild ? "opacity-90" : ""
+        }`}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="size-12 rounded-xl overflow-hidden shrink-0">
+            <img
+              src={locationThumbnail(location.name, location.location_type)}
+              alt=""
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+              <Badge
+                variant="secondary"
+                className={`text-[10px] px-1.5 py-0 shrink-0 ${TYPE_COLORS[location.location_type] || ""}`}
+              >
+                {TYPE_LABELS[location.location_type] || location.location_type}
+              </Badge>
+              {location.is_chain && !chainBadge && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded-full bg-[#F0E6FF] dark:bg-purple-900/30 text-[#7C3AED] dark:text-purple-300 text-[10px] font-semibold shrink-0">
+                  Chain
+                </span>
+              )}
+              {chainBadge}
+              <h3 className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
+                {location.name}
+              </h3>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground ml-0.5">
+              <MapPin className="w-3 h-3 shrink-0" />
+              <span className="truncate">{location.city}</span>
+              {(location.distance_meters ?? 0) > 0 && (
+                <span className="shrink-0 ml-1">
+                  · {formatDistance(location.distance_meters!)}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {location.avg_rating > 0 && (
+              <div className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 fill-[#F2B45A] text-[#F2B45A]" />
+                <span className="text-xs font-semibold">
+                  {Number(location.avg_rating).toFixed(1)}
+                </span>
+              </div>
+            )}
+            <ChevronRight className="w-4 h-4 text-neutral-300" />
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }

@@ -1,49 +1,47 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, X, MapPin, Star } from "lucide-react";
+import { Search, X, MapPin, Star, Navigation } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { useMapStore } from "@/stores/mapStore";
+import { geocodeForward } from "@/lib/google-maps/geocode";
+import type { GeocodeFeature } from "@/lib/google-maps/geocode";
 import type { Location } from "@/types/models";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
   supermarket: "Supermarket",
-  farmers_market: "Farmers Market",
-  restaurant: "Restaurant",
-  food_truck: "Food Truck",
 };
 
 const TYPE_EMOJIS: Record<string, string> = {
   scoop_shop: "🍦",
   supermarket: "🛒",
-  farmers_market: "🌽",
-  restaurant: "🍽️",
-  food_truck: "🚚",
 };
 
 interface SearchBarProps {
   locations?: Location[];
+  onAddressSelect?: (lat: number, lng: number, label: string) => void;
 }
 
-export function SearchBar({ locations = [] }: SearchBarProps) {
-  const { filters, setFilters, searchMode } = useMapStore();
+export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
+  const { filters, setFilters } = useMapStore();
   const [isFocused, setIsFocused] = useState(false);
+  const [geocodeResults, setGeocodeResults] = useState<GeocodeFeature[]>([]);
+  const [geocodeLoading, setGeocodeLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  // Normalize text for search: strip punctuation, normalize & ↔ "and"
   function normalize(text: string): string {
     return text
       .toLowerCase()
-      .replace(/&/g, " and ")    // & → "and"
-      .replace(/[''`]/g, "")     // strip apostrophes/quotes
-      .replace(/[^\w\s]/g, " ")  // strip other punctuation
-      .replace(/\s+/g, " ")      // collapse whitespace
+      .replace(/&/g, " and ")
+      .replace(/[''`]/g, "")
+      .replace(/[^\w\s]/g, " ")
+      .replace(/\s+/g, " ")
       .trim();
   }
 
-  // Filter locations based on search query
   const rawQuery = filters.searchQuery.trim();
   const query = normalize(rawQuery);
   const results =
@@ -55,11 +53,38 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
               normalize(loc.address_line1).includes(query) ||
               normalize(loc.city).includes(query)
           )
-          .slice(0, 8) // Show max 8 results
+          .slice(0, 8)
       : [];
 
-  // Only show location dropdown in locations mode (flavor results come from the page)
-  const showDropdown = isFocused && query.length >= 1 && searchMode === "locations";
+  const showDropdown = isFocused && query.length >= 1;
+
+  // Debounced geocoding when few location matches
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (rawQuery.length < 3 || !onAddressSelect) {
+      setGeocodeResults([]);
+      return;
+    }
+
+    // Only geocode if few location matches (user might be typing an address)
+    if (results.length > 3) {
+      setGeocodeResults([]);
+      return;
+    }
+
+    setGeocodeLoading(true);
+    debounceRef.current = setTimeout(async () => {
+      const features = await geocodeForward(rawQuery);
+      setGeocodeResults(features);
+      setGeocodeLoading(false);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawQuery, onAddressSelect]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -79,15 +104,18 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
     };
   }, []);
 
+  const handleAddressClick = (feature: GeocodeFeature) => {
+    onAddressSelect?.(feature.latitude, feature.longitude, feature.full_address || feature.name);
+    setFilters({ searchQuery: "" });
+    setIsFocused(false);
+    setGeocodeResults([]);
+  };
+
   return (
     <div ref={containerRef} className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 z-10" />
       <Input
-        placeholder={
-          searchMode === "flavors"
-            ? "Search for a flavor or brand..."
-            : "Search shops by name or location..."
-        }
+        placeholder="Search shops or type an address..."
         value={filters.searchQuery}
         onChange={(e) => setFilters({ searchQuery: e.target.value })}
         onFocus={() => setIsFocused(true)}
@@ -98,6 +126,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
           onClick={() => {
             setFilters({ searchQuery: "" });
             setIsFocused(false);
+            setGeocodeResults([]);
           }}
           className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-neutral-400 hover:text-neutral-600 z-10"
         >
@@ -105,14 +134,14 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
         </button>
       )}
 
-      {/* Search results dropdown */}
       {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-neutral-900 rounded-2xl elevation-2 border border-neutral-100 dark:border-neutral-800 overflow-hidden max-h-[60vh] overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-          {results.length > 0 ? (
+          {/* Location name matches */}
+          {results.length > 0 && (
             <>
               <div className="px-3 py-2 border-b border-neutral-100 dark:border-neutral-800">
                 <span className="text-xs text-neutral-400">
-                  {results.length} result{results.length !== 1 ? "s" : ""}
+                  {results.length} shop{results.length !== 1 ? "s" : ""}
                 </span>
               </div>
               {results.map((location) => (
@@ -143,7 +172,7 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
                     </span>
                     {location.avg_rating > 0 && (
                       <div className="flex items-center gap-0.5">
-                        <Star className="w-3 h-3 fill-pink-400 text-pink-400" />
+                        <Star className="w-3 h-3 fill-[#F2B45A] text-[#F2B45A]" />
                         <span className="text-xs text-neutral-600">
                           {Number(location.avg_rating).toFixed(1)}
                         </span>
@@ -153,11 +182,55 @@ export function SearchBar({ locations = [] }: SearchBarProps) {
                 </Link>
               ))}
             </>
-          ) : (
+          )}
+
+          {/* Address geocode results */}
+          {onAddressSelect && (geocodeResults.length > 0 || geocodeLoading) && (
+            <>
+              <div className="px-3 py-2 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50">
+                <div className="flex items-center gap-1.5">
+                  <Navigation className="w-3 h-3 text-[#F46B8F]" />
+                  <span className="text-xs font-medium text-[#F46B8F]">
+                    Search near an address
+                  </span>
+                </div>
+              </div>
+              {geocodeLoading && geocodeResults.length === 0 && (
+                <div className="px-3 py-3 text-xs text-neutral-400 text-center">
+                  Finding addresses...
+                </div>
+              )}
+              {geocodeResults.map((feature) => (
+                <button
+                  key={feature.place_id}
+                  onClick={() => handleAddressClick(feature)}
+                  className="flex items-center gap-3 px-3 py-3 w-full text-left hover:bg-[#FFF3EE]/50 dark:hover:bg-[#332520]/20 active:bg-[#FFF3EE] transition-colors border-b border-neutral-50 dark:border-neutral-800 last:border-b-0"
+                >
+                  <div className="flex items-center justify-center size-8 rounded-full bg-[#FFF3EE] dark:bg-[#332520]/30 shrink-0">
+                    <MapPin className="w-4 h-4 text-[#F46B8F]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">
+                      {feature.name}
+                    </p>
+                    <p className="text-xs text-neutral-500 truncate">
+                      {feature.full_address}
+                    </p>
+                  </div>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF3EE] dark:bg-[#2E1F1B]/30 text-[#2E1F1B] dark:text-[rgba(93,64,55,0.12)] shrink-0">
+                    Nearby
+                  </span>
+                </button>
+              ))}
+            </>
+          )}
+
+          {/* No results at all */}
+          {results.length === 0 && geocodeResults.length === 0 && !geocodeLoading && (
             <div className="px-4 py-6 text-center">
               <p className="text-sm text-neutral-500">No spots found</p>
               <p className="text-xs text-neutral-400 mt-1">
-                Try a different name or location
+                Try a shop name or type an address to search nearby
               </p>
             </div>
           )}

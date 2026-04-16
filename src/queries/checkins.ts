@@ -143,3 +143,35 @@ export async function fetchLocationFlavors(
 
   return (data || []) as unknown as Availability[];
 }
+
+export async function fetchTrendingFlavors(limit: number = 10): Promise<Flavor[]> {
+  const { data, error } = await supabase
+    .from("flavors")
+    .select(`*, brand:brands(id, name, slug)`)
+    .eq("is_active", true)
+    .gt("total_ratings", 0)
+    .order("total_ratings", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Error fetching trending flavors:", error);
+    return [];
+  }
+
+  return (data || []) as unknown as Flavor[];
+}
+
+export async function fetchAllFlavorsForMatching(): Promise<Flavor[]> {
+  const { data, error } = await supabase
+    .from("flavors")
+    .select(`*, brand:brands(id, name, slug)`)
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) {
+    console.error("Error fetching all flavors for matching:", error);
+    return [];
+  }
+
+  return (data || []) as unknown as Flavor[];
+}

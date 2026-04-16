@@ -1,14 +1,38 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Patua_One, Arvo, Viga, Amatic_SC } from "next/font/google";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ServiceWorkerRegistrar } from "@/components/providers/ServiceWorkerRegistrar";
+import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const patuaOne = Patua_One({
+  weight: "400",
+  variable: "--font-brand",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const arvo = Arvo({
+  weight: ["400", "700"],
+  variable: "--font-heading",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const viga = Viga({
+  weight: "400",
+  variable: "--font-body",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const amaticSC = Amatic_SC({
+  weight: "700",
+  variable: "--font-accent",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -35,7 +59,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5e6f0" },
+    { media: "(prefers-color-scheme: light)", color: "#FFF7ED" },
     { media: "(prefers-color-scheme: dark)", color: "#1a1030" },
   ],
 };
@@ -55,12 +79,15 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.variable} font-sans antialiased`}>
+      <body
+        className={`${patuaOne.variable} ${arvo.variable} ${viga.variable} ${amaticSC.variable} font-body antialiased`}
+      >
         <QueryProvider>
           <AuthProvider>
             <ThemeProvider>
               <ServiceWorkerRegistrar />
               {children}
+              <InstallPrompt />
             </ThemeProvider>
           </AuthProvider>
         </QueryProvider>

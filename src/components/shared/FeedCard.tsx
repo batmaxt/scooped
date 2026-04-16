@@ -76,19 +76,19 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
   return (
     <Card className="gap-0 py-0 overflow-hidden press-card border-0 elevation-2 gradient-border">
       {/* Colored accent bar */}
-      <div className="h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 dark:from-pink-400/60 dark:via-purple-400/40 dark:to-cyan-400/30" />
+      <div className="h-1 bg-gradient-to-r from-[#F46B8F] via-[#F2B45A] to-[#2E1F1B] dark:from-[#F46B8F]/60 dark:via-[#A8897E]/40 dark:to-[#2E1F1B]/30" />
       <CardContent className="px-4 py-4 space-y-3">
         {/* User row */}
         <div className="flex items-center gap-2.5">
           <Link href={`/profile/${item.profile_username}`}>
-            <Avatar className="size-10 ring-2 ring-purple-200 dark:ring-purple-800/30">
+            <Avatar className="size-10 ring-2 ring-[rgba(93,64,55,0.12)] dark:ring-[#332520]/30">
               {item.profile_avatar_url && (
                 <AvatarImage
                   src={item.profile_avatar_url}
                   alt={item.profile_display_name || item.profile_username}
                 />
               )}
-              <AvatarFallback className="bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-400 text-white text-xs font-bold">
+              <AvatarFallback className="bg-gradient-to-br from-[#F46B8F] via-[#F2B45A] to-[#2E1F1B] text-white text-xs font-bold">
                 {getInitials(item.profile_display_name, item.profile_username)}
               </AvatarFallback>
             </Avatar>
@@ -113,9 +113,9 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
         {/* Location */}
         <Link
           href={`/location/${item.location_slug}`}
-          className="flex items-center gap-1.5 bg-gradient-to-r from-pink-50/60 to-purple-50/40 dark:from-white/[0.04] dark:to-white/[0.02] rounded-lg px-2.5 py-1.5 -mx-1 hover:from-pink-50 hover:to-purple-50 dark:hover:from-white/[0.07] dark:hover:to-white/[0.05] transition-colors"
+          className="flex items-center gap-1.5 bg-gradient-to-r from-[#FFF3EE]/60 to-[#FFF3EE]/40 dark:from-white/[0.04] dark:to-white/[0.02] rounded-lg px-2.5 py-1.5 -mx-1 hover:from-[#FFF3EE] hover:to-[#FFF3EE] dark:hover:from-white/[0.07] dark:hover:to-white/[0.05] transition-colors"
         >
-          <MapPin className="size-3.5 text-pink-400 shrink-0" />
+          <MapPin className="size-3.5 text-[#F46B8F] shrink-0" />
           <span className="font-medium text-sm truncate">
             {item.location_name}
           </span>
@@ -145,7 +145,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
                   key={i}
                   className={`size-4 ${
                     i < primaryRating
-                      ? "fill-pink-400 text-pink-400"
+                      ? "fill-[#F2B45A] text-[#F2B45A]"
                       : "fill-none text-neutral-300 dark:text-neutral-600"
                   }`}
                 />
@@ -159,7 +159,7 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
           <div className="flex items-center gap-2 flex-wrap">
             <Badge
               variant="secondary"
-              className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/15 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-700/30 rounded-full px-3 shadow-sm"
+              className="bg-gradient-to-r from-[#FFF3EE] to-[#FFF3EE] dark:from-[#332520]/20 dark:to-[#332520]/15 text-[#C4364A] dark:text-[#F46B8F] border border-[rgba(93,64,55,0.12)] dark:border-[#C4364A]/30 rounded-full px-3 shadow-sm"
             >
               <IceCreamCone className="size-3 mr-1" />
               {item.flavor_name}
@@ -191,28 +191,28 @@ export function FeedCard({ item, isLiked: initialLiked, onCommentTap, compact }:
         )}
 
         {/* Actions: Melts + Comments */}
-        <div className="flex items-center gap-5 pt-2 border-t border-pink-100/40 dark:border-purple-900/20">
+        <div className="flex items-center gap-5 pt-2 border-t border-[#FFF3EE]/40 dark:border-[#332520]/20">
           <button
             type="button"
             onClick={handleLikeToggle}
             disabled={!user}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-pink-500 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#F46B8F] transition-colors disabled:opacity-50"
           >
             <Heart
               className={`size-4 transition-colors ${
                 optimisticLiked
-                  ? "fill-pink-500 text-pink-500 animate-heart-pop"
+                  ? "fill-[#F46B8F] text-[#F46B8F] animate-heart-pop"
                   : ""
               }`}
             />
-            <span className={optimisticLiked ? "text-pink-500 font-medium" : ""}>
+            <span className={optimisticLiked ? "text-[#F46B8F] font-medium" : ""}>
               {optimisticLikeCount > 0 ? `${optimisticLikeCount} Melts` : "Melt"}
             </span>
           </button>
           <button
             type="button"
             onClick={onCommentTap}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-pink-500 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#F46B8F] transition-colors"
           >
             <MessageCircle className="size-4" />
             <span>

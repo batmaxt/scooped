@@ -103,7 +103,7 @@ export function BadgeCelebration({ badgeIds, onDismiss }: BadgeCelebrationProps)
             style={{
               left: `${Math.random() * 100}%`,
               top: `-5%`,
-              backgroundColor: ["#ec4899", "#f59e0b", "#8b5cf6", "#3b82f6", "#10b981"][
+              backgroundColor: ["#F46B8F", "#F2B45A", "#2E1F1B", "#FFF3EE", "#F46B8F"][
                 i % 5
               ],
               animation: `confetti-fall ${1.5 + Math.random() * 2}s ease-in forwards`,
@@ -114,7 +114,7 @@ export function BadgeCelebration({ badgeIds, onDismiss }: BadgeCelebrationProps)
       </div>
 
       {/* Badge card */}
-      <div className="relative bg-white rounded-3xl p-8 mx-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
+      <div className="relative bg-white dark:bg-neutral-900 rounded-3xl p-8 mx-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
         <button
           type="button"
           onClick={() => {

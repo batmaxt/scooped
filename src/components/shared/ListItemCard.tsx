@@ -30,7 +30,7 @@ export function ListItemCard({
       return (
         <Link href={`/location/${loc.slug}`} className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <MapPin className="size-3.5 text-pink-400 shrink-0" />
+            <MapPin className="size-3.5 text-[#F46B8F] shrink-0" />
             <span className="font-semibold text-sm truncate">{loc.name}</span>
           </div>
           <p className="text-xs text-muted-foreground ml-5">

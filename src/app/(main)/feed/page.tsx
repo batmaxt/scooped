@@ -34,8 +34,8 @@ const PAGE_SIZE = 20;
 function NotLoggedIn() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center">
-      <div className="rounded-full bg-pink-50 dark:bg-rose-900/20 p-5 mb-5">
-        <Newspaper className="size-10 text-pink-400" />
+      <div className="rounded-full bg-[#FFF3EE] dark:bg-[#332520]/20 p-5 mb-5">
+        <Newspaper className="size-10 text-[#F46B8F]" />
       </div>
       <h2 className="text-xl font-bold mb-2">Your Feed</h2>
       <p className="text-sm text-muted-foreground max-w-xs mb-8 leading-relaxed">
@@ -59,8 +59,8 @@ function NotLoggedIn() {
 function EmptyFeed() {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-      <div className="rounded-full bg-pink-50 dark:bg-rose-900/20 p-5 mb-5">
-        <Users className="size-10 text-pink-300" />
+      <div className="rounded-full bg-[#FFF3EE] dark:bg-[#332520]/20 p-5 mb-5">
+        <Users className="size-10 text-[#F46B8F]" />
       </div>
       <h2 className="text-lg font-bold mb-2">Your feed is empty</h2>
       <p className="text-sm text-muted-foreground max-w-xs mb-6">
@@ -72,7 +72,7 @@ function EmptyFeed() {
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5 border-pink-200 text-pink-600 hover:bg-pink-50"
+            className="gap-1.5 border-[rgba(93,64,55,0.12)] text-[#C4364A] hover:bg-[#FFF3EE]"
           >
             <IceCreamCone className="size-4" />
             Discover
@@ -242,17 +242,17 @@ export default function FeedPage() {
   return (
     <div className="min-h-dvh bg-background pb-20 animate-in fade-in duration-200 section-feed">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-pink-100/40 dark:border-white/5 px-4 pt-3 pb-3">
+      <div className="sticky top-0 z-30 bg-white/90 dark:bg-card/90 backdrop-blur-md border-b border-[#FFF3EE]/40 dark:border-white/5 px-4 pt-3 pb-3">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gradient-vibrant">Scooped</h1>
           <div className="flex items-center gap-1">
             <Link
-              href="/notifications"
+              href="/alerts"
               className="relative p-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <Bell className="size-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-pink-500 text-white text-[10px] font-bold leading-none">
+                <span className="absolute top-1 right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[#F46B8F] text-white text-[10px] font-bold leading-none">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               )}

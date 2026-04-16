@@ -104,12 +104,12 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-4 bg-gradient-to-b from-pink-50 via-white to-amber-50/30 dark:from-rose-950/15 dark:via-background dark:to-background">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-4 bg-gradient-to-b from-[#FFF3EE] via-white to-[#FFF3EE]/30 dark:from-[#2E1F1B]/15 dark:via-background dark:to-background">
       <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-pink-400 via-rose-400 to-amber-300 mb-4 elevation-brand">
+        <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-[#F46B8F] via-[#F2B45A] to-[#5D4037] mb-4 elevation-brand">
           <IceCreamCone className="size-8 text-white" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">Scooped</h1>
+        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-[#F46B8F] via-[#F2B45A] to-[#2E1F1B] bg-clip-text text-transparent">Scooped</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           Track your ice cream adventures.
         </p>

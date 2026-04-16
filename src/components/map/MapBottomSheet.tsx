@@ -20,9 +20,6 @@ function formatDistance(meters: number, useMiles: boolean): string {
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
   supermarket: "Supermarket",
-  farmers_market: "Farmers Market",
-  restaurant: "Restaurant",
-  food_truck: "Food Truck",
 };
 
 interface FlavorMatchInfo {
@@ -86,8 +83,8 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
                 <h3 className="font-semibold text-lg truncate">{location.name}</h3>
                 {flavorMatch && (
                   <div className="flex items-center gap-1.5 mt-1">
-                    <IceCreamCone className="w-3.5 h-3.5 text-pink-500 shrink-0" />
-                    <span className="text-sm text-pink-600 font-medium truncate">
+                    <IceCreamCone className="w-3.5 h-3.5 text-[#F46B8F] shrink-0" />
+                    <span className="text-sm text-[#F46B8F] font-medium truncate">
                       {flavorMatch.flavorName}
                       {flavorMatch.brandName && ` by ${flavorMatch.brandName}`}
                     </span>
@@ -105,7 +102,7 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
                 <div className="flex items-center gap-3 mt-2">
                   {location.avg_rating > 0 && (
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-pink-400 text-pink-400" />
+                      <Star className="w-4 h-4 fill-[#F2B45A] text-[#F2B45A]" />
                       <span className="text-sm font-medium">
                         {location.avg_rating.toFixed(1)}
                       </span>

@@ -17,9 +17,9 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 const ICON_COLOR_MAP: Record<string, string> = {
   follow: "text-blue-500",
-  like: "text-pink-500",
+  like: "text-[#F46B8F]",
   comment: "text-amber-500",
-  badge: "text-purple-500",
+  badge: "text-[#5D4037]",
   claim: "text-green-500",
   alert: "text-orange-500",
 };
@@ -36,7 +36,7 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
   const actorName = actor?.display_name || actor?.username || "Someone";
 
   let message: React.ReactNode;
-  let href: string = "/feed";
+  let href: string = "/home";
 
   switch (notification.type) {
     case "follow":
@@ -54,7 +54,7 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
           <span className="font-semibold">{actorName}</span> liked your check-in
         </>
       );
-      href = "/feed";
+      href = "/home";
       break;
     case "comment":
       message = (
@@ -63,7 +63,7 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
           check-in
         </>
       );
-      href = "/feed";
+      href = "/home";
       break;
     case "badge":
       message = (
@@ -109,7 +109,7 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
       className={`flex items-start gap-3 px-4 py-3.5 transition-colors ${
         notification.is_read
           ? "bg-card"
-          : "bg-pink-50/50 dark:bg-pink-950/20"
+          : "bg-[#FFF3EE]/50 dark:bg-[#332520]/20"
       } hover:bg-neutral-50 dark:hover:bg-white/[0.04]`}
     >
       {/* Avatar */}
@@ -121,7 +121,7 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
               alt={actorName}
             />
           )}
-          <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-xs font-bold">
+          <AvatarFallback className="bg-gradient-to-br from-[#F46B8F] to-[#F2B45A] text-white text-xs font-bold">
             {notification.type === "badge"
               ? "🏆"
               : notification.type === "alert"
@@ -146,7 +146,7 @@ export function NotificationRow({ notification, onTap }: NotificationRowProps) {
 
       {/* Unread dot */}
       {!notification.is_read && (
-        <div className="size-2.5 rounded-full bg-pink-500 shrink-0 mt-2" />
+        <div className="size-2.5 rounded-full bg-[#F46B8F] shrink-0 mt-2" />
       )}
     </Link>
   );

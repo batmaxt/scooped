@@ -250,7 +250,7 @@ export default function AdminClaimsPage() {
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-neutral-100">
         <div className="flex items-center gap-3 px-4 h-14">
           <Link
-            href="/feed"
+            href="/home"
             className="p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="size-5" />

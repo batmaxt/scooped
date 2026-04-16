@@ -177,7 +177,7 @@ export function PermissionPrompts() {
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-card overflow-hidden elevation-3 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
         {/* Gradient top bar */}
-        <div className="h-1.5 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400" />
+        <div className="h-1.5 bg-gradient-to-r from-[#F46B8F] via-[#F2B45A] to-[#2E1F1B]" />
 
         {/* Dismiss */}
         <button
@@ -191,7 +191,7 @@ export function PermissionPrompts() {
         <div className="px-6 pt-8 pb-6 text-center">
           {step === "contacts" && (
             <>
-              <div className="mx-auto mb-4 flex items-center justify-center size-16 rounded-full bg-gradient-to-br from-amber-400 via-orange-400 to-pink-500">
+              <div className="mx-auto mb-4 flex items-center justify-center size-16 rounded-full bg-gradient-to-br from-[#F2B45A] via-[#F46B8F] to-[#2E1F1B]">
                 <Contact className="size-7 text-white" />
               </div>
               <h2 className="text-xl font-bold mb-2">Find your friends</h2>
@@ -218,7 +218,7 @@ export function PermissionPrompts() {
 
           {step === "notifications" && (
             <>
-              <div className="mx-auto mb-4 flex items-center justify-center size-16 rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-400">
+              <div className="mx-auto mb-4 flex items-center justify-center size-16 rounded-full bg-gradient-to-br from-[#F46B8F] via-[#F2B45A] to-[#2E1F1B]">
                 <Bell className="size-7 text-white" />
               </div>
               <h2 className="text-xl font-bold mb-2">Stay in the loop</h2>
@@ -245,7 +245,7 @@ export function PermissionPrompts() {
 
           {step === "location" && (
             <>
-              <div className="mx-auto mb-4 flex items-center justify-center size-16 rounded-full bg-gradient-to-br from-cyan-400 via-teal-400 to-emerald-400">
+              <div className="mx-auto mb-4 flex items-center justify-center size-16 rounded-full bg-gradient-to-br from-[#2E1F1B] via-[#F2B45A] to-[#F46B8F]">
                 <MapPin className="size-7 text-white" />
               </div>
               <h2 className="text-xl font-bold mb-2">Find scoops near you</h2>

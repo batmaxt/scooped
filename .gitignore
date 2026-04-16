@@ -42,3 +42,12 @@ next-env.d.ts
 
 # supabase
 supabase/.temp/
+
+# temp seeding files
+/public/seed.html
+/public/flavor-seed.js
+/public/seed-chunks.json
+/cleanup-fake-locations.sql
+/.next 2/
+/data/
+/scripts/*.mjs

@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { IceCreamCone } from "lucide-react";
+import { DemoButton } from "@/components/shared/DemoButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,14 +66,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-dvh flex-col items-center justify-center px-4 bg-[#1a1025] overflow-hidden">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center px-4 bg-[#2D1A19] overflow-hidden">
       {/* Decorative blurred orbs */}
-      <div className="absolute top-20 -left-20 w-72 h-72 rounded-full bg-pink-500/20 blur-[100px]" />
-      <div className="absolute top-40 -right-20 w-80 h-80 rounded-full bg-purple-500/20 blur-[100px]" />
-      <div className="absolute -bottom-20 left-1/3 w-64 h-64 rounded-full bg-cyan-500/15 blur-[100px]" />
+      <div className="absolute top-20 -left-20 w-72 h-72 rounded-full bg-[#F46B8F]/20 blur-[100px]" />
+      <div className="absolute top-40 -right-20 w-80 h-80 rounded-full bg-[#F2B45A]/15 blur-[100px]" />
+      <div className="absolute -bottom-20 left-1/3 w-64 h-64 rounded-full bg-[#2E1F1B]/25 blur-[100px]" />
 
       <div className="relative z-10 mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-400 mb-4 elevation-brand">
+        <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-[#F46B8F] via-[#F2B45A] to-[#5D4037] mb-4 elevation-brand">
           <IceCreamCone className="size-8 text-white" />
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-white">Scooped</h1>
@@ -162,11 +163,13 @@ export default function LoginPage() {
             Continue with Google
           </Button>
 
+          <DemoButton className="mt-3" />
+
           <p className="text-white/40 mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="text-pink-400 font-medium hover:underline"
+              className="text-[#F46B8F] font-medium hover:underline"
             >
               Sign up
             </Link>

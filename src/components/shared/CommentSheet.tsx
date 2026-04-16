@@ -100,7 +100,7 @@ export function CommentSheet({ checkinId, open, onOpenChange }: CommentSheetProp
                         alt={comment.profile?.display_name || comment.profile?.username}
                       />
                     )}
-                    <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-xs font-bold">
+                    <AvatarFallback className="bg-gradient-to-br from-[#F46B8F] to-[#F2B45A] text-white text-xs font-bold">
                       {getInitials(
                         comment.profile?.display_name,
                         comment.profile?.username

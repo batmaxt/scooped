@@ -22,3 +22,38 @@ export async function reportSighting(
   if (error) throw new Error(error.message);
   return data as string;
 }
+
+// ---------------------------------------------------------------------------
+// Create a new flavor from a scan (for unmatched items)
+// ---------------------------------------------------------------------------
+
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[''`]/g, "")
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
+export async function createFlavorFromScan(
+  name: string
+): Promise<{ id: string; name: string; slug: string }> {
+  const slug = slugify(name);
+
+  const { data, error } = await supabase.rpc("create_flavor_from_scan", {
+    p_name: name,
+    p_slug: slug,
+    p_category: "ice_cream",
+  });
+
+  if (error) throw new Error(error.message);
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    id: row.out_id || row.id,
+    name: row.out_name || row.name,
+    slug: row.out_slug || row.slug,
+  } as { id: string; name: string; slug: string };
+}

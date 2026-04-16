@@ -25,7 +25,7 @@ export function UserRow({ profile, showFollowButton = true }: UserRowProps) {
               alt={profile.display_name || profile.username}
             />
           )}
-          <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-300 text-white text-sm font-bold">
+          <AvatarFallback className="bg-gradient-to-br from-[#F46B8F] to-[#F2B45A] text-white text-sm font-bold">
             {getInitials(profile.display_name, profile.username)}
           </AvatarFallback>
         </Avatar>

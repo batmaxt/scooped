@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect, Component, type ReactNode } from "react";
-import Map, { Marker, NavigationControl, GeolocateControl } from "react-map-gl/mapbox";
-import type { MapRef, ViewStateChangeEvent } from "react-map-gl/mapbox";
-import "mapbox-gl/dist/mapbox-gl.css";
-import { MAPBOX_TOKEN, MAP_STYLE, MAP_STYLE_SATELLITE, DEFAULT_CENTER, DEFAULT_ZOOM } from "@/lib/mapbox/config";
+import { useCallback, useRef, useEffect, Component, type ReactNode } from "react";
+import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import type { MapCameraChangedEvent } from "@vis.gl/react-google-maps";
+import { GOOGLE_MAPS_API_KEY, GOOGLE_MAP_ID, DEFAULT_CENTER, DEFAULT_ZOOM } from "@/lib/google-maps/config";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useMapStore } from "@/stores/mapStore";
 import type { Location } from "@/types/models";
@@ -16,7 +15,7 @@ interface MapViewProps {
   userPosition?: { latitude: number; longitude: number } | null;
 }
 
-// Error boundary to catch WebGL failures
+// Error boundary to catch rendering failures
 class MapErrorBoundary extends Component<
   { children: ReactNode; fallback: ReactNode },
   { hasError: boolean }
@@ -38,13 +37,13 @@ class MapErrorBoundary extends Component<
   }
 }
 
-function MapFallback({ locations, onMarkerClick }: { locations: Location[]; onMarkerClick: (location: Location) => void }) {
+function MapFallback({ locations }: { locations: Location[] }) {
   return (
     <div className="w-full h-full bg-neutral-50 flex flex-col items-center justify-center p-4">
       <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4 max-w-sm text-center">
         <p className="text-sm text-yellow-800 font-medium">Map unavailable</p>
         <p className="text-xs text-yellow-600 mt-1">
-          WebGL is required for the map. Try enabling hardware acceleration in Chrome Settings → System.
+          Could not load Google Maps. Please check your connection.
         </p>
       </div>
       <p className="text-sm text-neutral-500 mb-2">
@@ -55,90 +54,74 @@ function MapFallback({ locations, onMarkerClick }: { locations: Location[]; onMa
 }
 
 function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
-  const mapRef = useRef<MapRef>(null);
+  const map = useMap();
   const { setViewport, selectedLocationId } = useMapStore();
   const [satelliteMap] = useLocalStorage("scooped:satelliteMap", false);
-  const [webglSupported, setWebglSupported] = useState(true);
   const hasCenteredOnUser = useRef(false);
 
-  // Check WebGL support before rendering map
+  // Pan to user position when it becomes available
   useEffect(() => {
-    try {
-      const canvas = document.createElement("canvas");
-      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-      if (!gl) {
-        setWebglSupported(false);
-      }
-    } catch {
-      setWebglSupported(false);
-    }
-  }, []);
-
-  // Fly to user position when it becomes available (after async geolocation)
-  useEffect(() => {
-    if (userPosition && !hasCenteredOnUser.current && mapRef.current) {
+    if (userPosition && !hasCenteredOnUser.current && map) {
       hasCenteredOnUser.current = true;
-      mapRef.current.flyTo({
-        center: [userPosition.longitude, userPosition.latitude],
-        zoom: DEFAULT_ZOOM,
-        duration: 1500,
-      });
+      map.panTo({ lat: userPosition.latitude, lng: userPosition.longitude });
+      map.setZoom(DEFAULT_ZOOM);
     }
-  }, [userPosition]);
+  }, [userPosition, map]);
 
-  const handleMove = useCallback(
-    (evt: ViewStateChangeEvent) => {
+  // Handle satellite toggle changes
+  useEffect(() => {
+    if (map) {
+      map.setMapTypeId(satelliteMap ? "hybrid" : "roadmap");
+    }
+  }, [satelliteMap, map]);
+
+  const handleCameraChanged = useCallback(
+    (ev: MapCameraChangedEvent) => {
+      const center = ev.detail.center;
+      const zoom = ev.detail.zoom;
       setViewport({
-        longitude: evt.viewState.longitude,
-        latitude: evt.viewState.latitude,
-        zoom: evt.viewState.zoom,
+        longitude: center.lng,
+        latitude: center.lat,
+        zoom,
       });
     },
     [setViewport]
   );
 
-  const initialViewState = userPosition
-    ? { ...userPosition, zoom: DEFAULT_ZOOM }
-    : { ...DEFAULT_CENTER, zoom: DEFAULT_ZOOM };
+  const initialCenter = userPosition
+    ? { lat: userPosition.latitude, lng: userPosition.longitude }
+    : DEFAULT_CENTER;
 
   // If we already have user position at mount time, mark as centered
   if (userPosition && !hasCenteredOnUser.current) {
     hasCenteredOnUser.current = true;
   }
 
-  if (!webglSupported) {
-    return <MapFallback locations={locations} onMarkerClick={onMarkerClick} />;
-  }
-
   return (
     <Map
-      ref={mapRef}
-      mapboxAccessToken={MAPBOX_TOKEN}
-      initialViewState={initialViewState}
+      defaultCenter={initialCenter}
+      defaultZoom={DEFAULT_ZOOM}
+      mapId={GOOGLE_MAP_ID}
+      gestureHandling="greedy"
+      disableDefaultUI={false}
+      zoomControl={true}
+      fullscreenControl={false}
+      streetViewControl={false}
+      mapTypeControl={false}
       style={{ width: "100%", height: "100%" }}
-      mapStyle={satelliteMap ? MAP_STYLE_SATELLITE : MAP_STYLE}
-      onMove={handleMove}
-      attributionControl={false}
+      onCameraChanged={handleCameraChanged}
     >
-      <GeolocateControl position="bottom-right" trackUserLocation />
-      <NavigationControl position="bottom-right" showCompass={false} />
-
       {locations.map((location) => (
-        <Marker
+        <AdvancedMarker
           key={location.id}
-          longitude={location.longitude}
-          latitude={location.latitude}
-          anchor="bottom"
-          onClick={(e) => {
-            e.originalEvent.stopPropagation();
-            onMarkerClick(location);
-          }}
+          position={{ lat: location.latitude, lng: location.longitude }}
+          onClick={() => onMarkerClick(location)}
         >
           <LocationMarker
             locationType={location.location_type}
             isSelected={selectedLocationId === location.id}
           />
-        </Marker>
+        </AdvancedMarker>
       ))}
     </Map>
   );
@@ -146,8 +129,10 @@ function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
 
 export function MapView(props: MapViewProps) {
   return (
-    <MapErrorBoundary fallback={<MapFallback locations={props.locations} onMarkerClick={props.onMarkerClick} />}>
-      <MapInner {...props} />
+    <MapErrorBoundary fallback={<MapFallback locations={props.locations} />}>
+      <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+        <MapInner {...props} />
+      </APIProvider>
     </MapErrorBoundary>
   );
 }

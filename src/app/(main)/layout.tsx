@@ -8,7 +8,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-dvh pb-20 pattern-dots">
+    <div className="min-h-dvh pb-16 pattern-dots">
       <SplashOverlay />
       {children}
       <BottomNav />

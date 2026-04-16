@@ -1,9 +1,6 @@
 export type LocationType =
   | "scoop_shop"
-  | "supermarket"
-  | "farmers_market"
-  | "restaurant"
-  | "food_truck";
+  | "supermarket";
 
 export interface Location {
   id: string;
@@ -28,6 +25,8 @@ export interface Location {
   latitude: number;
   longitude: number;
   distance_meters?: number;
+  is_chain?: boolean;
+  chain_name?: string | null;
 }
 
 export interface Brand {

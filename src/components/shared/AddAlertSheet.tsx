@@ -137,7 +137,7 @@ export function AddAlertSheet({
                   onClick={() => handleTabChange(t.value)}
                   className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     tab === t.value
-                      ? "bg-pink-500 text-white"
+                      ? "bg-[#F46B8F] text-white"
                       : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
                   }`}
                 >
@@ -161,8 +161,8 @@ export function AddAlertSheet({
 
           {/* Selected item */}
           {selectedId && (
-            <div className="flex items-center gap-2 bg-pink-50 border border-pink-200 rounded-lg px-3 py-2">
-              <Check className="size-4 text-pink-500" />
+            <div className="flex items-center gap-2 bg-[#FFF3EE] border border-[rgba(93,64,55,0.12)] rounded-lg px-3 py-2">
+              <Check className="size-4 text-[#F46B8F]" />
               <span className="text-sm font-medium">{selectedName}</span>
               <button
                 type="button"
@@ -170,7 +170,7 @@ export function AddAlertSheet({
                   setSelectedId(null);
                   setSelectedName("");
                 }}
-                className="ml-auto text-xs text-pink-500 hover:text-pink-700"
+                className="ml-auto text-xs text-[#F46B8F] hover:text-[#C4364A]"
               >
                 Change
               </button>

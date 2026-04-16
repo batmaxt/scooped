@@ -72,7 +72,7 @@ export function ReportSightingSheet({
       <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Eye className="size-5 text-pink-500" />
+            <Eye className="size-5 text-[#F46B8F]" />
             Report a Sighting
           </SheetTitle>
         </SheetHeader>
@@ -96,8 +96,8 @@ export function ReportSightingSheet({
 
           {/* Selected flavor */}
           {selectedId && (
-            <div className="flex items-center gap-2 bg-pink-50 border border-pink-200 rounded-lg px-3 py-2">
-              <Check className="size-4 text-pink-500" />
+            <div className="flex items-center gap-2 bg-[#FFF3EE] border border-[rgba(93,64,55,0.12)] rounded-lg px-3 py-2">
+              <Check className="size-4 text-[#F46B8F]" />
               <span className="text-sm font-medium">{selectedName}</span>
               <button
                 type="button"
@@ -106,7 +106,7 @@ export function ReportSightingSheet({
                   setSelectedName("");
                   setSelectedBrandId(null);
                 }}
-                className="ml-auto text-xs text-pink-500 hover:text-pink-700"
+                className="ml-auto text-xs text-[#F46B8F] hover:text-[#C4364A]"
               >
                 Change
               </button>
@@ -132,7 +132,7 @@ export function ReportSightingSheet({
                     }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-neutral-50 transition-colors text-left"
                   >
-                    <IceCreamCone className="size-4 text-pink-400 shrink-0" />
+                    <IceCreamCone className="size-4 text-[#F46B8F] shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{item.name}</p>
                       {item.sub && (

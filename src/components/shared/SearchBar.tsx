@@ -115,7 +115,7 @@ export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
     <div ref={containerRef} className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 z-10" />
       <Input
-        placeholder="Search shops or type an address..."
+        placeholder="Search shops or address"
         value={filters.searchQuery}
         onChange={(e) => setFilters({ searchQuery: e.target.value })}
         onFocus={() => setIsFocused(true)}

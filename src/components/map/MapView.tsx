@@ -1,8 +1,17 @@
 "use client";
 
-import { useCallback, useRef, useEffect, Component, type ReactNode } from "react";
+import {
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+  Component,
+  type ReactNode,
+} from "react";
 import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import type { MapCameraChangedEvent } from "@vis.gl/react-google-maps";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import type { Marker } from "@googlemaps/markerclusterer";
 import { GOOGLE_MAPS_API_KEY, GOOGLE_MAP_ID, DEFAULT_CENTER, DEFAULT_ZOOM } from "@/lib/google-maps/config";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useMapStore } from "@/stores/mapStore";
@@ -53,9 +62,103 @@ function MapFallback({ locations }: { locations: Location[] }) {
   );
 }
 
+// Warm brand-colored cluster bubbles instead of Google's default blue
+function clusterRenderer() {
+  return {
+    render: (
+      { count, position }: { count: number; position: google.maps.LatLng },
+    ) => {
+      const el = document.createElement("div");
+      const size = count < 10 ? 34 : count < 100 ? 40 : 46;
+      el.style.cssText = `
+        width:${size}px;height:${size}px;border-radius:9999px;
+        background:#C4364A;color:#fff;display:flex;align-items:center;
+        justify-content:center;font-weight:700;font-size:12px;
+        box-shadow:0 2px 8px rgba(46,31,27,.3);border:2px solid rgba(255,255,255,.9);
+        cursor:pointer;`;
+      el.textContent = String(count);
+      return new google.maps.marker.AdvancedMarkerElement({
+        position,
+        content: el,
+        zIndex: 1000 + count,
+      });
+    },
+  };
+}
+
+function ClusteredMarkers({
+  locations,
+  onMarkerClick,
+}: {
+  locations: Location[];
+  onMarkerClick: (location: Location) => void;
+}) {
+  const map = useMap();
+  const { selectedLocationId } = useMapStore();
+  const [markers, setMarkers] = useState<Record<string, Marker>>({});
+  const clusterer = useRef<MarkerClusterer | null>(null);
+
+  useEffect(() => {
+    if (!map || clusterer.current) return;
+    clusterer.current = new MarkerClusterer({
+      map,
+      renderer: clusterRenderer(),
+    });
+    return () => {
+      clusterer.current?.clearMarkers();
+      clusterer.current = null;
+    };
+  }, [map]);
+
+  useEffect(() => {
+    if (!clusterer.current) return;
+    clusterer.current.clearMarkers();
+    clusterer.current.addMarkers(Object.values(markers));
+  }, [markers]);
+
+  // Stable ref callbacks per location id — a fresh inline ref each render
+  // makes React detach/reattach every marker on every render, which loops.
+  const refCallbacks = useRef<Record<string, (m: Marker | null) => void>>({});
+  const getMarkerRef = useCallback((id: string) => {
+    if (!refCallbacks.current[id]) {
+      refCallbacks.current[id] = (marker: Marker | null) => {
+        setMarkers((prev) => {
+          if (marker) {
+            if (prev[id] === marker) return prev;
+            return { ...prev, [id]: marker };
+          }
+          if (!(id in prev)) return prev;
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
+      };
+    }
+    return refCallbacks.current[id];
+  }, []);
+
+  return (
+    <>
+      {locations.map((location) => (
+        <AdvancedMarker
+          key={location.id}
+          position={{ lat: location.latitude, lng: location.longitude }}
+          onClick={() => onMarkerClick(location)}
+          ref={getMarkerRef(location.id)}
+        >
+          <LocationMarker
+            locationType={location.location_type}
+            isSelected={selectedLocationId === location.id}
+          />
+        </AdvancedMarker>
+      ))}
+    </>
+  );
+}
+
 function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
   const map = useMap();
-  const { setViewport, selectedLocationId } = useMapStore();
+  const { setViewport } = useMapStore();
   const [satelliteMap] = useLocalStorage("scooped:satelliteMap", false);
   const hasCenteredOnUser = useRef(false);
 
@@ -102,6 +205,7 @@ function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
       defaultCenter={initialCenter}
       defaultZoom={DEFAULT_ZOOM}
       mapId={GOOGLE_MAP_ID}
+      colorScheme="LIGHT"
       gestureHandling="greedy"
       disableDefaultUI={false}
       zoomControl={true}
@@ -111,18 +215,7 @@ function MapInner({ locations, onMarkerClick, userPosition }: MapViewProps) {
       style={{ width: "100%", height: "100%" }}
       onCameraChanged={handleCameraChanged}
     >
-      {locations.map((location) => (
-        <AdvancedMarker
-          key={location.id}
-          position={{ lat: location.latitude, lng: location.longitude }}
-          onClick={() => onMarkerClick(location)}
-        >
-          <LocationMarker
-            locationType={location.location_type}
-            isSelected={selectedLocationId === location.id}
-          />
-        </AdvancedMarker>
-      ))}
+      <ClusteredMarkers locations={locations} onMarkerClick={onMarkerClick} />
     </Map>
   );
 }

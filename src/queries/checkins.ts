@@ -54,7 +54,7 @@ export async function createCheckin(data: CreateCheckinData): Promise<Checkin> {
     .single();
 
   if (error) {
-    console.error("Error creating checkin:", error);
+    console.error("Error creating checkin:", error.message);
     throw new Error(error.message);
   }
 
@@ -80,7 +80,7 @@ export async function fetchUserCheckins(
     .limit(limit);
 
   if (error) {
-    console.error("Error fetching user checkins:", error);
+    console.error("Error fetching user checkins:", error.message);
     return [];
   }
 
@@ -113,7 +113,7 @@ export async function fetchFlavors(searchQuery: string): Promise<Flavor[]> {
   const { data, error } = await query.limit(30);
 
   if (error) {
-    console.error("Error fetching flavors:", error);
+    console.error("Error fetching flavors:", error.message);
     return [];
   }
 
@@ -137,7 +137,7 @@ export async function fetchLocationFlavors(
     .order("added_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching location flavors:", error);
+    console.error("Error fetching location flavors:", error.message);
     return [];
   }
 
@@ -154,7 +154,7 @@ export async function fetchTrendingFlavors(limit: number = 10): Promise<Flavor[]
     .limit(limit);
 
   if (error) {
-    console.error("Error fetching trending flavors:", error);
+    console.error("Error fetching trending flavors:", error.message);
     return [];
   }
 
@@ -169,7 +169,7 @@ export async function fetchAllFlavorsForMatching(): Promise<Flavor[]> {
     .order("name");
 
   if (error) {
-    console.error("Error fetching all flavors for matching:", error);
+    console.error("Error fetching all flavors for matching:", error.message);
     return [];
   }
 

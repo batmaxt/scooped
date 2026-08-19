@@ -22,7 +22,7 @@ export async function fetchUserAlerts(userId: string): Promise<Alert[]> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching user alerts:", error);
+    console.error("Error fetching user alerts:", error.message);
     return [];
   }
   return (data || []) as unknown as Alert[];
@@ -39,7 +39,7 @@ export async function fetchAlertCount(userId: string): Promise<number> {
     .eq("user_id", userId);
 
   if (error) {
-    console.error("Error fetching alert count:", error);
+    console.error("Error fetching alert count:", error.message);
     return 0;
   }
   return count ?? 0;
@@ -128,7 +128,7 @@ export async function triggerAlertMatching(
   });
 
   if (error) {
-    console.error("Error matching alerts:", error);
+    console.error("Error matching alerts:", error.message);
     return 0;
   }
   return data as number;
@@ -151,7 +151,7 @@ export async function fetchBrands(searchQuery: string) {
   const { data, error } = await query.limit(30);
 
   if (error) {
-    console.error("Error fetching brands:", error);
+    console.error("Error fetching brands:", error.message);
     return [];
   }
   return data || [];

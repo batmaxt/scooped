@@ -15,7 +15,7 @@ export async function fetchUserLists(userId: string): Promise<List[]> {
     .order("updated_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching user lists:", error);
+    console.error("Error fetching user lists:", error.message);
     return [];
   }
 
@@ -31,7 +31,7 @@ export async function fetchPublicUserLists(userId: string): Promise<List[]> {
     .order("updated_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching public user lists:", error);
+    console.error("Error fetching public user lists:", error.message);
     return [];
   }
 
@@ -46,7 +46,7 @@ export async function fetchListById(listId: string): Promise<List | null> {
     .single();
 
   if (error) {
-    console.error("Error fetching list:", error);
+    console.error("Error fetching list:", error.message);
     return null;
   }
 
@@ -115,7 +115,7 @@ export async function fetchListItems(listId: string): Promise<ListItem[]> {
     .order("position");
 
   if (error) {
-    console.error("Error fetching list items:", error);
+    console.error("Error fetching list items:", error.message);
     return [];
   }
 
@@ -209,7 +209,7 @@ export async function fetchListsContainingItem(
     .eq("lists.user_id", userId);
 
   if (error) {
-    console.error("Error fetching lists containing item:", error);
+    console.error("Error fetching lists containing item:", error.message);
     return [];
   }
 

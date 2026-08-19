@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Supabase session refresh will be enabled once Supabase is configured.
   // For now, pass through all requests.
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

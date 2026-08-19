@@ -57,7 +57,7 @@ export async function fetchLikedCheckinIds(
     .in("checkin_id", checkinIds);
 
   if (error) {
-    console.error("Error fetching liked checkins:", error);
+    console.error("Error fetching liked checkins:", error.message);
     return new Set();
   }
 
@@ -83,7 +83,7 @@ export async function fetchComments(
     .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("Error fetching comments:", error);
+    console.error("Error fetching comments:", error.message);
     return [];
   }
 

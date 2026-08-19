@@ -4,6 +4,7 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ServiceWorkerRegistrar } from "@/components/providers/ServiceWorkerRegistrar";
+import { SupabaseHealthProvider } from "@/components/providers/SupabaseHealthProvider";
 import { InstallPrompt } from "@/components/shared/InstallPrompt";
 import "./globals.css";
 
@@ -82,15 +83,17 @@ export default function RootLayout({
       <body
         className={`${patuaOne.variable} ${arvo.variable} ${viga.variable} ${amaticSC.variable} font-body antialiased`}
       >
-        <QueryProvider>
-          <AuthProvider>
-            <ThemeProvider>
-              <ServiceWorkerRegistrar />
-              {children}
-              <InstallPrompt />
-            </ThemeProvider>
-          </AuthProvider>
-        </QueryProvider>
+        <SupabaseHealthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <ThemeProvider>
+                <ServiceWorkerRegistrar />
+                {children}
+                <InstallPrompt />
+              </ThemeProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </SupabaseHealthProvider>
       </body>
     </html>
   );

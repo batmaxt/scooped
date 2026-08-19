@@ -30,7 +30,7 @@ export async function fetchNearbyLocations(
       if (error.message?.includes("AbortError") || error.code === "20") {
         return [];
       }
-      console.error("Error fetching nearby locations:", error);
+      console.error("Error fetching nearby locations:", error.message);
       return allData;
     }
 
@@ -55,7 +55,7 @@ export async function fetchAllLocations(): Promise<Location[]> {
     .order("name");
 
   if (error) {
-    console.error("Error fetching locations:", error);
+    console.error("Error fetching locations:", error.message);
     return [];
   }
 
@@ -76,7 +76,7 @@ export async function fetchLocationBySlug(slug: string): Promise<Location | null
     .single();
 
   if (error) {
-    console.error("Error fetching location:", error);
+    console.error("Error fetching location:", error.message);
     return null;
   }
 
@@ -89,7 +89,7 @@ export async function fetchLocationFlavors(locationId: string) {
   });
 
   if (error) {
-    console.error("Error fetching location flavors:", error);
+    console.error("Error fetching location flavors:", error.message);
     return [];
   }
 
@@ -150,7 +150,7 @@ export async function searchLocationsByFlavor(
     if (error.message?.includes("AbortError") || error.code === "20") {
       return [];
     }
-    console.error("Error searching locations by flavor:", error);
+    console.error("Error searching locations by flavor:", error.message);
     return [];
   }
 
@@ -190,7 +190,7 @@ export async function fetchLocationCheckins(locationId: string, limit: number = 
     .limit(limit);
 
   if (error) {
-    console.error("Error fetching location checkins:", error);
+    console.error("Error fetching location checkins:", error.message);
     return [];
   }
 

@@ -12,7 +12,7 @@ export async function fetchAllBadges(): Promise<Badge[]> {
     .order("requirement_value");
 
   if (error) {
-    console.error("Error fetching badges:", error);
+    console.error("Error fetching badges:", error.message);
     return [];
   }
 
@@ -32,7 +32,7 @@ export async function fetchUserBadges(userId: string): Promise<UserBadge[]> {
     .order("earned_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching user badges:", error);
+    console.error("Error fetching user badges:", error.message);
     return [];
   }
 
@@ -52,7 +52,7 @@ export async function checkAndAwardBadges(
   });
 
   if (error) {
-    console.error("Error checking badges:", error);
+    console.error("Error checking badges:", error.message);
     return [];
   }
 

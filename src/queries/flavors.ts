@@ -15,7 +15,7 @@ export async function fetchAllFlavorsGroupedByBrand(): Promise<BrandFlavorGroup[
     .order("name");
 
   if (error) {
-    console.error("Error fetching flavors:", error);
+    console.error("Error fetching flavors:", error.message);
     return [];
   }
 
@@ -52,7 +52,7 @@ export async function fetchAllBrands(): Promise<Brand[]> {
     .order("name");
 
   if (error) {
-    console.error("Error fetching brands:", error);
+    console.error("Error fetching brands:", error.message);
     return [];
   }
 
@@ -67,7 +67,7 @@ export async function fetchFlavorBySlug(slug: string): Promise<Flavor | null> {
     .single();
 
   if (error) {
-    console.error("Error fetching flavor:", error);
+    console.error("Error fetching flavor:", error.message);
     return null;
   }
 

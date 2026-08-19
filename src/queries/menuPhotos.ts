@@ -70,7 +70,7 @@ export async function fetchMenuPhotos(
     .limit(limit);
 
   if (error) {
-    console.error("Error fetching menu photos:", error);
+    console.error("Error fetching menu photos:", error.message);
     return [];
   }
 

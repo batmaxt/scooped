@@ -62,7 +62,7 @@ export async function fetchFollowers(
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching followers:", error);
+    console.error("Error fetching followers:", error.message);
     return [];
   }
 
@@ -79,7 +79,7 @@ export async function fetchFollowing(
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching following:", error);
+    console.error("Error fetching following:", error.message);
     return [];
   }
 
@@ -150,7 +150,7 @@ export async function fetchFeed(
   const { data, error } = await query;
 
   if (error) {
-    console.error("Error fetching feed:", error);
+    console.error("Error fetching feed:", error.message);
     return [];
   }
 
@@ -200,7 +200,7 @@ export async function searchUsers(query: string): Promise<Profile[]> {
     .limit(20);
 
   if (error) {
-    console.error("Error searching users:", error);
+    console.error("Error searching users:", error.message);
     return [];
   }
 
@@ -221,7 +221,7 @@ export async function fetchProfileByUsername(
     .single();
 
   if (error) {
-    console.error("Error fetching profile by username:", error);
+    console.error("Error fetching profile by username:", error.message);
     return null;
   }
 
@@ -272,7 +272,7 @@ export async function updateProfile(
     .single();
 
   if (error) {
-    console.error("Error updating profile:", error);
+    console.error("Error updating profile:", error.message);
     throw new Error(error.message);
   }
 

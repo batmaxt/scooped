@@ -51,7 +51,7 @@ export async function fetchUserClaims(userId: string): Promise<BusinessClaim[]> 
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching user claims:", error);
+    console.error("Error fetching user claims:", error.message);
     return [];
   }
   return (data || []) as unknown as BusinessClaim[];
@@ -72,7 +72,7 @@ export async function fetchClaimedLocation(
     .maybeSingle();
 
   if (error) {
-    console.error("Error fetching claimed location:", error);
+    console.error("Error fetching claimed location:", error.message);
     return null;
   }
   return data as unknown as Location | null;
@@ -102,7 +102,7 @@ export async function fetchAllClaims(
   const { data, error } = await query;
 
   if (error) {
-    console.error("Error fetching all claims:", error);
+    console.error("Error fetching all claims:", error.message);
     return [];
   }
   return (data || []) as unknown as BusinessClaim[];
@@ -217,7 +217,7 @@ export async function fetchBusinessAvailability(
     .order("added_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching business availability:", error);
+    console.error("Error fetching business availability:", error.message);
     return [];
   }
   return (data || []) as unknown as Availability[];

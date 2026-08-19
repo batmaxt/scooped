@@ -27,7 +27,7 @@ export async function fetchNotifications(
     .limit(limit);
 
   if (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("Error fetching notifications:", error.message);
     return [];
   }
 
@@ -46,7 +46,7 @@ export async function fetchUnreadCount(userId: string): Promise<number> {
     .eq("is_read", false);
 
   if (error) {
-    console.error("Error fetching unread count:", error);
+    console.error("Error fetching unread count:", error.message);
     return 0;
   }
 
@@ -63,7 +63,7 @@ export async function markAsRead(notificationId: string) {
     .update({ is_read: true })
     .eq("id", notificationId);
 
-  if (error) console.error("Error marking notification as read:", error);
+  if (error) console.error("Error marking notification as read:", error.message);
 }
 
 export async function markAllAsRead(userId: string) {
@@ -73,7 +73,7 @@ export async function markAllAsRead(userId: string) {
     .eq("user_id", userId)
     .eq("is_read", false);
 
-  if (error) console.error("Error marking all notifications as read:", error);
+  if (error) console.error("Error marking all notifications as read:", error.message);
 }
 
 // ---------------------------------------------------------------------------
@@ -117,7 +117,7 @@ export async function createNotification(
   });
 
   if (error && error.code !== "23505") {
-    console.error("Error creating notification:", error);
+    console.error("Error creating notification:", error.message);
   }
 }
 
@@ -131,5 +131,5 @@ export async function deleteNotification(notificationId: string) {
     .delete()
     .eq("id", notificationId);
 
-  if (error) console.error("Error deleting notification:", error);
+  if (error) console.error("Error deleting notification:", error.message);
 }

@@ -239,10 +239,14 @@ export default function LocationDetailPage({
         />
         <div className={`relative bg-gradient-to-br ${typeColors.gradient} px-5 pt-6 pb-6 text-white`}>
         <div className="flex items-start justify-between mb-3">
-          <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 text-xs font-medium gap-1.5">
-            <span>{typeEmoji}</span>
-            {TYPE_LABELS[location.location_type] || location.location_type}
-          </Badge>
+          {location.location_type !== "scoop_shop" ? (
+            <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 text-xs font-medium gap-1.5">
+              <span>{typeEmoji}</span>
+              {TYPE_LABELS[location.location_type] || location.location_type}
+            </Badge>
+          ) : (
+            <span />
+          )}
           {location.is_claimed && (
             <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 text-xs">
               Verified

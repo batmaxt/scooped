@@ -71,9 +71,11 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
             <div className="flex items-start justify-between gap-3 pr-6">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="secondary" className="text-xs shrink-0">
-                    {TYPE_LABELS[location.location_type] || location.location_type}
-                  </Badge>
+                  {location.location_type !== "scoop_shop" && (
+                    <Badge variant="secondary" className="text-xs shrink-0">
+                      {TYPE_LABELS[location.location_type] || location.location_type}
+                    </Badge>
+                  )}
                   {location.is_claimed && (
                     <Badge variant="outline" className="text-xs shrink-0">
                       Claimed

@@ -166,10 +166,12 @@ export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
                     </div>
                   </div>
                   <div className="flex flex-col items-end shrink-0 gap-0.5">
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
-                      {TYPE_LABELS[location.location_type] ||
-                        location.location_type}
-                    </span>
+                    {location.location_type !== "scoop_shop" && (
+                      <span className="text-xs px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
+                        {TYPE_LABELS[location.location_type] ||
+                          location.location_type}
+                      </span>
+                    )}
                     {location.avg_rating > 0 && (
                       <div className="flex items-center gap-0.5">
                         <Star className="w-3 h-3 fill-[#F2B45A] text-[#F2B45A]" />

@@ -435,12 +435,14 @@ function LocationCard({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-              <Badge
-                variant="secondary"
-                className={`text-[10px] px-1.5 py-0 shrink-0 ${TYPE_COLORS[location.location_type] || ""}`}
-              >
-                {TYPE_LABELS[location.location_type] || location.location_type}
-              </Badge>
+              {location.location_type !== "scoop_shop" && (
+                <Badge
+                  variant="secondary"
+                  className={`text-[10px] px-1.5 py-0 shrink-0 ${TYPE_COLORS[location.location_type] || ""}`}
+                >
+                  {TYPE_LABELS[location.location_type] || location.location_type}
+                </Badge>
+              )}
               {location.is_chain && !chainBadge && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded-full bg-[#F0E6FF] dark:bg-purple-900/30 text-[#7C3AED] dark:text-purple-300 text-[10px] font-semibold shrink-0">
                   Chain

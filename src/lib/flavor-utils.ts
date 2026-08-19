@@ -45,6 +45,8 @@ const SPECIALS: FlavorRule[] = [
   [/creme brulee|crème brûlée/i, "#D9A05B", "🍮"],
   [/cannoli/i, "#F3E5C9", "🥐"],
   [/spilled silk|silk\b/i, "#F3E5C9", "🥛"],
+  [/royale?\b|royal\b|\bking\b|\bqueen\b|crown|majesty/i, "#EFC15C", "👑"],
+  [/salt/i, "#D9A05B", "🧂"],
   [/monkey/i, "#F5E27A", "🐒"],
   [/moose tracks|bear paw|bear claw/i, "#8B5E3C", "🐻"],
   [/monster/i, "#A8D5B5", "👾"],

@@ -10,7 +10,7 @@ import {
 } from "react";
 import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import type { MapCameraChangedEvent } from "@vis.gl/react-google-maps";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import { MarkerClusterer, SuperClusterAlgorithm } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { GOOGLE_MAPS_API_KEY, GOOGLE_MAP_ID, DEFAULT_CENTER, DEFAULT_ZOOM } from "@/lib/google-maps/config";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -103,6 +103,7 @@ function ClusteredMarkers({
     clusterer.current = new MarkerClusterer({
       map,
       renderer: clusterRenderer(),
+      algorithm: new SuperClusterAlgorithm({ radius: 120, maxZoom: 15 }),
     });
     return () => {
       clusterer.current?.clearMarkers();

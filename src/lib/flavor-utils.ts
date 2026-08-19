@@ -49,6 +49,7 @@ const SPECIALS: FlavorRule[] = [
   [/salt/i, "#D9A05B", "🧂"],
   [/monkey/i, "#F5E27A", "🐒"],
   [/moose tracks|bear paw|bear claw/i, "#8B5E3C", "🐻"],
+  [/death by|graveyard|zombie/i, "#8B5E3C", "🪦"],
   [/monster/i, "#A8D5B5", "👹"],
   [/fireworks/i, "#C4364A", "🎆"],
   [/float\b|black cow/i, "#C9915B", "🥤"],

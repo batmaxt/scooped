@@ -22,7 +22,7 @@ const SPECIALS: FlavorRule[] = [
   [/love potion/i, "#F49FB6", "💘"],
   [/one love|sweet nothings|lil'? love|lunchbox love/i, "#F49FB6", "💌"],
   [/black sesame/i, "#B8B8B8", "🖤"],
-  [/captain crunch|cap'n crunch/i, "#F2B45A", "⚓"],
+  [/captain|cap'n|sailor|nautical/i, "#F2B45A", "⚓"],
   [/starkiss/i, "#F08080", "⭐"],
   [/daiquiri|margarita|pina colada|piña colada/i, "#9FD8DB", "🍹"],
   [/blizzard|snowstorm|frosty/i, "#9FD8DB", "❄️"],

@@ -2,7 +2,7 @@
 
 import { use, useCallback, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Star,
@@ -24,6 +24,7 @@ import {
   MessageCircle,
   Camera,
   Bookmark,
+  Check,
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ import {
   fetchLocationCheckins,
 } from "@/queries/locations";
 import { fetchMenuPhotos, type MenuPhoto } from "@/queries/menuPhotos";
+import { reportSighting } from "@/queries/sightings";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
@@ -114,6 +116,7 @@ export default function LocationDetailPage({
 }) {
   const { locationId } = use(params);
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [addToListOpen, setAddToListOpen] = useState(false);
   const [addAlertOpen, setAddAlertOpen] = useState(false);
   const [sightingOpen, setSightingOpen] = useState(false);
@@ -140,6 +143,21 @@ export default function LocationDetailPage({
     queryKey: ["menu-photos", location?.id],
     queryFn: () => fetchMenuPhotos(location!.id),
     enabled: !!location?.id,
+  });
+
+  // One-tap freshness confirm — "Still there ✓"
+  const [confirmedIds, setConfirmedIds] = useState<Set<string>>(new Set());
+  const confirmMutation = useMutation({
+    mutationFn: async (flavorId: string) => {
+      await reportSighting(location!.id, flavorId, null, user?.id || null);
+      return flavorId;
+    },
+    onSuccess: (flavorId) => {
+      setConfirmedIds((prev) => new Set(prev).add(flavorId));
+      queryClient.invalidateQueries({
+        queryKey: ["location-flavors", location?.id],
+      });
+    },
   });
 
   const handleShare = useCallback(async () => {
@@ -220,6 +238,15 @@ export default function LocationDetailPage({
           <h1 className="font-semibold truncate flex-1 text-[#2E1F1B] dark:text-[#F5E6DC]">
             {location.name}
           </h1>
+          {user && (
+            <button
+              onClick={() => setAddToListOpen(true)}
+              className="p-2 rounded-full hover:bg-[#FFF3EE] dark:hover:bg-neutral-800 transition-colors"
+              aria-label="Save to list"
+            >
+              <Bookmark className="w-5 h-5 text-[#2E1F1B] dark:text-[#F5E6DC]" />
+            </button>
+          )}
           <button
             onClick={handleShare}
             className="p-2 -mr-2 rounded-full hover:bg-[#FFF3EE] dark:hover:bg-neutral-800 transition-colors"
@@ -288,28 +315,8 @@ export default function LocationDetailPage({
       </div>
       </div>
 
-      {/* Share + Save row */}
-      <div className="px-5 py-4 flex gap-3">
-        <button
-          onClick={handleShare}
-          className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors"
-        >
-          <Share2 className="size-4" />
-          Share
-        </button>
-        {user && (
-          <button
-            onClick={() => setAddToListOpen(true)}
-            className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#FFF3EE] transition-colors"
-          >
-            <Bookmark className="size-4" />
-            Save
-          </button>
-        )}
-      </div>
-
       {/* Content sections */}
-      <div className="px-5 space-y-5">
+      <div className="px-5 pt-5 space-y-5">
         {/* Flavors section */}
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -350,14 +357,36 @@ export default function LocationDetailPage({
                           />
                         </div>
                       </div>
-                      {locRating > 0 && (
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Star className="w-3.5 h-3.5 fill-[#F2B45A] text-[#F2B45A]" />
-                          <span className="text-sm font-semibold">
-                            {locRating.toFixed(1)}
-                          </span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {locRating > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 fill-[#F2B45A] text-[#F2B45A]" />
+                            <span className="text-sm font-semibold">
+                              {locRating.toFixed(1)}
+                            </span>
+                          </div>
+                        )}
+                        {user && (
+                          confirmedIds.has(item.flavor_id as string) ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
+                              <Check className="size-3" />
+                              Thanks!
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                confirmMutation.mutate(item.flavor_id as string)
+                              }
+                              disabled={confirmMutation.isPending}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-300/60 dark:border-emerald-700/50 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold hover:bg-emerald-50 dark:hover:bg-emerald-900/20 active:scale-95 transition-all touch-manipulation"
+                              title="Confirm this flavor is still here"
+                            >
+                              <Check className="size-3" />
+                              Still there?
+                            </button>
+                          )
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -515,7 +544,7 @@ export default function LocationDetailPage({
 
         {/* Check-in CTA */}
         <Link href={`/checkin/new?location=${location.id}`} className="block">
-          <div className="bg-gradient-to-br from-[#F46B8F] to-[#C4364A] rounded-2xl p-5 text-white">
+          <div className="bg-[#C4364A] rounded-2xl p-5 text-white btn-shadow-cta press-card">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center size-12 rounded-full bg-white/20">
                 <IceCreamCone className="size-6" />

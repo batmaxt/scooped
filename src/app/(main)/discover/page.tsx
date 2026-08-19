@@ -12,6 +12,7 @@ import { useMapStore } from "@/stores/mapStore";
 import { fetchNearbyLocations } from "@/queries/locations";
 import { Badge } from "@/components/ui/badge";
 import type { Location } from "@/types/models";
+import { monogramGradient } from "@/lib/location-utils";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Shop",
@@ -22,25 +23,6 @@ const TYPE_COLORS: Record<string, string> = {
   scoop_shop: "bg-[#FFF3EE] text-[#C4364A] dark:bg-[#332520]/30 dark:text-[#F46B8F]",
   supermarket: "bg-[#FFF3EE] text-[#2E1F1B] dark:bg-[#2A1E1A]/30 dark:text-[#A8897E]",
 };
-
-const TYPE_IMAGES: Record<string, string[]> = {
-  scoop_shop: [
-    "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?auto=format&fit=crop&w=200&q=80",
-    "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=200&q=80",
-    "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=200&q=80",
-  ],
-  supermarket: [
-    "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=200&q=80",
-    "https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=200&q=80",
-  ],
-};
-
-function locationThumbnail(name: string, type: string): string {
-  const images = TYPE_IMAGES[type] || TYPE_IMAGES.scoop_shop;
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return images[Math.abs(hash) % images.length];
-}
 
 const FILTER_OPTIONS = [
   { key: "all", label: "All" },
@@ -426,12 +408,25 @@ function LocationCard({
       >
         <div className="flex items-start justify-between gap-2">
           <div className="size-12 rounded-xl overflow-hidden shrink-0">
-            <img
-              src={locationThumbnail(location.name, location.location_type)}
-              alt=""
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+            {location.photo_url ? (
+              <img
+                src={location.photo_url}
+                alt=""
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${monogramGradient(location.name)[0]}, ${monogramGradient(location.name)[1]})`,
+                }}
+              >
+                <span className="text-lg font-bold font-heading text-white/90 select-none">
+                  {location.name[0]}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">

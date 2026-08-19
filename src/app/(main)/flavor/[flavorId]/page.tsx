@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { fetchFlavorBySlug } from "@/queries/flavors";
 import { searchLocationsByFlavor } from "@/queries/locations";
-import { flavorColor, flavorEmoji, CATEGORY_LABELS } from "@/lib/flavor-utils";
+import { flavorColor, flavorEmoji, CATEGORY_LABELS, INFORMATIVE_CATEGORIES } from "@/lib/flavor-utils";
 import { FreshnessBadge } from "@/components/shared/FreshnessBadge";
 import { AddAlertSheet } from "@/components/shared/AddAlertSheet";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -82,9 +82,10 @@ export default function FlavorDetailPage() {
   }
 
   const color = flavorColor(flavor.name);
-  const categoryLabel = flavor.category
-    ? CATEGORY_LABELS[flavor.category] || flavor.category
-    : null;
+  const categoryLabel =
+    flavor.category && INFORMATIVE_CATEGORIES.has(flavor.category)
+      ? CATEGORY_LABELS[flavor.category] || flavor.category
+      : null;
 
   return (
     <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Search, IceCreamCone, X, Star } from "lucide-react";
 import { fetchAllFlavorsGroupedByBrand, fetchAllBrands } from "@/queries/flavors";
-import { flavorColor, flavorEmoji, CATEGORY_LABELS } from "@/lib/flavor-utils";
+import { flavorColor, flavorEmoji, CATEGORY_LABELS, INFORMATIVE_CATEGORIES } from "@/lib/flavor-utils";
 import type { Flavor, Brand } from "@/types/models";
 
 const CATEGORY_FILTERS = [
@@ -212,7 +212,7 @@ export default function FlavorsPage() {
 function FlavorCard({ flavor }: { flavor: Flavor }) {
   const color = flavorColor(flavor.name);
   const categoryLabel =
-    flavor.category && flavor.category !== "ice_cream" && flavor.category !== "classic"
+    flavor.category && INFORMATIVE_CATEGORIES.has(flavor.category)
       ? CATEGORY_LABELS[flavor.category] || flavor.category
       : null;
 

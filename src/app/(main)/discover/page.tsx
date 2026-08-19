@@ -12,7 +12,7 @@ import { useMapStore } from "@/stores/mapStore";
 import { fetchNearbyLocations } from "@/queries/locations";
 import { Badge } from "@/components/ui/badge";
 import type { Location } from "@/types/models";
-import { monogramGradient } from "@/lib/location-utils";
+import { LocationPhoto } from "@/components/shared/LocationPhoto";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Shop",
@@ -408,25 +408,7 @@ function LocationCard({
       >
         <div className="flex items-start justify-between gap-2">
           <div className="size-12 rounded-xl overflow-hidden shrink-0">
-            {location.photo_url ? (
-              <img
-                src={location.photo_url}
-                alt=""
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div
-                className="w-full h-full flex items-center justify-center"
-                style={{
-                  background: `linear-gradient(135deg, ${monogramGradient(location.name)[0]}, ${monogramGradient(location.name)[1]})`,
-                }}
-              >
-                <span className="text-lg font-bold font-heading text-white/90 select-none">
-                  {location.name[0]}
-                </span>
-              </div>
-            )}
+            <LocationPhoto name={location.name} photoUrl={location.photo_url} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">

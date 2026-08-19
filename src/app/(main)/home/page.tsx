@@ -45,7 +45,7 @@ function formatDistance(meters: number): string {
 
 import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
 
-import { monogramGradient } from "@/lib/location-utils";
+import { LocationPhoto } from "@/components/shared/LocationPhoto";
 
 
 // ---------------------------------------------------------------------------
@@ -232,28 +232,15 @@ function FlavorCard({ flavor }: { flavor: Flavor }) {
 // ---------------------------------------------------------------------------
 
 function ShopCard({ location }: { location: Location }) {
-  const [from, to] = monogramGradient(location.name);
   return (
     <Link href={`/location/${location.slug}`} className="block">
       <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 overflow-hidden">
         <div className="h-36 overflow-hidden">
-          {location.photo_url ? (
-            <img
-              src={location.photo_url}
-              alt={location.name}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className="w-full h-full flex items-center justify-center"
-              style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
-            >
-              <span className="text-5xl font-bold font-heading text-white/90 select-none">
-                {location.name[0]}
-              </span>
-            </div>
-          )}
+          <LocationPhoto
+            name={location.name}
+            photoUrl={location.photo_url}
+            letterClass="text-5xl"
+          />
         </div>
         <div className="p-3.5 flex items-center justify-between">
           <div className="min-w-0 flex-1">

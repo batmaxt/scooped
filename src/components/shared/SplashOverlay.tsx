@@ -24,7 +24,7 @@ export function SplashOverlay() {
   return (
     <div
       className={`fixed inset-0 z-[9999] flex flex-col items-center select-none transition-opacity duration-500 ${
-        exiting ? "opacity-0 pointer-events-none" : "opacity-100"
+        exiting ? "opacity-0" : "opacity-100"
       }`}
       style={{ background: "linear-gradient(to bottom, #b6ded3, #b3dbd0)" }}
     >

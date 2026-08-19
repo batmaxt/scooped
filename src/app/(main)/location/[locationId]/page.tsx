@@ -273,9 +273,11 @@ export default function LocationDetailPage({
               {Number(location.avg_rating).toFixed(1)}
             </span>
           )}
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm">
-            {location.total_checkins} check-in{location.total_checkins !== 1 ? "s" : ""}
-          </span>
+          {location.total_checkins > 0 && (
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm">
+              {location.total_checkins} check-in{location.total_checkins !== 1 ? "s" : ""}
+            </span>
+          )}
           {lastCheckin && typeof lastCheckin.created_at === "string" && (
             <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm">
               <Clock className="w-3.5 h-3.5" />
@@ -315,9 +317,11 @@ export default function LocationDetailPage({
               <IceCreamCone className="size-4 text-[#F46B8F]" />
               {isShop ? "Flavors here now" : "Pints spotted here"}
             </h3>
-            <span className="text-xs text-muted-foreground">
-              {flavors.length} item{flavors.length !== 1 ? "s" : ""}
-            </span>
+            {flavors.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {flavors.length} item{flavors.length !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
 
           {flavors.length > 0 ? (
@@ -362,9 +366,24 @@ export default function LocationDetailPage({
           ) : (
             <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-6 text-center">
               <IceCreamCone className="size-8 text-[#F46B8F]/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
-                No flavors scooped yet. Be the first!
+              <p className="text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC]">
+                No flavors scooped yet
               </p>
+              <p className="text-xs text-muted-foreground mt-1 mb-4">
+                Be the first to put {isShop ? "this menu" : "this freezer"} on
+                the map.
+              </p>
+              {user && (
+                <Button
+                  variant="brand"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setScanMenuOpen(true)}
+                >
+                  <Camera className="size-3.5" />
+                  {isShop ? "Scan the menu" : "Scan the freezer"}
+                </Button>
+              )}
             </div>
           )}
         </section>

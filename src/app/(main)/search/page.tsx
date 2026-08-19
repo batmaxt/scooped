@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
@@ -65,7 +66,16 @@ function formatDistance(meters: number): string {
 }
 
 export default function SearchPage() {
-  const [query, setQuery] = useState("");
+  return (
+    <Suspense fallback={null}>
+      <SearchPageInner />
+    </Suspense>
+  );
+}
+
+function SearchPageInner() {
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const { position } = useLocation();
 
   const searchLat = position?.latitude ?? 40.748;
@@ -83,7 +93,7 @@ export default function SearchPage() {
     <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">
       {/* Hero */}
       <div className="px-5 pt-14 pb-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F] mb-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#C4364A] mb-1">
           Flavor search
         </p>
         <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
@@ -202,12 +212,14 @@ export default function SearchPage() {
                       className="size-7 rounded-full object-cover shrink-0"
                       unoptimized
                     />
-                    <Badge
-                      variant="secondary"
-                      className="text-[10px] px-2 py-0.5 bg-[#FFF3EE] dark:bg-[#2A1E1A]/30 text-[#2E1F1B] dark:text-[#A8897E] shrink-0"
-                    >
-                      {TYPE_LABELS[result.location_type] || result.location_type}
-                    </Badge>
+                    {result.location_type !== "scoop_shop" && (
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] px-2 py-0.5 bg-[#FFF3EE] dark:bg-[#2A1E1A]/30 text-[#2E1F1B] dark:text-[#A8897E] shrink-0"
+                      >
+                        {TYPE_LABELS[result.location_type] || result.location_type}
+                      </Badge>
+                    )}
                     {result.is_chain && (
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-[#F0E6FF] dark:bg-purple-900/30 text-[#7C3AED] dark:text-purple-300 text-[10px] font-semibold shrink-0">
                         Chain

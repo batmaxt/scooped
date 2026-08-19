@@ -67,7 +67,7 @@ export function DemoButton({ className = "" }: { className?: string }) {
         onClick={handleDemo}
         disabled={isLoading}
         size="lg"
-        className="w-full gap-2 bg-white dark:bg-card border-2 border-[#7CC9B4] text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#7CC9B4]/10 rounded-[999px] [&_svg]:text-[#4A9B84]"
+        className="w-full gap-2 bg-white dark:bg-card border-2 border-[#7CC9B4] text-[#2E1F1B] dark:text-[#F5E6DC] hover:bg-[#7CC9B4]/10 rounded-[999px] [&_svg]:text-[#4A9B84] select-none touch-manipulation"
       >
         {isLoading ? (
           <Loader2 className="size-4 animate-spin" />

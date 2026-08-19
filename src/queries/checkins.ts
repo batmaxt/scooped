@@ -158,7 +158,29 @@ export async function fetchTrendingFlavors(limit: number = 10): Promise<Flavor[]
     return [];
   }
 
-  return (data || []) as unknown as Flavor[];
+  const trending = (data || []) as unknown as Flavor[];
+  if (trending.length >= limit) return trending;
+
+  // Early days: not enough rated flavors yet, so top up the row with
+  // crowd-pleasers from the catalog (generic classics come first).
+  const seen = new Set(trending.map((f) => f.id));
+  const { data: fill } = await supabase
+    .from("flavors")
+    .select(`*, brand:brands(id, name, slug)`)
+    .eq("is_active", true)
+    .is("brand_id", null)
+    .order("name")
+    .limit(limit * 2);
+
+  for (const f of (fill || []) as unknown as Flavor[]) {
+    if (trending.length >= limit) break;
+    if (!seen.has(f.id)) {
+      trending.push(f);
+      seen.add(f.id);
+    }
+  }
+
+  return trending;
 }
 
 export async function fetchAllFlavorsForMatching(): Promise<Flavor[]> {

@@ -43,21 +43,22 @@ function formatDistance(meters: number): string {
   return miles < 0.1 ? "Nearby" : `${miles.toFixed(1)} mi`;
 }
 
-import { flavorColor, flavorImage } from "@/lib/flavor-utils";
+import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
 
-const SHOP_IMAGES = [
-  "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?auto=format&fit=crop&w=800&q=80",  // ice cream shop display case
-  "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80",  // ice cream cones
-  "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80",  // colorful scoops
-  "https://images.unsplash.com/photo-1560008581-09826d1de69e?auto=format&fit=crop&w=800&q=80",  // single cone
-  "https://images.unsplash.com/photo-1576506295286-5cda18df43e7?auto=format&fit=crop&w=800&q=80",  // ice cream close up
-  "https://images.unsplash.com/photo-1579954115563-e72bf1381629?auto=format&fit=crop&w=800&q=80",  // ice cream variety
+// Warm gradient pairs for shop monogram tiles (used when a location has no
+// photo of its own — honest branding beats a stock-photo lottery)
+const MONOGRAM_GRADIENTS = [
+  ["#F46B8F", "#C4364A"],
+  ["#F2B45A", "#D4956A"],
+  ["#7CC9B4", "#4A9B84"],
+  ["#B79FD4", "#8E6FB8"],
+  ["#FBBF77", "#E0965F"],
 ];
 
-function shopImage(name: string): string {
+function monogramGradient(name: string): [string, string] {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return SHOP_IMAGES[Math.abs(hash) % SHOP_IMAGES.length];
+  return MONOGRAM_GRADIENTS[Math.abs(hash) % MONOGRAM_GRADIENTS.length] as [string, string];
 }
 
 
@@ -103,7 +104,7 @@ function NotLoggedIn() {
       <div className="pb-6">
         <div className="flex items-center justify-between px-5 mb-3">
           <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC]">
-            🍨 Trending this week
+            Trending this week
           </h2>
         </div>
         <div className="flex gap-3 overflow-x-auto px-5 pb-1 scrollbar-hide">
@@ -113,15 +114,11 @@ function NotLoggedIn() {
               className="shrink-0 w-[132px] bg-white dark:bg-card rounded-2xl p-4 border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5"
             >
               <div
-                className="size-11 rounded-full mb-3 overflow-hidden"
+                className="flex items-center justify-center size-11 rounded-full mb-3 text-xl"
                 style={{ backgroundColor: flavorColor(name) }}
+                aria-hidden
               >
-                <img
-                  src={flavorImage(name)}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                {flavorEmoji(name)}
               </div>
               <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] leading-snug line-clamp-2">
                 {name}
@@ -227,13 +224,12 @@ function UserSearchOverlay({ onClose }: { onClose: () => void }) {
 function FlavorCard({ flavor }: { flavor: Flavor }) {
   return (
     <div className="shrink-0 w-[160px] bg-white dark:bg-card rounded-2xl p-4 border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5">
-      <div className="size-12 rounded-full mb-3 overflow-hidden" style={{ backgroundColor: flavorColor(flavor.name) }}>
-        <img
-          src={flavorImage(flavor.name)}
-          alt={flavor.name}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+      <div
+        className="flex items-center justify-center size-12 rounded-full mb-3 text-2xl"
+        style={{ backgroundColor: flavorColor(flavor.name) }}
+        aria-hidden
+      >
+        {flavorEmoji(flavor.name)}
       </div>
       <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] leading-snug line-clamp-2">
         {flavor.name}
@@ -250,16 +246,28 @@ function FlavorCard({ flavor }: { flavor: Flavor }) {
 // ---------------------------------------------------------------------------
 
 function ShopCard({ location }: { location: Location }) {
+  const [from, to] = monogramGradient(location.name);
   return (
     <Link href={`/location/${location.slug}`} className="block">
       <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 overflow-hidden">
         <div className="h-36 overflow-hidden">
-          <img
-            src={shopImage(location.name)}
-            alt={location.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+          {location.photo_url ? (
+            <img
+              src={location.photo_url}
+              alt={location.name}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+            >
+              <span className="text-5xl font-bold font-heading text-white/90 select-none">
+                {location.name[0]}
+              </span>
+            </div>
+          )}
         </div>
         <div className="p-3.5 flex items-center justify-between">
           <div className="min-w-0 flex-1">
@@ -409,8 +417,11 @@ export default function HomePage() {
     <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-14 pb-1">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F]">
-          Scooped now
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#C4364A]">
+          {(() => {
+            const first = (user.user_metadata?.display_name as string | undefined)?.split(" ")[0];
+            return first ? `Hey ${first} 🍦` : "Scooped now";
+          })()}
         </p>
         <Link href="/alerts" className="relative p-2 -mr-2 text-[#2E1F1B] dark:text-[#F5E6DC]">
           <Bell className="size-5" />
@@ -451,9 +462,8 @@ export default function HomePage() {
               <h2 className="text-2xl font-bold font-heading text-white leading-snug mb-2 max-w-[65%]">
                 {featured.name}
               </h2>
-              <p className="text-sm text-white/80 leading-relaxed max-w-[60%] line-clamp-3 mb-4">
-                {featured.city}&apos;s beloved creamery with creative flavors and a
-                retro-whimsical shop vibe.
+              <p className="text-sm text-white/80 leading-relaxed max-w-[60%] mb-4">
+                A {featured.city} favorite with flavors worth the trip.
               </p>
               <div className="flex gap-2">
                 {featured.avg_rating > 0 && (
@@ -479,26 +489,12 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Trending this week banner */}
-      <div className="px-5 pb-5 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-        <Link href="/search">
-          <div className="flex items-center gap-3.5 bg-white dark:bg-card rounded-2xl px-4 py-3.5 border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5">
-            <span className="text-2xl">🔥</span>
-            <div className="flex-1">
-              <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC]">Trending this week</p>
-              <p className="text-xs text-muted-foreground">See the most scooped flavors in NYC</p>
-            </div>
-            <ArrowRight className="size-4 text-neutral-400" />
-          </div>
-        </Link>
-      </div>
-
       {/* Trending flavors */}
       {trendingFlavors.length > 0 && (
         <div className="pb-5 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
           <div className="flex items-center justify-between px-5 mb-3">
             <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-1.5">
-              🍨 Trending flavors
+              Trending flavors
             </h2>
             <Link href="/flavor-catalog" className="text-xs font-semibold text-[#F46B8F]">See all</Link>
           </div>
@@ -535,7 +531,7 @@ export default function HomePage() {
         <div className="pb-5 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
           <div className="flex items-center justify-between px-5 mb-3">
             <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-1.5">
-              🏠 Scoop shops nearby
+              Scoop shops nearby
             </h2>
             <Link href="/discover" className="text-xs font-semibold text-[#F46B8F]">Open map</Link>
           </div>
@@ -572,7 +568,7 @@ export default function HomePage() {
         <div className="pb-5">
           <div className="flex items-center justify-between px-5 mb-3">
             <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-1.5">
-              🛒 In stores now
+              In stores now
             </h2>
             <Link href="/discover" className="text-xs font-semibold text-[#F46B8F]">See all</Link>
           </div>
@@ -588,7 +584,7 @@ export default function HomePage() {
       <div className="pb-4">
         <div className="flex items-center justify-between px-5 mb-3">
           <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-1.5">
-            👋 Friends are scooping
+            Friends are scooping
           </h2>
         </div>
         <div className="px-5 space-y-3">

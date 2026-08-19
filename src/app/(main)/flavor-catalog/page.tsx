@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Search, IceCreamCone, X, Star } from "lucide-react";
 import { fetchAllFlavorsGroupedByBrand, fetchAllBrands } from "@/queries/flavors";
-import { flavorColor, CATEGORY_LABELS } from "@/lib/flavor-utils";
+import { flavorColor, flavorEmoji, CATEGORY_LABELS } from "@/lib/flavor-utils";
 import type { Flavor, Brand } from "@/types/models";
 
 const CATEGORY_FILTERS = [
@@ -68,7 +68,7 @@ export default function FlavorsPage() {
     <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">
       {/* Hero */}
       <div className="px-5 pt-14 pb-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F] mb-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#C4364A] mb-1">
           Flavor Catalog
         </p>
         <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
@@ -127,7 +127,7 @@ export default function FlavorsPage() {
             onClick={() => setSelectedBrandId(null)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               !selectedBrandId
-                ? "bg-[#C4364A] text-white"
+                ? "bg-[#2E1F1B] text-white dark:bg-[#FFF3EE] dark:text-[#2E1F1B]"
                 : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border border-[rgba(93,64,55,0.12)] dark:border-white/10"
             }`}
           >
@@ -139,7 +139,7 @@ export default function FlavorsPage() {
               onClick={() => setSelectedBrandId(selectedBrandId === brand.id ? null : brand.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 selectedBrandId === brand.id
-                  ? "bg-[#C4364A] text-white"
+                  ? "bg-[#2E1F1B] text-white dark:bg-[#FFF3EE] dark:text-[#2E1F1B]"
                   : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border border-[rgba(93,64,55,0.12)] dark:border-white/10"
               }`}
             >
@@ -221,20 +221,16 @@ function FlavorCard({ flavor }: { flavor: Flavor }) {
       <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-3 hover:border-[#C4364A]/30 transition-colors h-full">
         <div className="flex items-start gap-2.5">
           <div
-            className="size-10 rounded-xl shrink-0 flex items-center justify-center"
-            style={{ backgroundColor: color + "22" }}
+            className="size-10 rounded-xl shrink-0 flex items-center justify-center text-lg"
+            style={{ backgroundColor: color + "40" }}
+            aria-hidden
           >
-            <IceCreamCone className="size-5" style={{ color }} />
+            {flavorEmoji(flavor.name)}
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-bold text-xs text-[#2E1F1B] dark:text-[#F5E6DC] line-clamp-2 leading-tight">
+            <h3 className="font-bold text-[13px] text-[#2E1F1B] dark:text-[#F5E6DC] line-clamp-3 leading-tight">
               {flavor.name}
             </h3>
-            {flavor.brand && (
-              <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                {flavor.brand.name}
-              </p>
-            )}
             <div className="flex items-center gap-1 mt-1 flex-wrap">
               {categoryLabel && (
                 <span className="px-1.5 py-0 rounded-full bg-[#FFF3EE] dark:bg-[#332520]/30 text-[#C4364A] dark:text-[#F46B8F] text-[9px] font-semibold">

@@ -65,18 +65,27 @@ function shopImage(name: string): string {
 // Not logged in
 // ---------------------------------------------------------------------------
 
+const TEASER_FLAVORS = [
+  "Salted Caramel",
+  "Mint Chip",
+  "Strawberry Cheesecake",
+  "Pistachio",
+  "Cookies & Cream",
+  "Mango Sorbet",
+];
+
 function NotLoggedIn() {
   return (
-    <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background">
+    <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-20">
       <div className="px-5 pt-14 pb-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F] mb-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#C4364A] mb-1">
           Scooped now
         </p>
         <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
           Your next favorite scoop is nearby
         </h1>
       </div>
-      <div className="px-5 pb-6">
+      <div className="px-5 pb-7">
         <p className="text-sm text-muted-foreground mb-6">
           Sign in to discover trending flavors, track your scoops, and get alerts
           when your favorites appear nearby.
@@ -88,6 +97,74 @@ function NotLoggedIn() {
           </Button>
         </Link>
         <DemoButton className="mt-3" />
+      </div>
+
+      {/* Product teaser — what you get inside */}
+      <div className="pb-6">
+        <div className="flex items-center justify-between px-5 mb-3">
+          <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC]">
+            🍨 Trending this week
+          </h2>
+        </div>
+        <div className="flex gap-3 overflow-x-auto px-5 pb-1 scrollbar-hide">
+          {TEASER_FLAVORS.map((name) => (
+            <div
+              key={name}
+              className="shrink-0 w-[132px] bg-white dark:bg-card rounded-2xl p-4 border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5"
+            >
+              <div
+                className="size-11 rounded-full mb-3 overflow-hidden"
+                style={{ backgroundColor: flavorColor(name) }}
+              >
+                <img
+                  src={flavorImage(name)}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] leading-snug line-clamp-2">
+                {name}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Feature bullets */}
+      <div className="px-5 space-y-2.5">
+        {[
+          {
+            emoji: "📍",
+            title: "1,300+ scoop spots mapped",
+            sub: "Shops and freezer aisles, all on one map",
+          },
+          {
+            emoji: "📸",
+            title: "Scan any menu board",
+            sub: "We read the flavors so you don't have to type",
+          },
+          {
+            emoji: "🔔",
+            title: "Flavor alerts",
+            sub: "Know the moment your favorite shows up nearby",
+          },
+        ].map((f) => (
+          <div
+            key={f.title}
+            className="flex items-center gap-3.5 bg-white dark:bg-card rounded-2xl px-4 py-3.5 border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5"
+          >
+            <span className="text-2xl" aria-hidden>
+              {f.emoji}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC]">
+                {f.title}
+              </p>
+              <p className="text-xs text-muted-foreground">{f.sub}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

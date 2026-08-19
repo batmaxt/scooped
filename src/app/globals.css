@@ -8,10 +8,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
-  --font-brand: var(--font-brand);
   --font-heading: var(--font-heading);
   --font-body: var(--font-body);
-  --font-accent: var(--font-accent);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -148,31 +146,28 @@
 }
 
 /* ===== Font utility classes ===== */
-.font-brand {
-  font-family: var(--font-brand), serif;
-}
 .font-heading {
   font-family: var(--font-heading), serif;
 }
 .font-body {
   font-family: var(--font-body), system-ui, sans-serif;
 }
-.font-accent {
-  font-family: var(--font-accent), cursive;
+
+/* ===== Design system button shadows — neutral, warm-tinted ===== */
+.btn-shadow-cta,
+.btn-shadow-accent,
+.btn-shadow-mint,
+.btn-shadow-gold {
+  box-shadow: 0 2px 8px rgba(46, 31, 27, 0.14), 0 1px 2px rgba(46, 31, 27, 0.08);
 }
 
-/* ===== Design system button shadows ===== */
-.btn-shadow-cta {
-  box-shadow: 0 6px 14px rgba(196, 54, 74, 0.35);
+/* ===== Gentle bob for brand art on system screens ===== */
+@keyframes brand-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
-.btn-shadow-accent {
-  box-shadow: 0 6px 14px rgba(244, 107, 143, 0.35);
-}
-.btn-shadow-mint {
-  box-shadow: 0 6px 14px rgba(124, 201, 180, 0.35);
-}
-.btn-shadow-gold {
-  box-shadow: 0 6px 14px rgba(242, 180, 90, 0.35);
+.animate-brand-bob {
+  animation: brand-bob 2.6s ease-in-out infinite;
 }
 
 /* ===== Hide scrollbar for filter chips ===== */

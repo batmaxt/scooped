@@ -264,9 +264,7 @@ function ShopCard({ location }: { location: Location }) {
         <div className="p-3.5 flex items-center justify-between">
           <div className="min-w-0 flex-1">
             <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">{location.name}</p>
-            <p className="text-xs text-muted-foreground">
-              Shop &middot; {location.city}
-            </p>
+            <p className="text-xs text-muted-foreground">{location.city}</p>
           </div>
           {(location.distance_meters ?? 0) > 0 && (
             <span className="text-xs font-semibold text-[#F46B8F] shrink-0 ml-2">

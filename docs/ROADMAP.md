@@ -23,19 +23,32 @@ Coverage exists (~1,371 tri-state locations). The gap is **flavor density** and
 
 1. ✅ Bulletproofing: waking-up screen, error boundaries, branded 404
 2. ✅ Design system enforcement: unified auth, contrast fixes, neutral shadows
-3. 🔨 Design glow-up of data screens (home, discover, catalog, location detail)
-4. ⬜ **Freshness as a first-class visual** — every flavor chip shows its age
-   (confirmed today / this week / stale) + one-tap "Still there ✓ / Gone ✗"
+3. ✅ Design glow-up: semantic flavor emoji/color engine, monogram/real photos,
+   location page CTA hierarchy, catalog filters (Non-Dairy toggle + formats)
+4. 🔨 Freshness visuals — "Still there ✓" one-tap confirms SHIPPED; still to
+   do: age-tinted chips + "Gone ✗" (needs a mark-unavailable RPC)
 5. ⬜ **Scan gratification loop** — post-scan celebration, "first to map this
    menu," scoops-mapped counter on profile
-6. ⬜ **Flavor Finder hero** — home page leads with "What are you craving?" →
-   confirmed-fresh results by distance. This is the secret sauce as a front door.
-7. ⬜ Seed availability for the ~50–100 shops nearest our first real users
+6. ✅ **Unified Discover** — one omnibox (flavor/shop/address), flavor mode
+   with freshness results + catalog fallback, full-screen searchable map,
+   ?q= deep links. Search tab replaced by Flavors (catalog) in nav.
+7. 🔨 Seed availability from shops' own published menus — Morgenstern's done
+   (34 flavors via their website). Repeat for Van Leeuwen/Jeni's/Salt & Straw
+   storefronts etc. 77 availability records and counting.
 8. ✅ Deploy to Vercel (scooped-six.vercel.app) + production redirect URL in Supabase
 8b. ⬜ **Zombie sweep**: re-check all locations against Google Places
    `business_status` to auto-flag permanently closed shops (Big Gay,
    Morgenstern's flagship, and BANANAS all died between imports)
 9. ⬜ Upgrade Supabase to Pro ($25/mo) before real users — free tier pauses kill
+10. ✅ Catalog audit: 787 → 669 clean flavors, dupes merged, products killed,
+    Morgenstern's added. Alerts are flavor-only and NAME-agnostic (migration
+    00016): an alert on "Lemon Custard" fires for any brand at any shop.
+11. ⬜ **Post-check-in prompt**: after posting with a flavor, offer one-tap
+    "add it to this shop's flavor board" (feeds availability)
+12. ⬜ **Home enrichment**: "Freshly confirmed near you" shelf (availability-
+    backed) — home feels empty since retail sections were removed
+13. ⬜ **Map watermark**: Mat must link billing to the Google Cloud project
+    that owns the Maps key (watermark = billing on wrong project)
 
 ### Kill list (deliberately NOT building)
 Stories/reels, DMs, more badge types, AI recommendations (needs data first),

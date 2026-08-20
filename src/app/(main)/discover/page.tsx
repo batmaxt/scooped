@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { MapPin, Star, ChevronRight, ChevronDown, Loader2, X, Navigation, Map as MapIcon, IceCreamCone } from "lucide-react";
+import { MapPin, Star, ChevronRight, ChevronDown, Loader2, X, Navigation, Map as MapIcon, IceCreamCone, Maximize2 } from "lucide-react";
 import { MapView } from "@/components/map/MapView";
 import { MapBottomSheet } from "@/components/map/MapBottomSheet";
 import { SearchBar } from "@/components/shared/SearchBar";
@@ -64,6 +64,7 @@ function DiscoverPageInner() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [searchCenter, setSearchCenter] = useState<SearchCenter | null>(null);
   const [showMap, setShowMap] = useState(true);
+  const [fullMap, setFullMap] = useState(false);
   const [typeFilter, setTypeFilter] = useState("scoop_shop");
   const [expandedChains, setExpandedChains] = useState<Set<string>>(new Set());
   const [flavorFilter, setFlavorFilter] = useState<string | null>(
@@ -344,7 +345,7 @@ function DiscoverPageInner() {
         </div>
       )}
 
-      {/* Map — the featured centerpiece (collapsible via toggle) */}
+      {/* Map preview — tap anywhere to open the full-screen searchable map */}
       {showMap && webglSupported && (
         <div className="px-5 mb-4">
           <div
@@ -364,6 +365,18 @@ function DiscoverPageInner() {
                   : position
               }
             />
+            {/* Tap-to-expand layer */}
+            <button
+              onClick={() => setFullMap(true)}
+              className="absolute inset-0 z-10 cursor-pointer"
+              aria-label="Open full-screen map"
+            />
+            <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
+              <span className="inline-flex items-center gap-1.5 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-3 py-1.5 text-xs font-semibold text-[#2E1F1B] dark:text-[#F5E6DC] elevation-1">
+                <Maximize2 className="size-3" />
+                Tap to explore
+              </span>
+            </div>
             {isLoading && (
               <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin text-[#2E1F1B]" />
@@ -524,6 +537,106 @@ function DiscoverPageInner() {
         )}
       </div>
       </>
+      )}
+
+      {/* Full-screen searchable map */}
+      {fullMap && webglSupported && (
+        <div className="fixed inset-0 z-[60] bg-[#FFF7ED] dark:bg-background">
+          <MapView
+            locations={
+              flavorFilter
+                ? (flavorSpots as unknown as Location[])
+                : filteredLocations
+            }
+            onMarkerClick={handleMarkerClick}
+            userPosition={
+              searchCenter
+                ? { latitude: searchCenter.lat, longitude: searchCenter.lng }
+                : position
+            }
+          />
+          {/* Floating search bar + close */}
+          <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-12 pb-2">
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <SearchBar
+                  locations={locations}
+                  onAddressSelect={handleAddressSelect}
+                  onFlavorSelect={(name) => setFlavorFilter(name)}
+                />
+              </div>
+              <button
+                onClick={() => setFullMap(false)}
+                className="shrink-0 size-11 rounded-full flex items-center justify-center bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 elevation-2"
+                aria-label="Close full map"
+              >
+                <X className="size-5 text-[#2E1F1B] dark:text-[#F5E6DC]" />
+              </button>
+            </div>
+            <div className="flex gap-2 mt-2 flex-wrap">
+              {flavorFilter && (
+                <span className="inline-flex items-center gap-1.5 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-3 py-1.5 text-xs font-semibold text-[#2E1F1B] dark:text-[#F5E6DC] elevation-1">
+                  {flavorEmoji(flavorFilter)} {flavorFilter}
+                  <button onClick={() => setFlavorFilter(null)} aria-label="Clear flavor">
+                    <X className="size-3 text-[#F46B8F]" />
+                  </button>
+                </span>
+              )}
+              {searchCenter && (
+                <span className="inline-flex items-center gap-1.5 bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-full px-3 py-1.5 text-xs font-semibold text-[#2E1F1B] dark:text-[#F5E6DC] elevation-1">
+                  <Navigation className="size-3 text-[#F46B8F]" />
+                  {searchCenter.label}
+                  <button onClick={clearSearchCenter} aria-label="Clear address">
+                    <X className="size-3 text-[#F46B8F]" />
+                  </button>
+                </span>
+              )}
+            </div>
+          </div>
+          {/* Bottom card rail */}
+          <div className="absolute bottom-6 left-0 right-0 z-10">
+            <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-hide">
+              {(flavorFilter
+                ? flavorSpots.map((s) => ({
+                    id: s.id,
+                    slug: s.slug,
+                    name: s.name,
+                    sub: `${s.matching_flavor_name} · ${s.city}`,
+                    dist: s.distance_meters,
+                  }))
+                : filteredLocations.slice(0, 20).map((l) => ({
+                    id: l.id,
+                    slug: l.slug,
+                    name: l.name,
+                    sub: l.city,
+                    dist: l.distance_meters ?? 0,
+                  }))
+              ).map((card) => (
+                <Link
+                  key={card.id}
+                  href={`/location/${card.slug}`}
+                  className="shrink-0 w-56"
+                >
+                  <div className="bg-white/95 dark:bg-card/95 backdrop-blur-md rounded-2xl p-3.5 elevation-2 border border-[rgba(93,64,55,0.12)]/40 dark:border-white/10">
+                    <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
+                      {card.name}
+                    </p>
+                    <div className="flex items-center justify-between mt-0.5 gap-2">
+                      <span className="text-xs text-muted-foreground truncate">
+                        {card.sub}
+                      </span>
+                      {card.dist > 0 && (
+                        <span className="text-xs font-semibold text-[#F46B8F] shrink-0">
+                          {formatDistance(card.dist)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Bottom sheet for selected marker */}

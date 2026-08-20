@@ -25,12 +25,12 @@ const SUGGESTIONS = [
   "ube",
   "black sesame",
   "salted caramel",
-  "Van Leeuwen",
+  "mint chip",
   "non-dairy",
-  "Ben & Jerry's",
-  "fudgy flan",
-  "Jeni's",
-  "H\u00E4agen-Dazs",
+  "cookie dough",
+  "mango sorbet",
+  "matcha",
+  "cherry",
 ];
 
 const FLAVOR_THUMBS = [

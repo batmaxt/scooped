@@ -387,7 +387,7 @@ export default function HomePage() {
         <Link href="/search">
           <div className="flex items-center gap-3 bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 rounded-full h-12 px-4">
             <Search className="size-4 text-neutral-400" />
-            <span className="text-sm text-muted-foreground">Search flavors, brands, and scoop spots</span>
+            <span className="text-sm text-muted-foreground">Search flavors and scoop spots</span>
           </div>
         </Link>
       </div>

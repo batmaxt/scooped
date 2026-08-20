@@ -669,7 +669,7 @@ export default function LocationDetailPage({
         <AddAlertSheet
           open={addAlertOpen}
           onOpenChange={setAddAlertOpen}
-          defaultTab="location"
+          defaultTab="flavor"
           defaultTargetId={location.id}
           defaultTargetName={location.name}
         />

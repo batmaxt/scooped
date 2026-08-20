@@ -9,7 +9,7 @@ import { geocodeForward } from "@/lib/google-maps/geocode";
 import type { GeocodeFeature } from "@/lib/google-maps/geocode";
 import type { Location, Flavor } from "@/types/models";
 import { fetchFlavors } from "@/queries/checkins";
-import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
+import { flavorColor, flavorEmoji, dedupeFlavorsByName } from "@/lib/flavor-utils";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
@@ -98,14 +98,7 @@ export function SearchBar({
     }
     flavorDebounceRef.current = setTimeout(async () => {
       const flavors = await fetchFlavors(rawQuery);
-      // Dedupe by name, generic (brand-less) preferred
-      const byName = new Map<string, Flavor>();
-      for (const f of flavors) {
-        const key = f.name.trim().toLowerCase();
-        const existing = byName.get(key);
-        if (!existing || (existing.brand_id && !f.brand_id)) byName.set(key, f);
-      }
-      setFlavorResults([...byName.values()].slice(0, 4));
+      setFlavorResults(dedupeFlavorsByName(flavors).slice(0, 4));
     }, 250);
     return () => {
       if (flavorDebounceRef.current) clearTimeout(flavorDebounceRef.current);

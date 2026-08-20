@@ -27,10 +27,10 @@ import { fetchAllLocations } from "@/queries/locations";
 
 type AlertTab = "flavor" | "brand" | "location";
 
-// Brand alerts are a retail-pints feature — hidden until Phase 3.
+// Alerts are the flavor radar, period. Brand alerts return with retail
+// (Phase 3); shop-following may return as its own feature on location pages.
 const TABS: { value: AlertTab; label: string; icon: React.ElementType }[] = [
   { value: "flavor", label: "Flavor", icon: IceCreamCone },
-  { value: "location", label: "Location", icon: MapPin },
 ];
 
 interface AddAlertSheetProps {
@@ -50,7 +50,9 @@ export function AddAlertSheet({
 }: AddAlertSheetProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<AlertTab>(defaultTab);
+  const [tab, setTab] = useState<AlertTab>(
+    TABS.some((t) => t.value === defaultTab) ? defaultTab : "flavor"
+  );
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(
     defaultTargetId || null
@@ -105,7 +107,8 @@ export function AddAlertSheet({
       ? flavors.map((f: { id: string; name: string; brand?: { name: string } }) => ({
           id: f.id,
           name: f.name,
-          sub: f.brand?.name,
+          // Alerts are shop/brand agnostic — no brand sublabel
+          sub: undefined,
         }))
       : tab === "brand"
         ? brands.map((b: { id: string; name: string }) => ({
@@ -124,31 +127,38 @@ export function AddAlertSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh]">
         <SheetHeader>
-          <SheetTitle>Add Alert</SheetTitle>
+          <SheetTitle>Flavor Alert</SheetTitle>
         </SheetHeader>
 
         <div className="space-y-4 py-4">
-          {/* Tab selector */}
-          <div className="flex gap-2">
-            {TABS.map((t) => {
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => handleTabChange(t.value)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    tab === t.value
-                      ? "bg-[#F46B8F] text-white"
-                      : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
-                  }`}
-                >
-                  <Icon className="size-3.5" />
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
+          <p className="text-sm text-muted-foreground">
+            We&apos;ll ping you the moment this flavor shows up at any shop
+            nearby — even one you&apos;ve never heard of.
+          </p>
+
+          {/* Tab selector (hidden while alerts are flavor-only) */}
+          {TABS.length > 1 && (
+            <div className="flex gap-2">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => handleTabChange(t.value)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      tab === t.value
+                        ? "bg-[#F46B8F] text-white"
+                        : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                    }`}
+                  >
+                    <Icon className="size-3.5" />
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Search */}
           <div className="relative">
@@ -156,7 +166,7 @@ export function AddAlertSheet({
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={`Search ${tab}s...`}
+              placeholder="Search flavors..."
               className="pl-9 h-10"
             />
           </div>

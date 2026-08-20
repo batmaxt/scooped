@@ -30,6 +30,7 @@ import {
   fetchLocationFlavors,
 } from "@/queries/checkins";
 import { fetchAllLocations } from "@/queries/locations";
+import { dedupeFlavorsByName, flavorNameKey } from "@/lib/flavor-utils";
 import { checkAndAwardBadges } from "@/queries/badges";
 import { uploadCheckinPhoto } from "@/queries/checkinPhotos";
 import { ModerationError } from "@/lib/moderation/nsfwCheck";
@@ -296,28 +297,17 @@ function StepFlavor({
     enabled: mode === "search" && search.length >= 1,
   });
 
-  // Flavors are shop-agnostic in the picker: dedupe by name, preferring the
-  // generic (brand-less) row. Signature one-brand flavors keep their brand.
+  // Flavors are shop-agnostic in the picker: dedupe by canonical name,
+  // generic (brand-less) preferred. Signature one-brand flavors keep their
+  // brand; names shared across brands hide the (ambiguous) brand label.
   const allFlavors = (() => {
-    const byName = new Map<string, Flavor>();
-    for (const f of rawFlavors) {
-      const key = f.name.trim().toLowerCase();
-      const existing = byName.get(key);
-      if (!existing) {
-        byName.set(key, f);
-      } else if (existing.brand_id && !f.brand_id) {
-        byName.set(key, f); // generic wins over branded twin
-      }
-    }
-    // A name that exists under multiple brands but has no generic row is
-    // still shown once — brand label is hidden since it's ambiguous.
     const counts = new Map<string, number>();
     for (const f of rawFlavors) {
-      const key = f.name.trim().toLowerCase();
+      const key = flavorNameKey(f.name);
       counts.set(key, (counts.get(key) || 0) + 1);
     }
-    return [...byName.values()].map((f) =>
-      f.brand_id && (counts.get(f.name.trim().toLowerCase()) || 0) > 1
+    return dedupeFlavorsByName(rawFlavors).map((f) =>
+      f.brand_id && (counts.get(flavorNameKey(f.name)) || 0) > 1
         ? { ...f, brand: undefined, brand_id: undefined }
         : f
     );

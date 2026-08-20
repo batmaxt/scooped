@@ -139,6 +139,19 @@ export function flavorEmoji(name: string): string {
   return ruleFor(name)?.[2] ?? "🍨";
 }
 
+// Canonical key for a flavor name: lowercased, punctuation-stripped, and
+// word-order-blind so "Green Tea Matcha" and "Matcha Green Tea" collide.
+export function flavorNameKey(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^\w\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .sort()
+    .join(" ");
+}
+
 // Dedupe a flavor list by name for pickers/search — flavors are shop-agnostic
 // in user-facing selection. The generic (brand-less) row wins over branded
 // twins; names carried by multiple brands with no generic keep the first row.
@@ -147,7 +160,7 @@ export function dedupeFlavorsByName<
 >(flavors: T[]): T[] {
   const byName = new Map<string, T>();
   for (const f of flavors) {
-    const key = f.name.trim().toLowerCase();
+    const key = flavorNameKey(f.name);
     const existing = byName.get(key);
     if (!existing || (existing.brand_id && !f.brand_id)) byName.set(key, f);
   }

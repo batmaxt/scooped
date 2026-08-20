@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { MapPin, Star, ChevronRight, ChevronDown, Loader2, X, Navigation, Map as MapIcon, Store } from "lucide-react";
+import { MapPin, Star, ChevronRight, ChevronDown, Loader2, X, Navigation, Map as MapIcon, IceCreamCone } from "lucide-react";
 import { MapView } from "@/components/map/MapView";
 import { MapBottomSheet } from "@/components/map/MapBottomSheet";
 import { SearchBar } from "@/components/shared/SearchBar";
+import { FreshnessBadge } from "@/components/shared/FreshnessBadge";
 import { useLocation } from "@/hooks/useLocation";
 import { useMapStore } from "@/stores/mapStore";
-import { fetchNearbyLocations } from "@/queries/locations";
+import { fetchNearbyLocations, searchLocationsByFlavor } from "@/queries/locations";
+import { fetchFlavors } from "@/queries/checkins";
+import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
 import { Badge } from "@/components/ui/badge";
 import type { Location } from "@/types/models";
 import { LocationPhoto } from "@/components/shared/LocationPhoto";
@@ -46,6 +50,15 @@ type DisplayItem =
   | { type: "chain_group"; chainName: string; closest: Location; others: Location[] };
 
 export default function DiscoverPage() {
+  return (
+    <Suspense fallback={null}>
+      <DiscoverPageInner />
+    </Suspense>
+  );
+}
+
+function DiscoverPageInner() {
+  const searchParams = useSearchParams();
   const { position } = useLocation();
   const { filters, setSelectedLocationId } = useMapStore();
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
@@ -53,6 +66,9 @@ export default function DiscoverPage() {
   const [showMap, setShowMap] = useState(false);
   const [typeFilter, setTypeFilter] = useState("scoop_shop");
   const [expandedChains, setExpandedChains] = useState<Set<string>>(new Set());
+  const [flavorFilter, setFlavorFilter] = useState<string | null>(
+    searchParams.get("q")
+  );
 
   const activeLat = searchCenter?.lat ?? position?.latitude ?? 40.748;
   const activeLng = searchCenter?.lng ?? position?.longitude ?? -73.985;
@@ -66,6 +82,26 @@ export default function DiscoverPage() {
       fetchNearbyLocations(activeLat, activeLng, 8047, filterTypes),
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
+  });
+
+  // Flavor mode: who's scooping {flavorFilter} near the active center?
+  const { data: flavorSpotsRaw = [], isLoading: flavorLoading } = useQuery({
+    queryKey: ["flavor-spots", flavorFilter, activeLat, activeLng],
+    queryFn: () =>
+      searchLocationsByFlavor(flavorFilter!, activeLat, activeLng, 80000),
+    enabled: !!flavorFilter,
+    staleTime: 5 * 60 * 1000,
+  });
+  const flavorSpots = flavorSpotsRaw.filter(
+    (r) => r.location_type === "scoop_shop"
+  );
+
+  // Catalog fallback when no shop has confirmed the flavor
+  const { data: catalogMatches = [] } = useQuery({
+    queryKey: ["catalog-fallback", flavorFilter],
+    queryFn: () => fetchFlavors(flavorFilter!),
+    enabled: !!flavorFilter && !flavorLoading && flavorSpots.length === 0,
+    staleTime: 5 * 60 * 1000,
   });
 
   const normalize = useCallback((text: string): string => {
@@ -212,11 +248,11 @@ export default function DiscoverPage() {
     <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">
       {/* Hero */}
       <div className="px-5 pt-14 pb-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#F46B8F] mb-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#C4364A] mb-1">
           Discover
         </p>
         <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
-          Scoop spots near you
+          {flavorFilter ? `Who's scooping ${flavorFilter}?` : "Scoop spots near you"}
         </h1>
       </div>
 
@@ -224,7 +260,11 @@ export default function DiscoverPage() {
       <div className="px-5 py-3">
         <div className="flex items-center gap-2">
           <div className="flex-1">
-            <SearchBar locations={locations} onAddressSelect={handleAddressSelect} />
+            <SearchBar
+              locations={locations}
+              onAddressSelect={handleAddressSelect}
+              onFlavorSelect={(name) => setFlavorFilter(name)}
+            />
           </div>
           {webglSupported && (
             <button
@@ -240,6 +280,27 @@ export default function DiscoverPage() {
           )}
         </div>
       </div>
+
+      {/* "Scooping: [flavor]" pill */}
+      {flavorFilter && (
+        <div className="px-5 mb-3">
+          <div className="flex items-center gap-2 bg-[#FFF3EE] dark:bg-[#332520]/30 rounded-full px-4 py-2.5">
+            <span className="text-base leading-none" aria-hidden>
+              {flavorEmoji(flavorFilter)}
+            </span>
+            <span className="text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC] truncate flex-1">
+              Scooping: {flavorFilter}
+            </span>
+            <button
+              onClick={() => setFlavorFilter(null)}
+              className="p-1 rounded-full hover:bg-[#C4364A]/10 text-[#F46B8F] shrink-0"
+              aria-label="Clear flavor filter"
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* "Near: [address]" pill */}
       {searchCenter && (
@@ -306,6 +367,94 @@ export default function DiscoverPage() {
         </div>
       )}
 
+      {/* Flavor mode results */}
+      {flavorFilter ? (
+        <div className="px-5 space-y-3">
+          {flavorLoading ? (
+            Array.from({ length: 3 }, (_, i) => (
+              <div
+                key={i}
+                className="h-20 rounded-2xl bg-neutral-100 dark:bg-neutral-800 animate-pulse"
+              />
+            ))
+          ) : flavorSpots.length > 0 ? (
+            <>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                {flavorSpots.length} spot{flavorSpots.length !== 1 ? "s" : ""}{" "}
+                scooping it
+              </p>
+              {flavorSpots.map((spot) => (
+                <Link key={`${spot.id}-${spot.matching_flavor_name}`} href={`/location/${spot.slug}`} className="block">
+                  <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-4 press-card">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
+                          {spot.name}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className="text-xs text-muted-foreground">
+                            {spot.matching_flavor_name} &middot; {spot.city}
+                          </span>
+                          <FreshnessBadge
+                            lastConfirmedAt={spot.last_confirmed_at}
+                            source={spot.availability_source}
+                          />
+                        </div>
+                      </div>
+                      {spot.distance_meters > 0 && (
+                        <span className="text-xs font-semibold text-[#F46B8F] shrink-0">
+                          {formatDistance(spot.distance_meters)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </>
+          ) : (
+            <>
+              <div className="bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-6 text-center">
+                <IceCreamCone className="size-8 text-[#F46B8F]/30 mx-auto mb-2" />
+                <p className="text-sm font-medium text-[#2E1F1B] dark:text-[#F5E6DC]">
+                  No shops have confirmed this one yet
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Spot it in the wild? Scan the menu and put it on the map.
+                </p>
+              </div>
+              {catalogMatches.length > 0 && (
+                <>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider pt-2">
+                    In the flavor catalog
+                  </p>
+                  {catalogMatches.slice(0, 5).map((flavor) => (
+                    <Link key={flavor.id} href={`/flavor/${flavor.slug}`} className="block">
+                      <div className="flex items-center gap-3 bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-3.5 press-card">
+                        <div
+                          className="flex items-center justify-center size-10 rounded-full text-lg shrink-0"
+                          style={{ backgroundColor: flavorColor(flavor.name) }}
+                          aria-hidden
+                        >
+                          {flavorEmoji(flavor.name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
+                            {flavor.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {flavor.brand?.name || "Tap to set an alert"}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      ) : (
+      <>
       {/* Count */}
       <div className="px-5 pb-3">
         <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
@@ -367,6 +516,8 @@ export default function DiscoverPage() {
           })
         )}
       </div>
+      </>
+      )}
 
       {/* Bottom sheet for selected marker */}
       {selectedLocation && (

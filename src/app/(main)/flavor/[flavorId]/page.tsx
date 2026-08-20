@@ -144,7 +144,7 @@ export default function FlavorDetailPage() {
         {/* Actions */}
         <div className="flex flex-col w-full max-w-sm gap-3 mt-6">
           <Link
-            href={`/search?q=${encodeURIComponent(flavor.name)}`}
+            href={`/discover?q=${encodeURIComponent(flavor.name)}`}
             className="inline-flex items-center justify-center gap-2 h-12 rounded-full bg-[#C4364A] text-white text-sm font-semibold btn-shadow-cta active:scale-[0.98] transition-transform"
           >
             <Search className="size-4" />

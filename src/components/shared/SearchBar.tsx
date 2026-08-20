@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useMapStore } from "@/stores/mapStore";
 import { geocodeForward } from "@/lib/google-maps/geocode";
 import type { GeocodeFeature } from "@/lib/google-maps/geocode";
-import type { Location } from "@/types/models";
+import type { Location, Flavor } from "@/types/models";
+import { fetchFlavors } from "@/queries/checkins";
+import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
 
 const TYPE_LABELS: Record<string, string> = {
   scoop_shop: "Scoop Shop",
@@ -22,15 +24,22 @@ const TYPE_EMOJIS: Record<string, string> = {
 interface SearchBarProps {
   locations?: Location[];
   onAddressSelect?: (lat: number, lng: number, label: string) => void;
+  onFlavorSelect?: (flavorName: string) => void;
 }
 
-export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
+export function SearchBar({
+  locations = [],
+  onAddressSelect,
+  onFlavorSelect,
+}: SearchBarProps) {
   const { filters, setFilters } = useMapStore();
   const [isFocused, setIsFocused] = useState(false);
   const [geocodeResults, setGeocodeResults] = useState<GeocodeFeature[]>([]);
   const [geocodeLoading, setGeocodeLoading] = useState(false);
+  const [flavorResults, setFlavorResults] = useState<Flavor[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const flavorDebounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   function normalize(text: string): string {
     return text
@@ -86,6 +95,30 @@ export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawQuery, onAddressSelect]);
 
+  // Debounced flavor matching (the "what" half of the omnibox)
+  useEffect(() => {
+    if (flavorDebounceRef.current) clearTimeout(flavorDebounceRef.current);
+    if (!onFlavorSelect || rawQuery.length < 2) {
+      setFlavorResults([]);
+      return;
+    }
+    flavorDebounceRef.current = setTimeout(async () => {
+      const flavors = await fetchFlavors(rawQuery);
+      // Dedupe by name, generic (brand-less) preferred
+      const byName = new Map<string, Flavor>();
+      for (const f of flavors) {
+        const key = f.name.trim().toLowerCase();
+        const existing = byName.get(key);
+        if (!existing || (existing.brand_id && !f.brand_id)) byName.set(key, f);
+      }
+      setFlavorResults([...byName.values()].slice(0, 4));
+    }, 250);
+    return () => {
+      if (flavorDebounceRef.current) clearTimeout(flavorDebounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawQuery, onFlavorSelect]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent | TouchEvent) {
@@ -115,7 +148,7 @@ export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
     <div ref={containerRef} className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 z-10" />
       <Input
-        placeholder="Search shops or address"
+        placeholder="Flavor, shop, or address"
         value={filters.searchQuery}
         onChange={(e) => setFilters({ searchQuery: e.target.value })}
         onFocus={() => setIsFocused(true)}
@@ -136,6 +169,43 @@ export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
 
       {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-neutral-900 rounded-2xl elevation-2 border border-neutral-100 dark:border-neutral-800 overflow-hidden max-h-[60vh] overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          {/* Flavor matches — "who's scooping this?" */}
+          {onFlavorSelect && flavorResults.length > 0 && (
+            <>
+              <div className="px-3 py-2 border-b border-neutral-100 dark:border-neutral-800 bg-[#FFF3EE]/60 dark:bg-[#332520]/20">
+                <span className="text-xs font-medium text-[#C4364A]">
+                  Flavors
+                </span>
+              </div>
+              {flavorResults.map((flavor) => (
+                <button
+                  key={flavor.id}
+                  onClick={() => {
+                    onFlavorSelect(flavor.name);
+                    setFilters({ searchQuery: "" });
+                    setIsFocused(false);
+                    setFlavorResults([]);
+                  }}
+                  className="flex items-center gap-3 px-3 py-3 w-full text-left hover:bg-[#FFF3EE]/50 dark:hover:bg-[#332520]/20 transition-colors border-b border-neutral-50 dark:border-neutral-800 last:border-b-0"
+                >
+                  <div
+                    className="flex items-center justify-center size-8 rounded-full text-base shrink-0"
+                    style={{ backgroundColor: flavorColor(flavor.name) }}
+                    aria-hidden
+                  >
+                    {flavorEmoji(flavor.name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{flavor.name}</p>
+                    <p className="text-xs text-neutral-500">
+                      Find shops scooping it
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </>
+          )}
+
           {/* Location name matches */}
           {results.length > 0 && (
             <>
@@ -228,14 +298,17 @@ export function SearchBar({ locations = [], onAddressSelect }: SearchBarProps) {
           )}
 
           {/* No results at all */}
-          {results.length === 0 && geocodeResults.length === 0 && !geocodeLoading && (
-            <div className="px-4 py-6 text-center">
-              <p className="text-sm text-neutral-500">No spots found</p>
-              <p className="text-xs text-neutral-400 mt-1">
-                Try a shop name or type an address to search nearby
-              </p>
-            </div>
-          )}
+          {results.length === 0 &&
+            geocodeResults.length === 0 &&
+            flavorResults.length === 0 &&
+            !geocodeLoading && (
+              <div className="px-4 py-6 text-center">
+                <p className="text-sm text-neutral-500">Nothing found</p>
+                <p className="text-xs text-neutral-400 mt-1">
+                  Try a flavor, a shop name, or an address
+                </p>
+              </div>
+            )}
         </div>
       )}
     </div>

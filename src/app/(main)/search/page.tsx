@@ -82,12 +82,14 @@ function SearchPageInner() {
   const searchLng = position?.longitude ?? -73.985;
 
   const trimmed = query.trim();
-  const { data: results = [], isLoading } = useQuery({
+  const { data: allResults = [], isLoading } = useQuery({
     queryKey: ["flavor-search", trimmed, searchLat, searchLng],
     queryFn: () => searchLocationsByFlavor(trimmed, searchLat, searchLng, 80000),
     enabled: trimmed.length >= 2,
     staleTime: 5 * 60 * 1000,
   });
+  // Supermarkets are dormant until Phase 3 — scoop shops only
+  const results = allResults.filter((r) => r.location_type === "scoop_shop");
 
   return (
     <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">

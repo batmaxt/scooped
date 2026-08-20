@@ -137,10 +137,14 @@ function StepLocation({
 }) {
   const [search, setSearch] = useState("");
 
-  const { data: locations = [], isLoading } = useQuery({
+  const { data: allLocations = [], isLoading } = useQuery({
     queryKey: ["all-locations"],
     queryFn: fetchAllLocations,
   });
+  // Supermarkets are dormant until Phase 3 — scoop shops only
+  const locations = allLocations.filter(
+    (l) => l.location_type === "scoop_shop"
+  );
 
   // Auto-select when we have a preselected location
   useEffect(() => {

@@ -24,11 +24,8 @@ const TYPE_COLORS: Record<string, string> = {
   supermarket: "bg-[#FFF3EE] text-[#2E1F1B] dark:bg-[#2A1E1A]/30 dark:text-[#A8897E]",
 };
 
-const FILTER_OPTIONS = [
-  { key: "all", label: "All" },
-  { key: "scoop_shop", label: "Shops" },
-  { key: "supermarket", label: "Supermarkets" },
-];
+// Supermarkets are hidden until Phase 3 (retail pint hunt) — scoop shops only.
+const FILTER_OPTIONS: { key: string; label: string }[] = [];
 
 function formatDistance(meters: number): string {
   const miles = meters / 1609.34;
@@ -54,7 +51,7 @@ export default function DiscoverPage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [searchCenter, setSearchCenter] = useState<SearchCenter | null>(null);
   const [showMap, setShowMap] = useState(false);
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("scoop_shop");
   const [expandedChains, setExpandedChains] = useState<Set<string>>(new Set());
 
   const activeLat = searchCenter?.lat ?? position?.latitude ?? 40.748;
@@ -261,24 +258,26 @@ export default function DiscoverPage() {
         </div>
       )}
 
-      {/* Filter chips */}
-      <div className="px-5 pb-3">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {FILTER_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => setTypeFilter(opt.key)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                typeFilter === opt.key
-                  ? "bg-[#2E1F1B] text-white dark:bg-[#FFF3EE] dark:text-[#2E1F1B]"
-                  : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border border-[rgba(93,64,55,0.12)] dark:border-white/10"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+      {/* Filter chips (hidden while supermarkets are dormant pre-Phase 3) */}
+      {FILTER_OPTIONS.length > 0 && (
+        <div className="px-5 pb-3">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            {FILTER_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setTypeFilter(opt.key)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  typeFilter === opt.key
+                    ? "bg-[#2E1F1B] text-white dark:bg-[#FFF3EE] dark:text-[#2E1F1B]"
+                    : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border border-[rgba(93,64,55,0.12)] dark:border-white/10"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Map (collapsible) */}
       {showMap && webglSupported && (

@@ -14,8 +14,6 @@ import {
   MapPin,
   Sparkles,
   Map,
-  ArrowRight,
-  ShoppingCart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -259,30 +257,6 @@ function ShopCard({ location }: { location: Location }) {
 }
 
 // ---------------------------------------------------------------------------
-// Store row (retail locations)
-// ---------------------------------------------------------------------------
-
-function StoreRow({ location }: { location: Location }) {
-  return (
-    <Link href={`/location/${location.slug}`}>
-      <div className="flex items-center gap-3.5 bg-white dark:bg-card rounded-2xl px-4 py-3.5 border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5">
-        <div className="flex items-center justify-center size-10 rounded-full bg-[#E8F5E2] dark:bg-emerald-900/20">
-          <ShoppingCart className="size-4 text-emerald-700 dark:text-emerald-400" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">{location.name}</p>
-          <p className="text-xs text-muted-foreground truncate">
-            {location.city}
-            {(location.distance_meters ?? 0) > 0 && ` \u00B7 ${formatDistance(location.distance_meters!)}`}
-          </p>
-        </div>
-        <ArrowRight className="size-4 text-neutral-400 shrink-0" />
-      </div>
-    </Link>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Main Home Page
 // ---------------------------------------------------------------------------
 
@@ -317,12 +291,6 @@ export default function HomePage() {
   const { data: nearbyShops = [] } = useQuery({
     queryKey: ["nearbyShops", lat, lng],
     queryFn: () => fetchNearbyLocations(lat, lng, 800000, ["scoop_shop"]),
-    staleTime: 30 * 60 * 1000,
-  });
-
-  const { data: nearbyStores = [] } = useQuery({
-    queryKey: ["nearbyStores", lat, lng],
-    queryFn: () => fetchNearbyLocations(lat, lng, 800000, ["supermarket"]),
     staleTime: 30 * 60 * 1000,
   });
 
@@ -513,41 +481,6 @@ export default function HomePage() {
               <div key={shop.id} className="shrink-0 w-[260px]">
                 <ShopCard location={shop} />
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Retail pint hunt banner */}
-      {nearbyStores.length > 0 && (
-        <div className="px-5 pb-5 animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
-          <Link href="/discover">
-            <div className="flex items-center gap-3.5 bg-[#E8F5E2] dark:bg-emerald-900/15 rounded-2xl px-4 py-3.5 border border-emerald-200/40 dark:border-emerald-800/20">
-              <div className="flex items-center justify-center size-10 rounded-full bg-white/60 dark:bg-emerald-900/30">
-                <ShoppingCart className="size-5 text-emerald-700 dark:text-emerald-400" />
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC]">Retail pint hunt</p>
-                <p className="text-xs text-muted-foreground">Find rare flavors at stores near you</p>
-              </div>
-              <ArrowRight className="size-4 text-neutral-400" />
-            </div>
-          </Link>
-        </div>
-      )}
-
-      {/* In stores now */}
-      {nearbyStores.length > 0 && (
-        <div className="pb-5">
-          <div className="flex items-center justify-between px-5 mb-3">
-            <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] flex items-center gap-1.5">
-              In stores now
-            </h2>
-            <Link href="/discover" className="text-xs font-semibold text-[#F46B8F]">See all</Link>
-          </div>
-          <div className="px-5 space-y-2.5">
-            {nearbyStores.slice(0, 3).map((store) => (
-              <StoreRow key={store.id} location={store} />
             ))}
           </div>
         </div>

@@ -26,9 +26,9 @@ import { fetchAllLocations } from "@/queries/locations";
 
 type AlertTab = "flavor" | "brand" | "location";
 
+// Brand alerts are a retail-pints feature — hidden until Phase 3.
 const TABS: { value: AlertTab; label: string; icon: React.ElementType }[] = [
   { value: "flavor", label: "Flavor", icon: IceCreamCone },
-  { value: "brand", label: "Brand", icon: Tag },
   { value: "location", label: "Location", icon: MapPin },
 ];
 

@@ -419,15 +419,10 @@ function LocationCard({
                   {TYPE_LABELS[location.location_type] || location.location_type}
                 </Badge>
               )}
-              {location.is_chain && !chainBadge && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0 rounded-full bg-[#F0E6FF] dark:bg-purple-900/30 text-[#7C3AED] dark:text-purple-300 text-[10px] font-semibold shrink-0">
-                  Chain
-                </span>
-              )}
-              {chainBadge}
               <h3 className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
                 {location.name}
               </h3>
+              {chainBadge && <span className="ml-auto shrink-0">{chainBadge}</span>}
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground ml-0.5">
               <MapPin className="w-3 h-3 shrink-0" />

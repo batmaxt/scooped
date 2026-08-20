@@ -76,12 +76,6 @@ export function SearchBar({
       return;
     }
 
-    // Only geocode if few location matches (user might be typing an address)
-    if (results.length > 3) {
-      setGeocodeResults([]);
-      return;
-    }
-
     setGeocodeLoading(true);
     debounceRef.current = setTimeout(async () => {
       const features = await geocodeForward(rawQuery);

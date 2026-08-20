@@ -63,7 +63,7 @@ function DiscoverPageInner() {
   const { filters, setSelectedLocationId } = useMapStore();
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [searchCenter, setSearchCenter] = useState<SearchCenter | null>(null);
-  const [showMap, setShowMap] = useState(false);
+  const [showMap, setShowMap] = useState(true);
   const [typeFilter, setTypeFilter] = useState("scoop_shop");
   const [expandedChains, setExpandedChains] = useState<Set<string>>(new Set());
   const [flavorFilter, setFlavorFilter] = useState<string | null>(
@@ -118,12 +118,15 @@ function DiscoverPageInner() {
     if (!filters.searchQuery) return locations;
     const query = normalize(filters.searchQuery);
     if (query.length < 1) return locations;
-    return locations.filter(
+    const matches = locations.filter(
       (loc) =>
         normalize(loc.name).includes(query) ||
         normalize(loc.address_line1).includes(query) ||
         normalize(loc.city).includes(query)
     );
+    // If the text matches nothing, the user is probably typing an address —
+    // keep the full list visible and let the dropdown offer "search near".
+    return matches.length > 0 ? matches : locations;
   }, [locations, filters.searchQuery, normalize]);
 
   // Auto-detect chains: any base name with 5+ locations gets grouped.
@@ -341,15 +344,19 @@ function DiscoverPageInner() {
         </div>
       )}
 
-      {/* Map (collapsible) */}
+      {/* Map — the featured centerpiece (collapsible via toggle) */}
       {showMap && webglSupported && (
         <div className="px-5 mb-4">
           <div
             className="relative rounded-2xl overflow-hidden border-2 border-[rgba(93,64,55,0.12)] dark:border-white/5/50"
-            style={{ height: "240px" }}
+            style={{ height: "42vh", minHeight: "300px" }}
           >
             <MapView
-              locations={filteredLocations}
+              locations={
+                flavorFilter
+                  ? (flavorSpots as unknown as Location[])
+                  : filteredLocations
+              }
               onMarkerClick={handleMarkerClick}
               userPosition={
                 searchCenter

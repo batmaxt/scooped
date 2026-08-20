@@ -73,7 +73,7 @@ const RULES: FlavorRule[] = [
   [/cherr/i, "#C25B7C", "🍒"],
   [/watermelon/i, "#F08080", "🍉"],
   [/peach|apricot/i, "#FBBF9B", "🍑"],
-  [/black raspberry|black razz?berry/i, "#B79FD4", "🫐"],
+  [/black raspberry|black razz?berry/i, "#9B7BB8", "🍇"],
   [/raspberry|razz?berry|cranberry/i, "#D65C7A", "🫐"],
   [/strawberry|guava|hibiscus/i, "#F49FB6", "🍓"],
   [/blueberry|blackberry|huckleberry|marionberry|boysenberry|brambleberry|mulberry|wildberry|\bberry\b|berries/i, "#B79FD4", "🫐"],

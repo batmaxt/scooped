@@ -18,6 +18,8 @@ import { FreshnessBadge } from "@/components/shared/FreshnessBadge";
 import { useLocation } from "@/hooks/useLocation";
 import { searchLocationsByFlavor } from "@/queries/locations";
 import type { FlavorSearchResult } from "@/queries/locations";
+import { fetchFlavors } from "@/queries/checkins";
+import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
 import { Badge } from "@/components/ui/badge";
 
 const SUGGESTIONS = [
@@ -91,6 +93,15 @@ function SearchPageInner() {
   // Supermarkets are dormant until Phase 3 — scoop shops only
   const results = allResults.filter((r) => r.location_type === "scoop_shop");
 
+  // Catalog fallback: when no shop has confirmed this flavor nearby, show
+  // matching catalog flavors so search never dead-ends.
+  const { data: catalogMatches = [] } = useQuery({
+    queryKey: ["catalog-fallback", trimmed],
+    queryFn: () => fetchFlavors(trimmed),
+    enabled: trimmed.length >= 2 && !isLoading && results.length === 0,
+    staleTime: 5 * 60 * 1000,
+  });
+
   return (
     <div className="min-h-dvh bg-[#FFF7ED] dark:bg-background pb-16 animate-in fade-in duration-200">
       {/* Hero */}
@@ -155,15 +166,54 @@ function SearchPageInner() {
         )}
 
         {!isLoading && trimmed.length >= 2 && results.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="rounded-full bg-[#FFF3EE] dark:bg-[#2A1E1A]/30 p-4 mb-4">
-              <IceCreamCone className="size-8 text-[#F2B45A]" />
+          <>
+            <div className="flex flex-col items-center justify-center pt-10 pb-6 text-center">
+              <div className="rounded-full bg-[#FFF3EE] dark:bg-[#2A1E1A]/30 p-4 mb-4">
+                <IceCreamCone className="size-8 text-[#F2B45A]" />
+              </div>
+              <p className="font-semibold text-[#2E1F1B] dark:text-[#F5E6DC]">
+                No shops have confirmed this one nearby yet
+              </p>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xs">
+                Spot it in the wild? Scan the menu and put it on the map.
+              </p>
             </div>
-            <p className="font-semibold text-[#2E1F1B] dark:text-[#F5E6DC]">No matches found</p>
-            <p className="text-sm text-muted-foreground mt-1 max-w-xs">
-              Try a different flavor, brand name, or mood
-            </p>
-          </div>
+
+            {catalogMatches.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                  In the flavor catalog
+                </p>
+                {catalogMatches.slice(0, 6).map((flavor) => (
+                  <Link
+                    key={flavor.id}
+                    href={`/flavor/${flavor.slug}`}
+                    className="block"
+                  >
+                    <div className="flex items-center gap-3 bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-3.5 hover:border-[#F46B8F]/30 transition-colors">
+                      <div
+                        className="flex items-center justify-center size-10 rounded-full text-lg shrink-0"
+                        style={{ backgroundColor: flavorColor(flavor.name) }}
+                        aria-hidden
+                      >
+                        {flavorEmoji(flavor.name)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] truncate">
+                          {flavor.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {flavor.brand
+                            ? flavor.brand.name
+                            : "Tap to set an alert for when it appears nearby"}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {!isLoading && results.length > 0 && (

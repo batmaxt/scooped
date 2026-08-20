@@ -290,11 +290,38 @@ function StepFlavor({
     queryFn: () => fetchLocationFlavors(locationId),
   });
 
-  const { data: allFlavors = [], isLoading: loadingAll } = useQuery({
+  const { data: rawFlavors = [], isLoading: loadingAll } = useQuery({
     queryKey: ["flavors-search", search],
     queryFn: () => fetchFlavors(search),
     enabled: mode === "search" && search.length >= 1,
   });
+
+  // Flavors are shop-agnostic in the picker: dedupe by name, preferring the
+  // generic (brand-less) row. Signature one-brand flavors keep their brand.
+  const allFlavors = (() => {
+    const byName = new Map<string, Flavor>();
+    for (const f of rawFlavors) {
+      const key = f.name.trim().toLowerCase();
+      const existing = byName.get(key);
+      if (!existing) {
+        byName.set(key, f);
+      } else if (existing.brand_id && !f.brand_id) {
+        byName.set(key, f); // generic wins over branded twin
+      }
+    }
+    // A name that exists under multiple brands but has no generic row is
+    // still shown once — brand label is hidden since it's ambiguous.
+    const counts = new Map<string, number>();
+    for (const f of rawFlavors) {
+      const key = f.name.trim().toLowerCase();
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return [...byName.values()].map((f) =>
+      f.brand_id && (counts.get(f.name.trim().toLowerCase()) || 0) > 1
+        ? { ...f, brand: undefined, brand_id: undefined }
+        : f
+    );
+  })();
 
   return (
     <div className="flex flex-col gap-4 p-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -572,16 +599,10 @@ function StepRate({
             onClick={() => setShowOptional(true)}
             className="text-sm text-neutral-500 underline"
           >
-            + Add brand & selection ratings
+            + Rate the flavor selection
           </button>
         ) : (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <StarRating
-              label="Brand quality"
-              value={ratings.brand}
-              onChange={(v) => update("brand", v)}
-              size="md"
-            />
             <StarRating
               label="Flavor selection"
               value={ratings.selection}

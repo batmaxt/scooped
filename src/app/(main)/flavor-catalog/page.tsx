@@ -8,22 +8,39 @@ import { fetchAllFlavorsGroupedByBrand, fetchAllBrands } from "@/queries/flavors
 import { flavorColor, flavorEmoji, CATEGORY_LABELS, INFORMATIVE_CATEGORIES } from "@/lib/flavor-utils";
 import type { Flavor, Brand } from "@/types/models";
 
-const CATEGORY_FILTERS = [
-  { value: null, label: "All" },
+// Format chips are multi-select; Non-Dairy is a separate dietary toggle that
+// can combine with any of them (e.g. non-dairy + soft serve).
+const FORMAT_FILTERS = [
   { value: "ice_cream", label: "Ice Cream" },
   { value: "classic", label: "Classic" },
   { value: "sorbet", label: "Sorbet" },
   { value: "soft_serve", label: "Soft Serve" },
   { value: "italian_ice", label: "Italian Ice" },
   { value: "gelato", label: "Gelato" },
-  { value: "non_dairy", label: "Non-Dairy" },
-  { value: "frozen_treat", label: "Frozen Treat" },
 ];
+
+function isNonDairy(f: Flavor): boolean {
+  if (f.category === "non_dairy" || f.category === "dairy_free") return true;
+  // Sorbets and italian ice are inherently dairy-free
+  if (f.category === "sorbet" || f.category === "italian_ice") return true;
+  if (f.tags?.some((t) => /vegan|dairy.?free|non.?dairy/i.test(t))) return true;
+  return /vegan|dairy.?free|non.?dairy|oat milk|sorbet/i.test(f.name);
+}
 
 export default function FlavorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedFormats, setSelectedFormats] = useState<Set<string>>(new Set());
+  const [nonDairyOnly, setNonDairyOnly] = useState(false);
+
+  const toggleFormat = useCallback((value: string) => {
+    setSelectedFormats((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
+  }, []);
 
   const { data: groups = [], isLoading } = useQuery({
     queryKey: ["allFlavorsGrouped"],
@@ -54,13 +71,15 @@ export default function FlavorsPage() {
       .map((g) => ({
         ...g,
         flavors: g.flavors.filter((f) => {
-          if (selectedCategory && f.category !== selectedCategory) return false;
+          if (selectedFormats.size > 0 && !selectedFormats.has(f.category || ""))
+            return false;
+          if (nonDairyOnly && !isNonDairy(f)) return false;
           if (query && !normalize(f.name).includes(query)) return false;
           return true;
         }),
       }))
       .filter((g) => g.flavors.length > 0);
-  }, [groups, searchQuery, selectedBrandId, selectedCategory, normalize]);
+  }, [groups, searchQuery, selectedBrandId, selectedFormats, nonDairyOnly, normalize]);
 
   const totalFiltered = filteredGroups.reduce((s, g) => s + g.flavors.length, 0);
 
@@ -101,19 +120,25 @@ export default function FlavorsPage() {
         </div>
       </div>
 
-      {/* Category chips */}
+      {/* Dietary toggle + format chips (multi-select, combinable) */}
       <div className="px-5 pb-2">
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {CATEGORY_FILTERS.map((cat) => (
+          <button
+            onClick={() => setNonDairyOnly((v) => !v)}
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+              nonDairyOnly
+                ? "bg-[#4A9B84] text-white"
+                : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border-2 border-[#7CC9B4]"
+            }`}
+          >
+            🌱 Non-Dairy
+          </button>
+          {FORMAT_FILTERS.map((cat) => (
             <button
-              key={cat.value ?? "all"}
-              onClick={() =>
-                setSelectedCategory(
-                  selectedCategory === cat.value ? null : cat.value
-                )
-              }
+              key={cat.value}
+              onClick={() => toggleFormat(cat.value)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === cat.value
+                selectedFormats.has(cat.value)
                   ? "bg-[#2E1F1B] text-white dark:bg-[#FFF3EE] dark:text-[#2E1F1B]"
                   : "bg-white dark:bg-card text-[#2E1F1B] dark:text-[#F5E6DC] border border-[rgba(93,64,55,0.12)] dark:border-white/10"
               }`}

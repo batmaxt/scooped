@@ -96,10 +96,10 @@ function SearchPageInner() {
       {/* Hero */}
       <div className="px-5 pt-14 pb-2">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#C4364A] mb-1">
-          Flavor search
+          Search
         </p>
         <h1 className="text-3xl font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC] leading-tight">
-          Find your next favorite scoop
+          Search for any flavor
         </h1>
       </div>
 
@@ -108,7 +108,7 @@ function SearchPageInner() {
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 z-10" />
           <Input
-            placeholder="Try pistachio, ube, Jeni's..."
+            placeholder="Try pistachio, ube, salted caramel..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-11 pr-10 h-12 rounded-full bg-white dark:bg-card border-[rgba(93,64,55,0.12)] dark:border-white/10 text-base"

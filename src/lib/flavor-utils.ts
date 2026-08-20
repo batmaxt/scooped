@@ -139,6 +139,21 @@ export function flavorEmoji(name: string): string {
   return ruleFor(name)?.[2] ?? "🍨";
 }
 
+// Dedupe a flavor list by name for pickers/search — flavors are shop-agnostic
+// in user-facing selection. The generic (brand-less) row wins over branded
+// twins; names carried by multiple brands with no generic keep the first row.
+export function dedupeFlavorsByName<
+  T extends { name: string; brand_id?: string | null }
+>(flavors: T[]): T[] {
+  const byName = new Map<string, T>();
+  for (const f of flavors) {
+    const key = f.name.trim().toLowerCase();
+    const existing = byName.get(key);
+    if (!existing || (existing.brand_id && !f.brand_id)) byName.set(key, f);
+  }
+  return [...byName.values()];
+}
+
 export const CATEGORY_LABELS: Record<string, string> = {
   ice_cream: "Ice Cream",
   classic: "Classic",

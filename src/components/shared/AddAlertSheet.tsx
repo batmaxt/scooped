@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createAlert } from "@/queries/alerts";
 import { fetchFlavors } from "@/queries/checkins";
+import { dedupeFlavorsByName } from "@/lib/flavor-utils";
 import { fetchBrands } from "@/queries/alerts";
 import { fetchAllLocations } from "@/queries/locations";
 
@@ -56,12 +57,13 @@ export function AddAlertSheet({
   );
   const [selectedName, setSelectedName] = useState(defaultTargetName || "");
 
-  // Search queries
-  const { data: flavors = [] } = useQuery({
+  // Search queries — flavor alerts are brand-agnostic, so dedupe by name
+  const { data: rawFlavorResults = [] } = useQuery({
     queryKey: ["flavor-search", search],
     queryFn: () => fetchFlavors(search),
     enabled: tab === "flavor" && open && search.length > 0,
   });
+  const flavors = dedupeFlavorsByName(rawFlavorResults);
 
   const { data: brands = [] } = useQuery({
     queryKey: ["brand-search", search],

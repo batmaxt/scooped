@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -20,7 +20,115 @@ import { searchLocationsByFlavor } from "@/queries/locations";
 import type { FlavorSearchResult } from "@/queries/locations";
 import { fetchFlavors } from "@/queries/checkins";
 import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
+import { geocodeForward } from "@/lib/google-maps/geocode";
+import type { GeocodeFeature } from "@/lib/google-maps/geocode";
 import { Badge } from "@/components/ui/badge";
+
+interface SearchCenter {
+  lat: number;
+  lng: number;
+  label: string;
+}
+
+// "Near: current location / any address" control — the missing half of the
+// core question: "what's scooping near HERE?"
+function NearPicker({
+  center,
+  onChange,
+}: {
+  center: SearchCenter | null;
+  onChange: (c: SearchCenter | null) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [addressQuery, setAddressQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<GeocodeFeature[]>([]);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (addressQuery.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      setSuggestions(await geocodeForward(addressQuery));
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [addressQuery]);
+
+  if (!editing) {
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setEditing(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-card border border-[rgba(93,64,55,0.12)] dark:border-white/10 text-xs font-semibold text-[#2E1F1B] dark:text-[#F5E6DC]"
+        >
+          <MapPin className="size-3.5 text-[#C4364A]" />
+          Near: {center ? center.label : "Current location"}
+        </button>
+        {center && (
+          <button
+            onClick={() => onChange(null)}
+            className="p-1 text-neutral-400 hover:text-neutral-600"
+            aria-label="Reset to current location"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#C4364A] z-10" />
+      <Input
+        placeholder="Enter an address, town, or zip..."
+        value={addressQuery}
+        onChange={(e) => setAddressQuery(e.target.value)}
+        autoFocus
+        className="pl-10 pr-10 h-11 rounded-full bg-white dark:bg-card border-[rgba(93,64,55,0.12)] dark:border-white/10 text-sm"
+      />
+      <button
+        onClick={() => {
+          setEditing(false);
+          setAddressQuery("");
+          setSuggestions([]);
+        }}
+        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 z-10"
+        aria-label="Cancel address entry"
+      >
+        <X className="size-4" />
+      </button>
+      {suggestions.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-neutral-900 rounded-2xl elevation-2 border border-neutral-100 dark:border-neutral-800 overflow-hidden z-50">
+          {suggestions.map((s) => (
+            <button
+              key={s.place_id}
+              onClick={() => {
+                onChange({ lat: s.latitude, lng: s.longitude, label: s.name });
+                setEditing(false);
+                setAddressQuery("");
+                setSuggestions([]);
+              }}
+              className="flex items-center gap-3 px-3 py-3 w-full text-left hover:bg-[#FFF3EE]/50 dark:hover:bg-[#332520]/20 border-b border-neutral-50 dark:border-neutral-800 last:border-b-0"
+            >
+              <MapPin className="size-4 text-[#F46B8F] shrink-0" />
+              <div className="min-w-0">
+                <p className="font-medium text-sm truncate">{s.name}</p>
+                <p className="text-xs text-neutral-500 truncate">
+                  {s.full_address}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const SUGGESTIONS = [
   "pistachio",
@@ -78,10 +186,11 @@ export default function SearchPage() {
 function SearchPageInner() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [center, setCenter] = useState<SearchCenter | null>(null);
   const { position } = useLocation();
 
-  const searchLat = position?.latitude ?? 40.748;
-  const searchLng = position?.longitude ?? -73.985;
+  const searchLat = center?.lat ?? position?.latitude ?? 40.748;
+  const searchLng = center?.lng ?? position?.longitude ?? -73.985;
 
   const trimmed = query.trim();
   const { data: allResults = [], isLoading } = useQuery({
@@ -133,6 +242,9 @@ function SearchPageInner() {
               <X className="w-4 h-4" />
             </button>
           )}
+        </div>
+        <div className="mt-3">
+          <NearPicker center={center} onChange={setCenter} />
         </div>
       </div>
 

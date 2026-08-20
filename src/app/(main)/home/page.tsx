@@ -290,7 +290,8 @@ export default function HomePage() {
 
   const { data: nearbyShops = [] } = useQuery({
     queryKey: ["nearbyShops", lat, lng],
-    queryFn: () => fetchNearbyLocations(lat, lng, 800000, ["scoop_shop"]),
+    // "Nearby" means 5 miles (8047 m)
+    queryFn: () => fetchNearbyLocations(lat, lng, 8047, ["scoop_shop"]),
     staleTime: 30 * 60 * 1000,
   });
 

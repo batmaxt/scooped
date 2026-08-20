@@ -62,7 +62,8 @@ export default function DiscoverPage() {
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ["nearby-locations", activeLat, activeLng, filterTypes],
     queryFn: () =>
-      fetchNearbyLocations(activeLat, activeLng, 800000, filterTypes),
+      // "Nearby" means 5 miles (8047 m)
+      fetchNearbyLocations(activeLat, activeLng, 8047, filterTypes),
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
@@ -346,10 +347,9 @@ export default function DiscoverPage() {
                         e.stopPropagation();
                         toggleChainExpand(item.chainName);
                       }}
-                      className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0E6FF] dark:bg-purple-900/30 text-[#7C3AED] dark:text-purple-300 text-[10px] font-semibold shrink-0 hover:bg-[#E4D4FF] transition-colors"
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-muted-foreground text-[10px] font-medium shrink-0 hover:bg-[#FFF3EE] dark:hover:bg-neutral-800 transition-colors"
                     >
-                      <Store className="size-2.5" />
-                      +{item.others.length} nearby
+                      +{item.others.length} more
                       <ChevronDown
                         className={`size-2.5 transition-transform ${isExpanded ? "rotate-180" : ""}`}
                       />

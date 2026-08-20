@@ -161,7 +161,8 @@ export async function fetchFeaturedLocation(
   lat: number,
   lng: number
 ): Promise<Location | null> {
-  const locations = await fetchNearbyLocations(lat, lng, 800000, ["scoop_shop"]);
+  // Featured creamery comes from the same 5-mile "nearby" radius
+  const locations = await fetchNearbyLocations(lat, lng, 8047, ["scoop_shop"]);
   if (locations.length === 0) return null;
 
   // Best: highest-rated scoop shop with check-ins

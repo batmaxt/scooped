@@ -31,7 +31,10 @@ Coverage exists (~1,371 tri-state locations). The gap is **flavor density** and
 6. ⬜ **Flavor Finder hero** — home page leads with "What are you craving?" →
    confirmed-fresh results by distance. This is the secret sauce as a front door.
 7. ⬜ Seed availability for the ~50–100 shops nearest our first real users
-8. ⬜ Deploy to Vercel (public URL) + add production redirect URL in Supabase
+8. ✅ Deploy to Vercel (scooped-six.vercel.app) + production redirect URL in Supabase
+8b. ⬜ **Zombie sweep**: re-check all locations against Google Places
+   `business_status` to auto-flag permanently closed shops (Big Gay,
+   Morgenstern's flagship, and BANANAS all died between imports)
 9. ⬜ Upgrade Supabase to Pro ($25/mo) before real users — free tier pauses kill
 
 ### Kill list (deliberately NOT building)

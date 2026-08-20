@@ -107,7 +107,11 @@ export default function FlavorsPage() {
           {CATEGORY_FILTERS.map((cat) => (
             <button
               key={cat.value ?? "all"}
-              onClick={() => setSelectedCategory(cat.value)}
+              onClick={() =>
+                setSelectedCategory(
+                  selectedCategory === cat.value ? null : cat.value
+                )
+              }
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 selectedCategory === cat.value
                   ? "bg-[#2E1F1B] text-white dark:bg-[#FFF3EE] dark:text-[#2E1F1B]"

@@ -56,6 +56,49 @@ events/meetups.
 
 ---
 
+## UX research decisions (Aug 2026 — Untappd / Beli / Letterboxd / Vivino / Tinwise study)
+
+**Adopted as doctrine:**
+1. **Freshness is the wedge.** Untappd's #1 complaint at 4.9 stars is stale venue
+   menus; their staleness is invisible (hidden 15-day TTL). Ours is visible and
+   named: 3-state ladder ("Confirmed today / This week / Needs a scout") —
+   never raw timestamps — and stale shops become SCOUT BOUNTIES (data decay =
+   engagement loop). Match rate is the product: Delectable died when scans rotted.
+2. **Alerts = proven retention engine.** Untappd's bell-on-beer + radius +
+   follow-venue with batched pushes validates our name-agnostic alerts. Add
+   later: "Notify Me" on unclaimed shops (doubles as Phase-2 sales ammo:
+   "212 people await your shop's alerts").
+3. **Minute one = taste identity, never network.** Four-favorites onboarding
+   (BUILT: /welcome with weird mode + shuffle). NEVER gate features behind
+   invites (Beli's most-hated pattern). Earned unlocks OK ("scoop 5 to unlock
+   Taste Profile").
+4. **Every scan is a contribution — say so.** Vivino's flywheel: failed scans
+   grow the DB, user told "every future scan works instantly, thanks to you."
+   Celebrate + promise in our scan flow.
+5. **Design for the solo collector.** Been / Want-to-Try lists + map, stats
+   page, shareable "Summer in Review," streaks, small numbers as pride
+   ("947 noodles"). Social proof from geography (city leaderboards, rating
+   histograms), not friend graphs.
+6. **Signature mechanic candidate: flavor duels.** Beli-style head-to-head but
+   same-flavor-across-shops ("Mint Chip at Coyle's vs Van Leeuwen") — apples
+   to apples, structurally impossible for Beli. Prototype after density.
+7. **Phase 2 pricing doctrine:** verification/menu upkeep FREE forever (fresh
+   data can't sit behind a shop's wallet — Untappd charges $899+/yr and eats
+   stale-menu complaints); charge for analytics/promotions/signage extras.
+   The menu-as-signage bundle (app + web embed + QR/print) is the retention hook.
+8. **Registration-free browsing** (Untappd's skip button): let anyone see
+   what's scooping nearby + set one alert pre-signup; gate check-ins only.
+9. **Charm is strategy while small:** name every feature (Taste Passport,
+   Scout, the weird menu's "maybe not that weird"), ship a manifesto page.
+   Utilitarian voice is for 74M-user apps.
+
+**Graveyard warnings:** Foodspotting/Forkly died undifferentiated from
+Instagram/Yelp — our moat is LIVE BOARD FRESHNESS, which generic platforms
+structurally can't do. Never dilute scope (Untappd's "drinks" backlash =
+our supermarket dormancy doctrine, validated).
+
+---
+
 ## Phase 2 — The shop partner loop
 
 The business portal **already exists** (`/claim`, `/dashboard`, `/flavors`,

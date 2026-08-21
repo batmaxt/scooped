@@ -60,7 +60,7 @@ export default function DiscoverPage() {
 function DiscoverPageInner() {
   const searchParams = useSearchParams();
   const { position } = useLocation();
-  const { filters, setSelectedLocationId } = useMapStore();
+  const { filters, setSelectedLocationId, viewport } = useMapStore();
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [searchCenter, setSearchCenter] = useState<SearchCenter | null>(null);
   const [showMap, setShowMap] = useState(true);
@@ -83,6 +83,28 @@ function DiscoverPageInner() {
       fetchNearbyLocations(activeLat, activeLng, 8047, filterTypes),
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
+  });
+
+  // The map shows what the viewport shows: when the user pans or zooms out,
+  // fetch shops for the visible area, not just the 5-mile home zone.
+  // Key is rounded so small camera nudges don't refetch.
+  const vpLat = Math.round(viewport.latitude * 100) / 100;
+  const vpLng = Math.round(viewport.longitude * 100) / 100;
+  const vpZoom = Math.round(viewport.zoom);
+  const vpRadius = Math.min(
+    250000,
+    Math.max(
+      8047,
+      Math.round(
+        (40075016 * Math.cos((vpLat * Math.PI) / 180)) / Math.pow(2, vpZoom)
+      )
+    )
+  );
+  const { data: mapAreaLocations = [] } = useQuery({
+    queryKey: ["map-area-locations", vpLat, vpLng, vpZoom, filterTypes],
+    queryFn: () => fetchNearbyLocations(vpLat, vpLng, vpRadius, filterTypes),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   // Flavor mode: who's scooping {flavorFilter} near the active center?
@@ -131,6 +153,15 @@ function DiscoverPageInner() {
     // keep the full list visible and let the dropdown offer "search near".
     return matches.length > 0 ? matches : locations;
   }, [locations, filters.searchQuery, normalize]);
+
+  // Pins = everything relevant in view: the home-zone list plus whatever the
+  // panned/zoomed viewport pulls in (deduped). Flavor mode stays flavor-only.
+  const mapPins = useMemo(() => {
+    const byId = new Map<string, Location>();
+    for (const loc of filteredLocations) byId.set(loc.id, loc);
+    for (const loc of mapAreaLocations) if (!byId.has(loc.id)) byId.set(loc.id, loc);
+    return [...byId.values()];
+  }, [filteredLocations, mapAreaLocations]);
 
   // Auto-detect chains: any base name with 5+ locations gets grouped.
   // Also respects explicit chain_name from DB.
@@ -358,7 +389,7 @@ function DiscoverPageInner() {
               locations={
                 flavorFilter
                   ? (flavorSpots as unknown as Location[])
-                  : filteredLocations
+                  : mapPins
               }
               onMarkerClick={handleMarkerClick}
               userPosition={
@@ -548,7 +579,7 @@ function DiscoverPageInner() {
             locations={
               flavorFilter
                 ? (flavorSpots as unknown as Location[])
-                : filteredLocations
+                : mapPins
             }
             onMarkerClick={handleMarkerClick}
             userPosition={
@@ -608,7 +639,7 @@ function DiscoverPageInner() {
                     sub: `${s.matching_flavor_name} · ${s.city}`,
                     dist: s.distance_meters,
                   }))
-                : filteredLocations.slice(0, 20).map((l) => ({
+                : mapPins.slice(0, 20).map((l) => ({
                     id: l.id,
                     slug: l.slug,
                     name: l.name,

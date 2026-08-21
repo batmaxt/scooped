@@ -593,8 +593,10 @@ function DiscoverPageInner() {
               )}
             </div>
           </div>
-          {/* Bottom card rail */}
-          <div className="absolute bottom-6 left-0 right-0 z-10">
+          {/* Bottom card rail (hidden while a pin's info sheet is open) */}
+          <div
+            className={`absolute bottom-6 left-0 right-0 z-10 ${selectedLocation ? "hidden" : ""}`}
+          >
             <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-hide">
               {(flavorFilter
                 ? flavorSpots.map((s) => ({

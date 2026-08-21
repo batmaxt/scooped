@@ -47,7 +47,7 @@ export function MapBottomSheet({ location, onClose, flavorMatch }: MapBottomShee
       />
 
       {/* Bottom sheet card */}
-      <div className="absolute bottom-20 left-4 right-4 z-40 animate-in slide-in-from-bottom-4 duration-300 ease-out">
+      <div className="fixed bottom-20 left-4 right-4 z-[80] animate-in slide-in-from-bottom-4 duration-300 ease-out">
         <div className="bg-card rounded-2xl elevation-2 border dark:border-neutral-700 p-4 relative">
           {/* Drag handle */}
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-neutral-200 dark:bg-neutral-600" />

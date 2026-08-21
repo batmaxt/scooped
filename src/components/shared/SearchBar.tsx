@@ -139,6 +139,21 @@ export function SearchBar({
         value={filters.searchQuery}
         onChange={(e) => setFilters({ searchQuery: e.target.value })}
         onFocus={() => setIsFocused(true)}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          // Enter picks the top suggestion: address first, then flavor, then shop
+          if (geocodeResults.length > 0) {
+            handleAddressClick(geocodeResults[0]);
+          } else if (onFlavorSelect && flavorResults.length > 0) {
+            onFlavorSelect(flavorResults[0].name);
+            setFilters({ searchQuery: "" });
+            setIsFocused(false);
+            setFlavorResults([]);
+          } else if (results.length > 0) {
+            window.location.href = `/location/${results[0].slug}`;
+          }
+        }}
         className="pl-10 pr-10 h-11 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-neutral-200 dark:border-neutral-700 shadow-sm"
       />
       {filters.searchQuery && (

@@ -133,28 +133,38 @@ export async function searchLocationsByFlavor(
   searchTerm: string,
   lat: number,
   lng: number,
-  radiusMeters: number = 800000
+  // Flavor search points you beyond your zone — cover the whole territory.
+  radiusMeters: number = 250000
 ): Promise<FlavorSearchResult[]> {
   // Normalize "and" ↔ "&" so "ben and jerrys" matches "Ben & Jerry's"
   const normalized = searchTerm.replace(/\band\b/gi, "&");
   const term = normalized !== searchTerm ? normalized : searchTerm;
 
-  const { data, error } = await supabase.rpc("search_locations_by_flavor", {
-    search_term: term,
-    user_lat: lat,
-    user_lng: lng,
-    radius_meters: radiusMeters,
-  });
-
-  if (error) {
-    if (error.message?.includes("AbortError") || error.code === "20") {
+  const run = async (t: string): Promise<FlavorSearchResult[] | null> => {
+    const { data, error } = await supabase.rpc("search_locations_by_flavor", {
+      search_term: t,
+      user_lat: lat,
+      user_lng: lng,
+      radius_meters: radiusMeters,
+    });
+    if (error) {
+      if (error.message?.includes("AbortError") || error.code === "20") return null;
+      console.error("Error searching locations by flavor:", error.message);
       return [];
     }
-    console.error("Error searching locations by flavor:", error.message);
-    return [];
-  }
+    return (data || []) as FlavorSearchResult[];
+  };
 
-  return (data || []) as FlavorSearchResult[];
+  let results = await run(term);
+  if (results === null) return [];
+  // "waffles" should still find "Waffle Cone Crunch" — retry singular
+  if (results.length === 0 && /s$/i.test(term.trim())) {
+    results = (await run(term.trim().replace(/s$/i, ""))) ?? [];
+  }
+  // The RPC returns rows in location-id order; closest first is the product.
+  return results.sort(
+    (a, b) => (a.distance_meters ?? Infinity) - (b.distance_meters ?? Infinity)
+  );
 }
 
 export async function fetchFeaturedLocation(

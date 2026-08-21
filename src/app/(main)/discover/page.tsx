@@ -89,7 +89,9 @@ function DiscoverPageInner() {
   const { data: flavorSpotsRaw = [], isLoading: flavorLoading } = useQuery({
     queryKey: ["flavor-spots", flavorFilter, activeLat, activeLng],
     queryFn: () =>
-      searchLocationsByFlavor(flavorFilter!, activeLat, activeLng, 80000),
+      // Wide radius on purpose: a flavor search points you somewhere worth
+      // the trip, even beyond your zone. Closest results come back first.
+      searchLocationsByFlavor(flavorFilter!, activeLat, activeLng, 250000),
     enabled: !!flavorFilter,
     staleTime: 5 * 60 * 1000,
   });

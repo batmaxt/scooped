@@ -84,7 +84,7 @@ export default function SignupPage() {
         }
 
         // Profile is created automatically by the database trigger (handle_new_user)
-        router.push("/discover");
+        router.push("/welcome");
       } else {
         setError("Something went wrong. Please try again.");
         setIsLoading(false);
@@ -101,7 +101,7 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/welcome`,
       },
     });
 

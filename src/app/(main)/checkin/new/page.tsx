@@ -30,8 +30,9 @@ import {
   fetchLocationFlavors,
 } from "@/queries/checkins";
 import { fetchAllLocations } from "@/queries/locations";
-import { dedupeFlavorsByName, flavorNameKey } from "@/lib/flavor-utils";
+import { dedupeFlavorsByName, flavorNameKey, flavorColor, flavorEmoji } from "@/lib/flavor-utils";
 import { reportSighting } from "@/queries/sightings";
+import { findDuelOpponent, recordDuel, type DuelOpponent } from "@/queries/duels";
 import { checkAndAwardBadges } from "@/queries/badges";
 import { uploadCheckinPhoto } from "@/queries/checkinPhotos";
 import { ModerationError } from "@/lib/moderation/nsfwCheck";
@@ -968,14 +969,53 @@ function SuccessState({
   const [boardState, setBoardState] = useState<"idle" | "added" | "skipped">(
     flavor ? "idle" : "skipped"
   );
+  const [duelState, setDuelState] = useState<"pending" | "show" | "done">(
+    "pending"
+  );
+  const [duelWinner, setDuelWinner] = useState<"here" | "there" | null>(null);
+
+  // Duel check: has this user scooped the same flavor at another shop?
+  const { data: opponent = null } = useQuery({
+    queryKey: ["duel-opponent", userId, flavor?.name, locationId],
+    queryFn: () => findDuelOpponent(userId!, flavor!.name, locationId),
+    enabled: !!userId && !!flavor,
+    staleTime: Infinity,
+  });
+
+  // Once the board question is answered, surface the duel (if one exists)
+  useEffect(() => {
+    if (boardState === "idle" || duelState !== "pending") return;
+    if (opponent && flavor && userId) {
+      setDuelState("show");
+    } else {
+      setDuelState("done");
+    }
+  }, [boardState, opponent, flavor, userId, duelState]);
 
   useEffect(() => {
-    if (boardState === "idle") return; // hold the redirect while asking
+    // Redirect only after both the board question and the duel are resolved
+    if (boardState === "idle" || duelState !== "done") return;
     const timer = setTimeout(() => {
       router.push(`/location/${locationSlug}`);
-    }, boardState === "added" ? 1500 : 2500);
+    }, duelWinner ? 1800 : boardState === "added" ? 1500 : 2000);
     return () => clearTimeout(timer);
-  }, [router, locationSlug, boardState]);
+  }, [router, locationSlug, boardState, duelState, duelWinner]);
+
+  const pickDuelWinner = async (choice: "here" | "there") => {
+    if (!userId || !flavor || !opponent) return;
+    setDuelWinner(choice);
+    setDuelState("done");
+    try {
+      await recordDuel(
+        userId,
+        flavor.name,
+        choice === "here" ? locationId : opponent.locationId,
+        choice === "here" ? opponent.locationId : locationId
+      );
+    } catch {
+      // verdict is cosmetic if it fails; don't block the flow
+    }
+  };
 
   const addToBoard = async () => {
     try {
@@ -1036,7 +1076,62 @@ function SuccessState({
         </p>
       )}
 
-      {boardState !== "idle" && (
+      {/* THE DUEL — same flavor, two shops, one crown */}
+      {duelState === "show" && flavor && opponent && (
+        <div className="mt-8 w-full max-w-sm bg-white dark:bg-card rounded-2xl border-2 border-[#F2B45A] p-5 animate-in fade-in zoom-in-95 duration-300">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-lg" aria-hidden>⚔️</span>
+            <p className="font-bold text-xs uppercase tracking-widest text-[#C4364A]">
+              Flavor duel
+            </p>
+            <span className="text-lg" aria-hidden>⚔️</span>
+          </div>
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span
+              className="flex items-center justify-center size-8 rounded-full text-base"
+              style={{ backgroundColor: flavorColor(flavor.name) }}
+              aria-hidden
+            >
+              {flavorEmoji(flavor.name)}
+            </span>
+            <p className="font-bold font-heading text-lg text-[#2E1F1B] dark:text-[#F5E6DC] uppercase">
+              {flavor.name}
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground text-center mb-4">
+            You&apos;ve scooped it at both. Whose is better?
+          </p>
+          <div className="space-y-2">
+            <button
+              onClick={() => pickDuelWinner("here")}
+              className="w-full rounded-xl border-2 border-[rgba(93,64,55,0.15)] dark:border-white/10 px-4 py-3 text-left font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] hover:border-[#C4364A] active:scale-[0.98] transition-all"
+            >
+              {locationName}
+            </button>
+            <button
+              onClick={() => pickDuelWinner("there")}
+              className="w-full rounded-xl border-2 border-[rgba(93,64,55,0.15)] dark:border-white/10 px-4 py-3 text-left font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] hover:border-[#C4364A] active:scale-[0.98] transition-all"
+            >
+              {opponent.locationName}
+            </button>
+          </div>
+          <button
+            onClick={() => setDuelState("done")}
+            className="w-full text-center text-xs text-[#8C6F66] dark:text-[#A8897E] mt-3"
+          >
+            Too close to call
+          </button>
+        </div>
+      )}
+
+      {duelWinner && flavor && opponent && (
+        <p className="mt-6 text-sm font-semibold text-[#2E1F1B] dark:text-[#F5E6DC] animate-in fade-in duration-300">
+          👑 {duelWinner === "here" ? locationName : opponent.locationName}{" "}
+          takes the {flavor.name} crown
+        </p>
+      )}
+
+      {boardState !== "idle" && duelState === "done" && (
         <p className="text-xs text-neutral-400 mt-6">
           Redirecting to the location page...
         </p>

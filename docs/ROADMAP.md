@@ -21,6 +21,10 @@ Winter 2026–27 = private beta with real users (friends, first shops) while
 supply is quiet; Spring 2027 = public launch riding the reopening wave, with
 "opening day" alerts as the launch feature. Everything on this roadmap serves
 that date.
+**Wild-card option (Mat's):** rush an earlier soft launch in a warm-weather
+boutique-ice-cream city (LA / Phoenix / Miami / Austin — year-round season,
+~$50–200 Places import per metro) to field-test with real strangers while the
+tri-state sleeps. Decide by ~November.
 
 ---
 

@@ -26,6 +26,23 @@ export function FreshnessBadge({
   source?: string;
   compact?: boolean;
 }) {
+  // Menu-sourced availability is a standing fact, not a decaying sighting —
+  // it stays confident until a user confirmation upgrades it to time-based.
+  if (source === "seed") {
+    if (compact) {
+      return (
+        <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-[#8C6F66] dark:text-[#A8897E]">
+          On the menu
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FFF3EE] dark:bg-[#332520]/40 text-[#8C6F66] dark:text-[#A8897E]">
+        On the menu
+      </span>
+    );
+  }
+
   const level = getFreshnessLevel(lastConfirmedAt);
   const config = FRESHNESS_CONFIG[level];
 

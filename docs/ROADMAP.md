@@ -14,6 +14,14 @@ first 30 seconds nor richer availability data gets cut.
 **Doctrine:** scoop shops → density → habit → then point the same machine at
 supermarket freezer aisles.
 
+**🎯 LAUNCH TARGET: April/May 2027 — opening day of ice cream season.**
+The Dipt autopsy showed both dead competitors launched off-season and never
+caught a summer wave. Our runway: Fall 2026 = build to A+ and fill the tank;
+Winter 2026–27 = private beta with real users (friends, first shops) while
+supply is quiet; Spring 2027 = public launch riding the reopening wave, with
+"opening day" alerts as the launch feature. Everything on this roadmap serves
+that date.
+
 ---
 
 ## Phase 1 — Stick the landing on scoop shops (NOW)

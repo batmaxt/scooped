@@ -97,6 +97,8 @@ export function ScanMenuSheet({
   const [addedFlavorIds, setAddedFlavorIds] = useState<Set<string>>(new Set());
   const [totalAdded, setTotalAdded] = useState(0);
   const [photosScanned, setPhotosScanned] = useState(0);
+  // True when this location had zero flavors before this scan session
+  const [wasFirstMapper, setWasFirstMapper] = useState(false);
 
   // Fetch existing flavors at this location for dedup
   const { data: existingFlavors = [] } = useQuery({
@@ -129,6 +131,7 @@ export function ScanMenuSheet({
       setAddedFlavorIds(new Set());
       setTotalAdded(0);
       setPhotosScanned(0);
+      setWasFirstMapper(false);
     }
   }, [open]);
 
@@ -240,6 +243,9 @@ export function ScanMenuSheet({
     onSuccess: (newCount) => {
       setTotalAdded((prev) => prev + newCount);
       setPhotosScanned((prev) => prev + 1);
+      if (existingFlavors.length === 0 && newCount > 0) {
+        setWasFirstMapper(true);
+      }
 
       // Track newly added flavor IDs for dedup in subsequent scans
       setAddedFlavorIds((prev) => {
@@ -718,16 +724,27 @@ export function ScanMenuSheet({
           {/* Step: Done */}
           {step === "done" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex items-center justify-center size-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                <CheckCircle2 className="size-8 text-emerald-500" />
+              <div className="relative">
+                <div className="flex items-center justify-center size-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 animate-in zoom-in-50 duration-300">
+                  <CheckCircle2 className="size-8 text-emerald-500" />
+                </div>
+                {wasFirstMapper && (
+                  <span className="absolute -top-1 -right-2 text-xl animate-in zoom-in-0 duration-500 delay-150">
+                    🏆
+                  </span>
+                )}
               </div>
               <div className="text-center">
                 <p className="font-bold text-[#2E1F1B] dark:text-[#F5E6DC]">
-                  Menu updated!
+                  {wasFirstMapper
+                    ? `You're the first to map ${locationName}! 🎉`
+                    : "Menu updated!"}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
                   {totalAdded} new flavor{totalAdded !== 1 ? "s" : ""} added
                   from {photosScanned} photo{photosScanned !== 1 ? "s" : ""}
+                  {wasFirstMapper &&
+                    " — every flavor hunter who finds this shop has you to thank."}
                 </p>
               </div>
 

@@ -43,6 +43,10 @@ Coverage exists (~1,371 tri-state locations). The gap is **flavor density** and
 7. 🔨 Seed availability from shops' own published menus — Morgenstern's done
    (34 flavors via their website). Repeat for Van Leeuwen/Jeni's/Salt & Straw
    storefronts etc. 77 availability records and counting.
+   **Upgrade (Mat's idea): mine public ONLINE-ORDERING menus** — Square
+   Online / Toast / Clover pages list shops' actual sellable flavors and are
+   maintained by necessity (wrong menu = wrong orders). Far more shops have
+   an ordering page than a nice website. AI-classify items → flavors.
 8. ✅ Deploy to Vercel (scooped-six.vercel.app) + production redirect URL in Supabase
 8b. ⬜ **Zombie sweep**: re-check all locations against Google Places
    `business_status` to auto-flag permanently closed shops (Big Gay,
@@ -112,6 +116,11 @@ our supermarket dormancy doctrine, validated).
 The business portal **already exists** (`/claim`, `/dashboard`, `/flavors`,
 admin approval). What's missing is a reason for shops to touch it daily.
 
+0. ⬜ **"Connect your Square" POS sync (Mat's idea — the killer pitch):**
+   one-click OAuth → the shop's flavor board syncs itself from their POS
+   catalog forever. No daily button, nothing to remember — stronger than
+   anything Untappd offers, and strategically sweet (Square/Toast are
+   natural acquirers of apps built on their rails). Toast/Clover follow.
 1. ⬜ **10-second daily update**: two buttons on the business dashboard —
    📸 "Scan today's board" (reuse scan flow, owner-trusted, auto-approve) and
    ✓ "Same as yesterday" (wraps existing `confirmAllFlavors`)

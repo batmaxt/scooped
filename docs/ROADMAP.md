@@ -27,8 +27,8 @@ Coverage exists (~1,371 tri-state locations). The gap is **flavor density** and
    location page CTA hierarchy, catalog filters (Non-Dairy toggle + formats)
 4. 🔨 Freshness visuals — "Still there ✓" one-tap confirms SHIPPED; still to
    do: age-tinted chips + "Gone ✗" (needs a mark-unavailable RPC)
-5. ⬜ **Scan gratification loop** — post-scan celebration, "first to map this
-   menu," scoops-mapped counter on profile
+5. 🔨 Scan gratification — first-to-map 🏆 celebration SHIPPED; still to
+   do: scoops-mapped counter on profile
 6. ✅ **Unified Discover** — one omnibox (flavor/shop/address), flavor mode
    with freshness results + catalog fallback, full-screen searchable map,
    ?q= deep links. Search tab replaced by Flavors (catalog) in nav.
@@ -43,12 +43,12 @@ Coverage exists (~1,371 tri-state locations). The gap is **flavor density** and
 10. ✅ Catalog audit: 787 → 669 clean flavors, dupes merged, products killed,
     Morgenstern's added. Alerts are flavor-only and NAME-agnostic (migration
     00016): an alert on "Lemon Custard" fires for any brand at any shop.
-11. ⬜ **Post-check-in prompt**: after posting with a flavor, offer one-tap
-    "add it to this shop's flavor board" (feeds availability)
-12. ⬜ **Home enrichment**: "Freshly confirmed near you" shelf (availability-
-    backed) — home feels empty since retail sections were removed
-13. ⬜ **Map watermark**: Mat must link billing to the Google Cloud project
-    that owns the Maps key (watermark = billing on wrong project)
+11. ✅ Post-check-in prompt: one-tap "yes, it's on the menu" after posting
+12. ✅ Home "Freshly confirmed" shelf — live availability with timestamps
+13. ✅ Map fixed — root cause was MISSING Maps env vars on Vercel, not
+    billing. Still owed on Vercel env: GOOGLE_PLACES_API_KEY and
+    ANTHROPIC_API_KEY (menu scan is dead on the live site until added),
+    delete stale NEXT_PUBLIC_MAPBOX_TOKEN, check misnamed VAPID private key.
 
 ### Kill list (deliberately NOT building)
 Stories/reels, DMs, more badge types, AI recommendations (needs data first),

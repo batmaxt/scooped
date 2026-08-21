@@ -31,6 +31,7 @@ import {
 } from "@/queries/checkins";
 import { fetchAllLocations } from "@/queries/locations";
 import { dedupeFlavorsByName, flavorNameKey } from "@/lib/flavor-utils";
+import { reportSighting } from "@/queries/sightings";
 import { checkAndAwardBadges } from "@/queries/badges";
 import { uploadCheckinPhoto } from "@/queries/checkinPhotos";
 import { ModerationError } from "@/lib/moderation/nsfwCheck";
@@ -947,15 +948,46 @@ function StepReview({
 // Success State
 // ---------------------------------------------------------------------------
 
-function SuccessState({ locationSlug }: { locationSlug: string }) {
+function SuccessState({
+  locationSlug,
+  locationId,
+  locationName,
+  flavor,
+  userId,
+}: {
+  locationSlug: string;
+  locationId: string;
+  locationName: string;
+  flavor: { id: string; name: string } | null;
+  userId: string | null;
+}) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  // "idle" shows the prompt (when a flavor was picked); after answering or
+  // when no flavor, we count down to redirect.
+  const [boardState, setBoardState] = useState<"idle" | "added" | "skipped">(
+    flavor ? "idle" : "skipped"
+  );
 
   useEffect(() => {
+    if (boardState === "idle") return; // hold the redirect while asking
     const timer = setTimeout(() => {
       router.push(`/location/${locationSlug}`);
-    }, 2500);
+    }, boardState === "added" ? 1500 : 2500);
     return () => clearTimeout(timer);
-  }, [router, locationSlug]);
+  }, [router, locationSlug, boardState]);
+
+  const addToBoard = async () => {
+    try {
+      await reportSighting(locationId, flavor!.id, null, userId);
+      queryClient.invalidateQueries({
+        queryKey: ["location-flavors", locationId],
+      });
+      setBoardState("added");
+    } catch {
+      setBoardState("skipped");
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] p-6 text-center animate-in fade-in zoom-in-95 duration-500">
@@ -973,9 +1005,42 @@ function SuccessState({ locationSlug }: { locationSlug: string }) {
         Your check-in has been posted. Nice taste!
       </p>
 
-      <p className="text-xs text-neutral-400 mt-6">
-        Redirecting to the location page...
-      </p>
+      {/* Feed the flavor board */}
+      {boardState === "idle" && flavor && (
+        <div className="mt-8 w-full max-w-sm bg-white dark:bg-card rounded-2xl border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 p-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC]">
+            Is {flavor.name} on the menu at {locationName} right now?
+          </p>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">
+            You&apos;ll put it on the map for everyone hunting it.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="brand" className="flex-1 gap-1.5" onClick={addToBoard}>
+              <Check className="size-4" />
+              Yes, it&apos;s there
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setBoardState("skipped")}
+            >
+              Skip
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {boardState === "added" && (
+        <p className="mt-6 text-sm font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in duration-300">
+          On the board! Flavor hunters thank you 🍦
+        </p>
+      )}
+
+      {boardState !== "idle" && (
+        <p className="text-xs text-neutral-400 mt-6">
+          Redirecting to the location page...
+        </p>
+      )}
     </div>
   );
 }
@@ -1124,7 +1189,17 @@ function NewCheckinPageInner() {
   if (posted && selectedLocation) {
     return (
       <div className="min-h-dvh bg-background">
-        <SuccessState locationSlug={selectedLocation.slug} />
+        <SuccessState
+          locationSlug={selectedLocation.slug}
+          locationId={selectedLocation.id}
+          locationName={selectedLocation.name}
+          flavor={
+            selectedFlavor?.id
+              ? { id: selectedFlavor.id, name: selectedFlavor.name }
+              : null
+          }
+          userId={user?.id || null}
+        />
         {newBadgeIds.length > 0 && (
           <BadgeCelebration
             badgeIds={newBadgeIds}

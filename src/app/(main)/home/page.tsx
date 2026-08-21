@@ -28,7 +28,7 @@ import { useLocation } from "@/hooks/useLocation";
 import { fetchFeed, searchUsers } from "@/queries/social";
 import { fetchLikedCheckinIds } from "@/queries/interactions";
 import { fetchUnreadCount } from "@/queries/notifications";
-import { fetchNearbyLocations, fetchFeaturedLocation } from "@/queries/locations";
+import { fetchNearbyLocations, fetchFeaturedLocation, fetchRecentConfirmations } from "@/queries/locations";
 import { fetchTrendingFlavors } from "@/queries/checkins";
 import type { FeedItem, Profile, Location, Flavor } from "@/types/models";
 
@@ -39,6 +39,14 @@ const DEFAULT_LNG = -73.985;
 function formatDistance(meters: number): string {
   const miles = meters / 1609.34;
   return miles < 0.1 ? "Nearby" : `${miles.toFixed(1)} mi`;
+}
+
+function confirmedAgo(dateString: string): string {
+  const hours = Math.floor((Date.now() - new Date(dateString).getTime()) / 3.6e6);
+  if (hours < 1) return "just now";
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? "yesterday" : `${days}d ago`;
 }
 
 import { flavorColor, flavorEmoji } from "@/lib/flavor-utils";
@@ -282,6 +290,12 @@ export default function HomePage() {
     staleTime: 30 * 60 * 1000,
   });
 
+  const { data: recentConfirmations = [] } = useQuery({
+    queryKey: ["recentConfirmations"],
+    queryFn: () => fetchRecentConfirmations(8),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const { data: trendingFlavors = [] } = useQuery({
     queryKey: ["trendingFlavors"],
     queryFn: () => fetchTrendingFlavors(10),
@@ -444,6 +458,46 @@ export default function HomePage() {
             {trendingFlavors.map((flavor) => (
               <Link key={flavor.id} href={`/flavor/${flavor.slug}`}>
                 <FlavorCard flavor={flavor} />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Freshly confirmed — live availability, the heartbeat of the app */}
+      {recentConfirmations.length > 0 && (
+        <div className="pb-5 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+          <div className="flex items-center justify-between px-5 mb-3">
+            <h2 className="text-lg font-bold font-heading text-[#2E1F1B] dark:text-[#F5E6DC]">
+              Freshly confirmed
+            </h2>
+            <Link href="/discover" className="text-xs font-semibold text-[#F46B8F]">
+              Find more
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto px-5 pb-1 scrollbar-hide">
+            {recentConfirmations.map((rc) => (
+              <Link key={rc.id} href={`/location/${rc.location!.slug}`}>
+                <div className="shrink-0 w-[200px] bg-white dark:bg-card rounded-2xl p-4 border border-[rgba(93,64,55,0.12)]/60 dark:border-white/5 press-card">
+                  <div className="flex items-center gap-2.5 mb-2.5">
+                    <div
+                      className="flex items-center justify-center size-9 rounded-full text-lg shrink-0"
+                      style={{ backgroundColor: flavorColor(rc.flavor!.name) }}
+                      aria-hidden
+                    >
+                      {flavorEmoji(rc.flavor!.name)}
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-full px-2 py-0.5">
+                      {confirmedAgo(rc.last_confirmed_at)}
+                    </span>
+                  </div>
+                  <p className="font-bold text-sm text-[#2E1F1B] dark:text-[#F5E6DC] leading-snug line-clamp-1">
+                    {rc.flavor!.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {rc.location!.name}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>

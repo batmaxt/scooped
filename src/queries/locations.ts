@@ -197,3 +197,46 @@ export async function fetchLocationCheckins(locationId: string, limit: number = 
 
   return data || [];
 }
+
+// ---------------------------------------------------------------------------
+// Recent availability confirmations (for the home "Freshly confirmed" shelf)
+// ---------------------------------------------------------------------------
+
+export interface RecentConfirmation {
+  id: string;
+  last_confirmed_at: string;
+  flavor: { id: string; name: string; slug: string } | null;
+  location: { id: string; name: string; slug: string; city: string } | null;
+}
+
+export async function fetchRecentConfirmations(
+  limit: number = 8
+): Promise<RecentConfirmation[]> {
+  const { data, error } = await supabase
+    .from("availability")
+    .select(
+      `id, last_confirmed_at,
+       flavor:flavors(id, name, slug),
+       location:locations(id, name, slug, city)`
+    )
+    .eq("is_available", true)
+    .order("last_confirmed_at", { ascending: false })
+    .limit(limit * 2);
+
+  if (error) {
+    console.error("Error fetching recent confirmations:", error.message);
+    return [];
+  }
+
+  // One entry per location so a single shop's big menu doesn't flood the shelf
+  const seen = new Set<string>();
+  const rows: RecentConfirmation[] = [];
+  for (const r of (data || []) as unknown as RecentConfirmation[]) {
+    if (!r.flavor || !r.location) continue;
+    if (seen.has(r.location.id)) continue;
+    seen.add(r.location.id);
+    rows.push(r);
+    if (rows.length >= limit) break;
+  }
+  return rows;
+}

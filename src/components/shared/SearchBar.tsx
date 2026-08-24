@@ -199,9 +199,6 @@ export function SearchBar({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{flavor.name}</p>
-                    <p className="text-xs text-neutral-500">
-                      Find shops scooping it
-                    </p>
                   </div>
                 </button>
               ))}

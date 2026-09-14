@@ -1,0 +1,376 @@
+<title>The Ice Cream App Graveyard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,900&family=Archivo:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #FFF7ED;
+    --card: #FFFFFF;
+    --card-soft: #FFF3EE;
+    --ink: #2E1F1B;
+    --ink-soft: #6E5A50;
+    --line: rgba(93, 64, 55, 0.14);
+    --accent: #C4364A;
+    --accent-soft: #F46B8F;
+    --teal: #4A9B84;
+    --amber: #B0742A;
+    --dead: #8C6F66;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "Archivo", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #201613;
+      --card: #2B1F1A;
+      --card-soft: #332520;
+      --ink: #F5E6DC;
+      --ink-soft: #C4AB9E;
+      --line: rgba(245, 230, 220, 0.14);
+      --accent: #F46B8F;
+      --accent-soft: #C4364A;
+      --teal: #7CC9B4;
+      --amber: #F2B45A;
+      --dead: #A8897E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #201613;
+    --card: #2B1F1A;
+    --card-soft: #332520;
+    --ink: #F5E6DC;
+    --ink-soft: #C4AB9E;
+    --line: rgba(245, 230, 220, 0.14);
+    --accent: #F46B8F;
+    --accent-soft: #C4364A;
+    --teal: #7CC9B4;
+    --amber: #F2B45A;
+    --dead: #A8897E;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.65;
+    padding-inline: 20px;
+    padding-block: 0 80px;
+  }
+  .wrap { max-width: 740px; margin: 0 auto; }
+
+  /* ---------- hero ---------- */
+  header { padding-block: 72px 20px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(40px, 7vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: 19px; line-height: 1.55; color: var(--ink-soft);
+    max-width: 60ch; margin: 0 0 10px;
+  }
+  .lede strong { color: var(--ink); }
+  .byline { font-size: 13px; color: var(--dead); margin-top: 18px; }
+
+  /* ---------- section headers ---------- */
+  h2 {
+    font-family: var(--display);
+    font-weight: 650;
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 64px 0 8px;
+    text-wrap: balance;
+  }
+  .section-note { color: var(--ink-soft); margin: 0 0 26px; max-width: 62ch; }
+
+  /* ---------- graveyard cards ---------- */
+  .grave {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px 20px;
+    margin-bottom: 16px;
+  }
+  .grave-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 6px;
+  }
+  .grave-name {
+    font-family: var(--display); font-weight: 650; font-size: 21px;
+  }
+  .grave-dates {
+    font-size: 12px; color: var(--dead); letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .cause {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 3px 10px;
+    margin: 4px 0 10px;
+  }
+  .grave p { margin: 0 0 10px; color: var(--ink-soft); }
+  .grave p:last-child { margin-bottom: 0; }
+  .lesson { color: var(--ink); }
+  .lesson b { color: var(--teal); font-weight: 700; }
+
+  /* ---------- living comps ---------- */
+  .comp {
+    border-top: 1px solid var(--line);
+    padding-block: 22px;
+  }
+  .comp:last-of-type { border-bottom: 1px solid var(--line); }
+  .comp-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .comp-name { font-family: var(--display); font-weight: 650; font-size: 20px; }
+  .comp-domain { font-size: 12px; color: var(--dead); letter-spacing: 0.05em; text-transform: uppercase; }
+  .comp p { margin: 0 0 8px; color: var(--ink-soft); }
+  .take { color: var(--ink); }
+  .take b.keep { color: var(--teal); }
+  .take b.refuse { color: var(--accent); }
+
+  /* ---------- doctrine list ---------- */
+  ol.doctrine { list-style: none; counter-reset: rule; margin: 0; padding: 0; }
+  ol.doctrine li {
+    counter-increment: rule;
+    display: grid; grid-template-columns: 44px 1fr; gap: 14px;
+    padding-block: 16px;
+    border-top: 1px solid var(--line);
+  }
+  ol.doctrine li:last-child { border-bottom: 1px solid var(--line); }
+  ol.doctrine li::before {
+    content: counter(rule, decimal-leading-zero);
+    font-family: var(--display); font-weight: 900; font-size: 22px;
+    color: var(--accent-soft); line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+  }
+  ol.doctrine b { display: block; margin-bottom: 2px; }
+  ol.doctrine span { color: var(--ink-soft); }
+
+  /* ---------- season chart ---------- */
+  .season {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 26px;
+  }
+  .season h3 {
+    font-family: var(--display); font-weight: 650; font-size: 18px; margin: 0 0 4px;
+  }
+  .season .sub { font-size: 13px; color: var(--ink-soft); margin: 0 0 18px; }
+  .season svg { width: 100%; height: auto; display: block; }
+
+  /* ---------- moat ---------- */
+  .moat {
+    background: var(--card-soft);
+    border-radius: 14px;
+    padding: 30px 28px;
+    margin-top: 64px;
+  }
+  .moat p {
+    font-family: var(--display); font-weight: 500;
+    font-size: 22px; line-height: 1.45; margin: 0;
+    text-wrap: balance;
+  }
+  .moat p b { font-weight: 900; color: var(--accent); }
+  footer {
+    margin-top: 40px; font-size: 13px; color: var(--dead); line-height: 1.7;
+  }
+
+  @media (max-width: 480px) {
+    header { padding-block: 48px 12px; }
+    .grave { padding: 18px 18px 16px; }
+    ol.doctrine li { grid-template-columns: 36px 1fr; gap: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Scooped · Competitive Case Study</p>
+    <h1>The Ice Cream App Graveyard</h1>
+    <p class="lede">Two apps already tried to be "the app for ice cream." Both are dead.
+    Several adjacent apps — beer, wine, restaurant dishes, tinned fish — are alive and thriving.
+    <strong>The difference between the two groups is a short list of specific mistakes, and
+    Scooped is designed around every one of them.</strong></p>
+    <p class="byline">Research conducted August 2026 · Untappd, Vivino, Beli, Letterboxd, Tinwise, and the autopsies of Dipt &amp; Dippd</p>
+  </header>
+
+  <h2>🪦 The graveyard</h2>
+  <p class="section-note">Every one of these had users, press, and a plausible pitch. Cause of death, in each case, was structural — not bad luck.</p>
+
+  <div class="grave">
+    <div class="grave-head">
+      <span class="grave-name">Dipt</span>
+      <span class="grave-dates">ICE CREAM · DEFUNCT</span>
+    </div>
+    <span class="cause">Cause of death: paywalled supply + orphaned flavors</span>
+    <p>The closest thing Scooped has to a direct predecessor. Dipt asked shops to pay
+    before the app had an audience — so shops didn't join, so the app had no inventory,
+    so users had no reason to open it. Its flavor data, where it existed, wasn't connected
+    to live shop menus: flavors floated free of the one question that matters
+    (<em>can I get this near me right now?</em>). It also launched off-season and
+    never caught a summer wave.</p>
+    <p class="lesson"><b>Scooped's answer:</b> menu upkeep is free for shops forever — fresh data
+    can never sit behind a wallet. Every flavor in the catalog exists as availability
+    <em>at a shop, with a freshness state</em>. And we launch on opening day.</p>
+  </div>
+
+  <div class="grave">
+    <div class="grave-head">
+      <span class="grave-name">Dippd</span>
+      <span class="grave-dates">ICE CREAM · DEFUNCT</span>
+    </div>
+    <span class="cause">Cause of death: off-season launch, no data flywheel</span>
+    <p>Same category, same fate. Launched when nobody was eating ice cream, burned its
+    novelty press cycle into an empty winter, and had no mechanism for users to generate
+    the data the app needed to be useful.</p>
+    <p class="lesson"><b>Scooped's answer:</b> the April/May 2027 launch date isn't a guess — it's
+    this autopsy. Build and seed all winter, go public riding the reopening wave, with
+    "opening day" alerts as the launch feature.</p>
+  </div>
+
+  <div class="grave">
+    <div class="grave-head">
+      <span class="grave-name">Delectable</span>
+      <span class="grave-dates">WINE · FADED</span>
+    </div>
+    <span class="cause">Cause of death: scan match-rate rot</span>
+    <p>A wine-scanning darling that decayed when its label-recognition stopped keeping up.
+    The moment scans stopped matching, contribution stopped, and the database froze in time.</p>
+    <p class="lesson"><b>Scooped's answer:</b> match rate <em>is</em> the product. Menu scans that
+    fail still grow the catalog, and the scanner tells the user so — every failed scan
+    makes the next one work.</p>
+  </div>
+
+  <div class="grave">
+    <div class="grave-head">
+      <span class="grave-name">Foodspotting &amp; Forkly</span>
+      <span class="grave-dates">DISHES · ACQUIRED / SHUT</span>
+    </div>
+    <span class="cause">Cause of death: undifferentiated from Instagram &amp; Yelp</span>
+    <p>Photo-first dish apps with nothing a general platform couldn't copy. When Instagram
+    became the default place to post food, there was no reason left to open them.</p>
+    <p class="lesson"><b>Scooped's answer:</b> the moat is <b>live board freshness</b> — knowing
+    what's in the case <em>today</em>. Instagram and Yelp structurally cannot do this;
+    it requires a purpose-built contribution loop.</p>
+  </div>
+
+  <h2>🍺 The living</h2>
+  <p class="section-note">The apps that work all found a durable loop. We studied each one for what to take — and what to refuse.</p>
+
+  <div class="comp">
+    <div class="comp-head"><span class="comp-name">Untappd</span><span class="comp-domain">Beer · 4.9★</span></div>
+    <p>The category king, and still its #1 complaint is <em>stale venue menus</em> — staleness
+    Untappd hides behind an invisible 15-day expiry. It charges venues $899+/yr and eats the
+    stale-data complaints that pricing produces. Its bell-on-beer alerts and skip-signup
+    browsing are proven retention machinery.</p>
+    <p class="take"><b class="keep">Take:</b> alerts as the retention engine; registration-free browsing; freshness as the visible, named centerpiece Untappd never built.
+    <b class="refuse">Refuse:</b> charging shops for data upkeep; hiding staleness from users.</p>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head"><span class="comp-name">Vivino</span><span class="comp-domain">Wine</span></div>
+    <p>The scan flywheel done right: a failed scan isn't an error, it's a contribution — and the
+    app says so, promising every future scan of that label will work instantly.</p>
+    <p class="take"><b class="keep">Take:</b> celebrate every scan as a contribution (Scooped's "You're the first to map this shop 🏆" moment).</p>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head"><span class="comp-name">Beli</span><span class="comp-domain">Restaurants</span></div>
+    <p>Its head-to-head ranking mechanic is beloved; its invite-wall is its most-hated pattern
+    and a growth ceiling it built for itself.</p>
+    <p class="take"><b class="keep">Take:</b> head-to-head duels — but same-flavor-across-shops ("Mint Chip at Coyle's vs. Van Leeuwen"), an apples-to-apples matchup Beli structurally can't offer.
+    <b class="refuse">Refuse:</b> gating anything behind invites, ever.</p>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head"><span class="comp-name">Letterboxd</span><span class="comp-domain">Film</span></div>
+    <p>Proof that a logging app thrives on solo joy: lists, stats, a year-in-review — pride in
+    small numbers, no friend graph required.</p>
+    <p class="take"><b class="keep">Take:</b> design for the solo collector first. Social proof comes from geography (city leaderboards, rating histograms), not follower counts.</p>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head"><span class="comp-name">Tinwise</span><span class="comp-domain">Tinned fish</span></div>
+    <p>A tiny-niche logging app that punches above its weight on pure charm — naming, voice,
+    and delight standing in for scale.</p>
+    <p class="take"><b class="keep">Take:</b> charm is strategy while small. Name everything (Taste Passport, Scout bounties, the weird menu's "maybe not that weird"). Utilitarian voice is for 74-million-user apps.</p>
+  </div>
+
+  <h2>The nine rulings</h2>
+  <p class="section-note">What the study settled — adopted as product doctrine in August 2026. Numbered because they were decided in this order, and several are already shipped.</p>
+
+  <ol class="doctrine">
+    <li><div><b>Freshness is the wedge.</b><span>A visible three-state ladder — Confirmed today / This week / Needs a scout — never raw timestamps. Stale shops become scout bounties: data decay is an engagement loop, not a bug.</span></div></li>
+    <li><div><b>Alerts are the retention engine.</b><span>Name-agnostic by design: an alert on "lemon custard" fires for any shop, any brand — including one you've never heard of. That surprise is the product's novelty.</span></div></li>
+    <li><div><b>Minute one builds taste identity, never a network.</b><span>Four-favorites onboarding (shipped, weird mode included). No invite gates, ever. Earned unlocks are fine.</span></div></li>
+    <li><div><b>Every scan is a contribution — say so.</b><span>Failed scans grow the catalog; the first person to map a shop gets celebrated by name.</span></div></li>
+    <li><div><b>Design for the solo collector.</b><span>Lists, streaks, stats, a shareable Summer in Review. Small numbers as pride.</span></div></li>
+    <li><div><b>Flavor duels are the signature mechanic.</b><span>Same flavor, two shops, pick a winner (shipped). Structurally impossible for every competitor studied.</span></div></li>
+    <li><div><b>Never charge for inputs.</b><span>Menu upkeep is free for shops forever. Charge for analytics, promotion, and signage extras — outputs, not inputs.</span></div></li>
+    <li><div><b>Registration-free browsing.</b><span>Anyone can see what's scooping nearby and set one alert before signing up. Only check-ins are gated.</span></div></li>
+    <li><div><b>Charm is strategy while small.</b><span>Every feature gets a name and a voice. Personality is a moat clones can't copy from a feature list.</span></div></li>
+  </ol>
+
+  <h2>Why the launch date is the strategy</h2>
+  <p class="section-note">Both dead ice cream apps launched into winter. Demand in this category isn't a curve you can push against — it's a wave you catch or miss.</p>
+
+  <div class="season">
+    <h3>The season wave, and who launched where</h3>
+    <p class="sub">Stylized U.S. ice-cream demand by month · ✕ = dead competitors' off-season launches · ● = Scooped, opening day 2027</p>
+    <svg viewBox="0 0 680 240" role="img" aria-label="Seasonal demand curve peaking in July; dead competitors launched near the winter trough; Scooped launches at the April–May upswing">
+      <!-- grid baseline -->
+      <line x1="40" y1="190" x2="650" y2="190" stroke="var(--line)" stroke-width="1"/>
+      <!-- demand curve: trough Jan, peak Jul, back down Dec -->
+      <path d="M 40 175 C 90 178, 120 168, 160 150 C 210 126, 240 92, 295 62 C 330 45, 360 40, 390 46 C 440 58, 480 100, 530 140 C 570 165, 610 174, 650 178"
+            fill="none" stroke="var(--accent-soft)" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- month labels -->
+      <g font-family="Archivo, sans-serif" font-size="11" fill="var(--ink-soft)">
+        <text x="40" y="212" text-anchor="middle">Jan</text>
+        <text x="142" y="212" text-anchor="middle">Mar</text>
+        <text x="244" y="212" text-anchor="middle">May</text>
+        <text x="346" y="212" text-anchor="middle">Jul</text>
+        <text x="448" y="212" text-anchor="middle">Sep</text>
+        <text x="550" y="212" text-anchor="middle">Nov</text>
+        <text x="650" y="212" text-anchor="middle">Dec</text>
+      </g>
+      <!-- dead launches: off-season -->
+      <g font-family="Archivo, sans-serif" font-size="16" font-weight="700" fill="var(--dead)">
+        <text x="88" y="176" text-anchor="middle">✕</text>
+        <text x="560" y="172" text-anchor="middle">✕</text>
+      </g>
+      <g font-family="Archivo, sans-serif" font-size="11" fill="var(--dead)">
+        <text x="88" y="158" text-anchor="middle">Dipt</text>
+        <text x="560" y="154" text-anchor="middle">Dippd</text>
+      </g>
+      <!-- scooped launch: on the upswing -->
+      <circle cx="244" cy="105" r="7" fill="var(--teal)"/>
+      <g font-family="Archivo, sans-serif" font-size="12" font-weight="700" fill="var(--teal)">
+        <text x="244" y="86" text-anchor="middle">Scooped · Apr/May 2027</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="moat">
+    <p>The moat isn't ice cream. It's knowing <b>what's in the case today</b> — a purpose-built
+    freshness loop that generic platforms structurally cannot copy, launched at the exact
+    moment the whole market walks back through the shop door.</p>
+  </div>
+
+  <footer>
+    Prepared for the Scooped team · Full research notes live in docs/ROADMAP.md ·
+    Coverage today: ~470 scoop shops across Long Island &amp; NYC, ~3,500 seeded
+    flavor-availability records from shops' own menus.
+  </footer>
+</div>

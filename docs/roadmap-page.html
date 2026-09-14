@@ -1,0 +1,274 @@
+<title>Road to Opening Day</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,900&family=Archivo:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #FFF7ED;
+    --card: #FFFFFF;
+    --card-soft: #FFF3EE;
+    --ink: #2E1F1B;
+    --ink-soft: #6E5A50;
+    --line: rgba(93, 64, 55, 0.14);
+    --accent: #C4364A;
+    --accent-soft: #F46B8F;
+    --teal: #4A9B84;
+    --amber: #B0742A;
+    --dead: #8C6F66;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "Archivo", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #201613; --card: #2B1F1A; --card-soft: #332520;
+      --ink: #F5E6DC; --ink-soft: #C4AB9E; --line: rgba(245,230,220,0.14);
+      --accent: #F46B8F; --accent-soft: #C4364A;
+      --teal: #7CC9B4; --amber: #F2B45A; --dead: #A8897E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #201613; --card: #2B1F1A; --card-soft: #332520;
+    --ink: #F5E6DC; --ink-soft: #C4AB9E; --line: rgba(245,230,220,0.14);
+    --accent: #F46B8F; --accent-soft: #C4364A;
+    --teal: #7CC9B4; --amber: #F2B45A; --dead: #A8897E;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--body); font-size: 16px; line-height: 1.65;
+    padding-inline: 20px; padding-block: 0 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header { padding-block: 72px 8px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 900;
+    font-size: clamp(40px, 7vw, 62px); line-height: 1.02; margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .lede { font-size: 19px; line-height: 1.55; color: var(--ink-soft); max-width: 62ch; margin: 0; }
+  .lede strong { color: var(--ink); }
+
+  /* runway strip */
+  .runway {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    margin-block: 34px 8px;
+  }
+  .leg {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 14px 12px;
+  }
+  .leg.now { border-color: var(--accent); border-width: 2px; }
+  .leg .when {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+  }
+  .leg .what { font-family: var(--display); font-weight: 650; font-size: 16px; line-height: 1.25; }
+  .leg .how { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
+  .wildcard {
+    font-size: 13px; color: var(--ink-soft); margin: 10px 0 0;
+  }
+  .wildcard b { color: var(--amber); }
+
+  h2 {
+    font-family: var(--display); font-weight: 650; font-size: 28px;
+    line-height: 1.15; margin: 60px 0 6px; text-wrap: balance;
+  }
+  .phase-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--dead); display: block; margin-bottom: 4px;
+  }
+  .section-note { color: var(--ink-soft); margin: 0 0 22px; max-width: 64ch; }
+
+  ul.plan { list-style: none; margin: 0; padding: 0; }
+  ul.plan li {
+    display: grid; grid-template-columns: 92px 1fr; gap: 14px;
+    padding-block: 13px; border-top: 1px solid var(--line);
+    align-items: start;
+  }
+  ul.plan li:last-child { border-bottom: 1px solid var(--line); }
+  .chip {
+    justify-self: start; margin-top: 2px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; border-radius: 999px; padding: 3px 9px;
+    white-space: nowrap;
+  }
+  .chip.done { color: var(--teal); border: 1px solid currentColor; }
+  .chip.doing { color: var(--amber); border: 1px solid currentColor; }
+  .chip.next { color: var(--dead); border: 1px dashed currentColor; }
+  ul.plan b { display: block; }
+  ul.plan span { color: var(--ink-soft); font-size: 14.5px; }
+
+  .kill {
+    background: var(--card-soft); border-radius: 12px; padding: 16px 20px;
+    margin-top: 20px; font-size: 14.5px; color: var(--ink-soft);
+  }
+  .kill b { color: var(--accent); }
+
+  .pitch {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px 24px; margin-block: 22px;
+  }
+  .pitch h3 { font-family: var(--display); font-weight: 650; font-size: 19px; margin: 0 0 8px; }
+  .pitch p { margin: 0; color: var(--ink-soft); }
+  .pitch p b { color: var(--ink); }
+
+  .money { margin-top: 18px; }
+  .money-row {
+    display: grid; grid-template-columns: 110px 1fr; gap: 14px;
+    padding-block: 10px; border-top: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .money-row:last-child { border-bottom: 1px solid var(--line); }
+  .money-row .k { font-weight: 700; }
+  .money-row .k.free { color: var(--teal); }
+  .money-row .k.paid { color: var(--amber); }
+  .money-row .v { color: var(--ink-soft); }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-top: 26px;
+  }
+  .stat {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 16px 14px; text-align: left;
+  }
+  .stat .n {
+    font-family: var(--display); font-weight: 900; font-size: 30px;
+    line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  .stat .l { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; line-height: 1.4; }
+
+  .moat {
+    background: var(--card-soft); border-radius: 14px; padding: 28px;
+    margin-top: 60px;
+  }
+  .moat p {
+    font-family: var(--display); font-weight: 500; font-size: 21px;
+    line-height: 1.45; margin: 0; text-wrap: balance;
+  }
+  .moat p b { font-weight: 900; color: var(--accent); }
+  footer { margin-top: 40px; font-size: 13px; color: var(--dead); line-height: 1.7; }
+
+  @media (max-width: 640px) {
+    .runway { grid-template-columns: 1fr 1fr; }
+    .stats { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 420px) {
+    header { padding-block: 48px 8px; }
+    ul.plan li { grid-template-columns: 1fr; gap: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Scooped · Plan of Record · September 2026</p>
+    <h1>Road to Opening Day</h1>
+    <p class="lede">Scooped is <strong>real-time flavor availability near you</strong>, wrapped in a
+    social app people enjoy using. Every check-in, scan, and sighting is a data point wearing a
+    fun costume. Any feature that produces neither delight in the first 30 seconds nor richer
+    availability data gets cut. <strong>Everything below serves one date: opening day of ice
+    cream season, April/May 2027.</strong></p>
+  </header>
+
+  <div class="runway">
+    <div class="leg now">
+      <div class="when">Now · Fall 2026</div>
+      <div class="what">Build to A+, fill the tank</div>
+      <div class="how">Polish the core loops, seed availability from shops' own menus, field-test weekly</div>
+    </div>
+    <div class="leg">
+      <div class="when">Winter 2026–27</div>
+      <div class="what">Private beta</div>
+      <div class="how">Friends + first shops while supply is quiet; shop conversations begin</div>
+    </div>
+    <div class="leg">
+      <div class="when">Apr/May 2027</div>
+      <div class="what">Public launch</div>
+      <div class="how">Ride the reopening wave; "opening day" alerts as the launch feature</div>
+    </div>
+    <div class="leg">
+      <div class="when">Beyond</div>
+      <div class="what">Shops → pints → metros</div>
+      <div class="how">Shop partner loop, freezer-aisle alerts, demand-driven expansion</div>
+    </div>
+  </div>
+  <p class="wildcard"><b>Wildcard (decide by ~November):</b> a soft launch in a warm-weather
+  boutique-ice-cream city — LA, Phoenix, Miami, or Austin — to field-test with real strangers
+  year-round while the tri-state sleeps. ~$50–200 of Places import per metro.</p>
+
+  <h2><span class="phase-tag">Phase 1 · Now</span>Stick the landing on scoop shops</h2>
+  <p class="section-note">Coverage exists. The gap is flavor density and polish — nobody trusts
+  an app full of "no flavors scooped yet." Most of this phase has shipped.</p>
+
+  <ul class="plan">
+    <li><span class="chip done">Shipped</span><div><b>The core experience</b><span>Unified Discover omnibox (flavor / shop / address), full-screen viewport-driven map, taste onboarding with the weird menu, flavor duels, post-check-in menu confirms, "freshly confirmed" shelf, scan celebration for first-mappers.</span></div></li>
+    <li><span class="chip done">Shipped</span><div><b>Territory &amp; data honesty</b><span>Focused to Long Island + NYC only — 470 verified scoop shops (no froyo, no ices, no impostors). Name-agnostic flavor alerts: "lemon custard" fires for any shop, any brand.</span></div></li>
+    <li><span class="chip done">Shipped</span><div><b>The tank, first fill</b><span>~3,500 availability records across ~240 shops, seeded from chain staples plus 51 independents' own published menus — marked "On the menu," upgraded to time-based freshness by user confirms.</span></div></li>
+    <li><span class="chip doing">In progress</span><div><b>Field testing</b><span>Mat on the sidewalk with the live app; bug-to-deployed-fix loop measured in minutes. Brandon joining.</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Freshness ladder</b><span>Visible three-state chips — Confirmed today / This week / Needs a scout — plus "Gone ✗" reporting. Stale shops become scout bounties.</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Zombie sweep</b><span>Re-check every location against Google Places business status; shops die between imports (three did this summer).</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Registration-free browsing</b><span>Anyone sees what's scooping nearby and sets one alert before signup; only check-ins gated.</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Ordering-menu mining</b><span>Square Online / Toast / Clover pages list shops' actual sellable flavors and are maintained by necessity. Far more shops have an ordering page than a nice website.</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Supabase Pro before real users</b><span>$25/mo ends the free-tier weekly nap.</span></div></li>
+  </ul>
+
+  <div class="kill"><b>Kill list (deliberately not building):</b> stories/reels, DMs, more badge
+  types, AI recommendations (needs data first), events/meetups. Scope discipline is doctrine —
+  the graveyard is full of apps that diluted.</div>
+
+  <h2><span class="phase-tag">Phase 2 · After density</span>The shop partner loop</h2>
+  <p class="section-note">The business portal already exists (claim flow, dashboard, flavor board,
+  admin approval). Phase 2 gives shops a reason to touch it daily — then makes it self-updating.</p>
+
+  <div class="pitch">
+    <h3>The killer pitch: "Connect your Square"</h3>
+    <p>One-click OAuth and the shop's flavor board <b>syncs itself from their point-of-sale
+    forever</b>. Nothing to remember, no daily button. Stronger than anything the incumbents
+    offer — and strategically sweet, since POS platforms are natural acquirers of apps built
+    on their rails. Toast and Clover follow.</p>
+  </div>
+
+  <ul class="plan">
+    <li><span class="chip next">Next</span><div><b>The 10-second daily update</b><span>Two buttons: 📸 "Scan today's board" (owner-trusted, auto-approved) and ✓ "Same as yesterday."</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Update = marketing blast</b><span>When a shop posts today's flavors, pushes fire to every user with a matching alert. The pitch: "Free customer notifications. You just tell us what's in the case."</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Verified fresh today</b><span>Badge on the location page; demand stats on the dashboard ("212 people are waiting on flavors you carry").</span></div></li>
+    <li><span class="chip next">Next</span><div><b>Menu-as-signage bundle</b><span>Printable QR table-tent + web embed — the retention hook that keeps shops updating.</span></div></li>
+  </ul>
+
+  <div class="money">
+    <div class="money-row"><span class="k free">Free forever</span><span class="v">Verification, menu upkeep, alerts, the daily update. Fresh data can never sit behind a shop's wallet — that pricing mistake killed a competitor and feeds the incumbent's #1 complaint.</span></div>
+    <div class="money-row"><span class="k paid">Charged</span><span class="v">Analytics and demand insights, promotions, signage extras. Outputs, never inputs.</span></div>
+  </div>
+
+  <h2><span class="phase-tag">Phase 3 · The same machine, pointed wider</span>Retail pints &amp; new metros</h2>
+  <ul class="plan">
+    <li><span class="chip next">Later</span><div><b>Freezer-aisle brand alerts</b><span>"Van Leeuwen Honeycomb spotted at Key Food on Deer Park Ave." The alerts system already supports this shape; supermarkets stay dormant until then, quietly accruing sightings at zero cost.</span></div></li>
+    <li><span class="chip next">Later</span><div><b>Demand-driven metros</b><span>"Add this shop" flow + per-metro chain backfill + Places discovery (~$50–200 per metro). New locations only where flavors can follow — coverage without availability is the graveyard's favorite mistake.</span></div></li>
+  </ul>
+
+  <h2>Where the tank stands today</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">470</div><div class="l">verified scoop shops, Long Island + NYC</div></div>
+    <div class="stat"><div class="n">~1,140</div><div class="l">flavors in the catalog, deduped &amp; cleaned</div></div>
+    <div class="stat"><div class="n">~3,500</div><div class="l">availability records across ~240 shops</div></div>
+    <div class="stat"><div class="n">51</div><div class="l">independents seeded from their own menus</div></div>
+    <div class="stat"><div class="n">15</div><div class="l">chains carrying their core staples</div></div>
+    <div class="stat"><div class="n">7 mo</div><div class="l">of runway until opening day 2027</div></div>
+  </div>
+
+  <div class="moat">
+    <p>Doctrine in one line: <b>scoop shops → density → habit</b> — then point the same
+    machine at the freezer aisle. The moat is live board freshness; the launch date is
+    the strategy; the data is the product.</p>
+  </div>
+
+  <footer>
+    Plan of record for the Scooped team · Source: docs/ROADMAP.md in the repo ·
+    Companion reading: <a href="https://claude.ai/artifact/Wi2WYeJe6V4VaG1J55Enpk" style="color: var(--accent);">The Ice Cream App Graveyard</a> (competitive case study)
+  </footer>
+</div>
